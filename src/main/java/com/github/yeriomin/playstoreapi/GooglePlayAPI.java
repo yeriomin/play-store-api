@@ -425,7 +425,7 @@ public class GooglePlayAPI {
      * Iterates through search result pages
      * Each next() call gets you a next page of search results for the provided query
      */
-    class SearchIterator implements Iterator<SearchResponse> {
+    public class SearchIterator implements Iterator<SearchResponse> {
 
         private boolean firstQuery = true;
         private String query;
