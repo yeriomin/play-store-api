@@ -435,6 +435,10 @@ public class GooglePlayAPI {
             this.query = query;
         }
 
+        public String getQuery() {
+            return query;
+        }
+
         @Override
         public boolean hasNext() {
             return this.firstQuery || (null != this.nextPageUrl && !this.nextPageUrl.isEmpty());
