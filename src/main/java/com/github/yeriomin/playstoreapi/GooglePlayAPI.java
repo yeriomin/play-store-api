@@ -428,7 +428,7 @@ public class GooglePlayAPI {
     public class SearchIterator implements Iterator<SearchResponse> {
 
         private boolean firstQuery = true;
-        private String query;
+        private final String query;
         private String nextPageUrl;
 
         SearchIterator(String query) {
