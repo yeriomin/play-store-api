@@ -52,7 +52,7 @@ public class GooglePlayAPI {
         }
     }
 
-    private ThrottledOkHttpClient client;
+    ThrottledOkHttpClient client;
     private Locale locale;
     private DeviceInfoProvider deviceInfoProvider;
 
@@ -74,7 +74,7 @@ public class GooglePlayAPI {
      */
     private String gsfId;
 
-    private ThrottledOkHttpClient getClient() {
+    ThrottledOkHttpClient getClient() {
         if (this.client == null) {
             this.client = new ThrottledOkHttpClient();
         }
@@ -265,8 +265,12 @@ public class GooglePlayAPI {
 
     public BrowseResponse browse(String categoryId, String subCategoryId) throws IOException {
         Map<String, String> params = getDefaultGetParams(null, null);
-        params.put("cat", categoryId);
-        params.put("ctr", subCategoryId);
+        if (null != categoryId && !categoryId.isEmpty()) {
+            params.put("cat", categoryId);
+        }
+        if (null != subCategoryId && !subCategoryId.isEmpty()) {
+            params.put("ctr", subCategoryId);
+        }
         byte[] responseBytes = getClient().get(BROWSE_URL, params, getDefaultHeaders());
         return ResponseWrapper.parseFrom(responseBytes).getPayload().getBrowseResponse();
     }

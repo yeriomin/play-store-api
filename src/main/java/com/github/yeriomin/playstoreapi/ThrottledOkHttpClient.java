@@ -20,11 +20,11 @@ import okhttp3.Response;
 
 class ThrottledOkHttpClient {
 
-    private static final long DEFAULT_REQUEST_INTERVAL = 2000;
+    static final long DEFAULT_REQUEST_INTERVAL = 2000;
 
-    private long lastRequestTime;
-    private long requestInterval = DEFAULT_REQUEST_INTERVAL;
-    private OkHttpClient client;
+    long lastRequestTime;
+    long requestInterval = DEFAULT_REQUEST_INTERVAL;
+    OkHttpClient client;
 
     public void setRequestInterval(long requestInterval) {
         this.requestInterval = requestInterval;
@@ -99,13 +99,13 @@ class ThrottledOkHttpClient {
         return post(url, requestBuilder, headers);
     }
 
-    private byte[] post(String url, Request.Builder requestBuilder, Map<String, String> headers) throws IOException {
+    byte[] post(String url, Request.Builder requestBuilder, Map<String, String> headers) throws IOException {
         requestBuilder.url(url);
 
         return request(requestBuilder, headers);
     }
 
-    private byte[] request(Request.Builder requestBuilder, Map<String, String> headers) throws IOException {
+    byte[] request(Request.Builder requestBuilder, Map<String, String> headers) throws IOException {
         if (this.lastRequestTime > 0) {
             long msecRemaining = this.requestInterval - System.currentTimeMillis() + this.lastRequestTime;
             if (msecRemaining > 0) {
@@ -128,7 +128,9 @@ class ThrottledOkHttpClient {
         byte[] content = response.body().bytes();
 
         if (code >= 400) {
-            throw new GooglePlayException(String.valueOf(code) + " Probably an auth error: " + new String(content), code);
+            GooglePlayException e = new GooglePlayException("Auth error (probably): " + code, code);
+            e.setBody(content);
+            throw e;
         }
 
         return content;

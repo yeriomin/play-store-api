@@ -18,6 +18,16 @@ public class GooglePlayException extends IOException {
 		super(message, cause);
 	}
 
+	private byte[] body;
+
+	public void setBody(byte[] body) {
+	    this.body = body;
+    }
+
+    public byte[] getBody() {
+	    return body;
+    }
+
     public int getCode() {
         return this.code;
     }
