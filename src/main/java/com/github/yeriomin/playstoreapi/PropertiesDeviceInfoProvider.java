@@ -1,6 +1,7 @@
 package com.github.yeriomin.playstoreapi;
 
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Properties;
 
 public class PropertiesDeviceInfoProvider implements DeviceInfoProvider {
@@ -44,14 +45,14 @@ public class PropertiesDeviceInfoProvider implements DeviceInfoProvider {
                             .setRadio(this.properties.getProperty("Build.RADIO"))
                             .setBootloader(this.properties.getProperty("Build.BOOTLOADER"))
                             .setDevice(this.properties.getProperty("Build.DEVICE"))
-                            .setSdkVersion(Integer.getInteger(this.properties.getProperty("Build.VERSION.SDK_INT")))
+                            .setSdkVersion(Integer.parseInt(this.properties.getProperty("Build.VERSION.SDK_INT")))
                             .setModel(this.properties.getProperty("Build.MODEL"))
                             .setManufacturer(this.properties.getProperty("Build.MANUFACTURER"))
                             .setBuildProduct(this.properties.getProperty("Build.PRODUCT"))
                             .setClient(this.properties.getProperty("Client"))
                             .setOtaInstalled(Boolean.getBoolean(this.properties.getProperty("OtaInstalled")))
                             .setTimestamp(System.currentTimeMillis() / 1000)
-                            .setGoogleServices(Integer.getInteger(this.properties.getProperty("GSF.version")))
+                            .setGoogleServices(Integer.parseInt(this.properties.getProperty("GSF.version")))
                     )
                     .setLastCheckinMsec(0)
                     .setCellOperator(this.properties.getProperty("CellOperator"))
@@ -69,21 +70,22 @@ public class PropertiesDeviceInfoProvider implements DeviceInfoProvider {
 
     public DeviceConfigurationProto getDeviceConfigurationProto() {
         return DeviceConfigurationProto.newBuilder()
-            .setTouchScreen(Integer.getInteger(this.properties.getProperty("TouchScreen")))
-            .setKeyboard(Integer.getInteger(this.properties.getProperty("Keyboard")))
-            .setNavigation(Integer.getInteger(this.properties.getProperty("Navigation")))
-            .setScreenLayout(Integer.getInteger(this.properties.getProperty("ScreenLayout")))
+            .setTouchScreen(Integer.parseInt(this.properties.getProperty("TouchScreen")))
+            .setKeyboard(Integer.parseInt(this.properties.getProperty("Keyboard")))
+            .setNavigation(Integer.parseInt(this.properties.getProperty("Navigation")))
+            .setScreenLayout(Integer.parseInt(this.properties.getProperty("ScreenLayout")))
             .setHasHardKeyboard(Boolean.getBoolean(this.properties.getProperty("HasHardKeyboard")))
             .setHasFiveWayNavigation(Boolean.getBoolean(this.properties.getProperty("HasFiveWayNavigation")))
-            .setScreenDensity(Integer.getInteger(this.properties.getProperty("Screen.Density")))
-            .setScreenWidth(Integer.getInteger(this.properties.getProperty("Screen.Width")))
-            .setScreenHeight(Integer.getInteger(this.properties.getProperty("Screen.Height")))
+            .setScreenDensity(Integer.parseInt(this.properties.getProperty("Screen.Density")))
+            .setScreenWidth(Integer.parseInt(this.properties.getProperty("Screen.Width")))
+            .setScreenHeight(Integer.parseInt(this.properties.getProperty("Screen.Height")))
             .addAllNativePlatform(Arrays.asList(this.properties.getProperty("Platforms").split(",")))
             .addAllSystemSharedLibrary(Arrays.asList(this.properties.getProperty("SharedLibraries").split(",")))
             .addAllSystemAvailableFeature(Arrays.asList(this.properties.getProperty("Features").split(",")))
             .addAllSystemSupportedLocale(Arrays.asList(this.properties.getProperty("Locales").split(",")))
-            .setGlEsVersion(Integer.getInteger(this.properties.getProperty("GL.Version")))
+            .setGlEsVersion(Integer.parseInt(this.properties.getProperty("GL.Version")))
             .addAllGlExtension(Arrays.asList(this.properties.getProperty("GL.Extensions").split(",")))
             .build();
     }
+
 }
