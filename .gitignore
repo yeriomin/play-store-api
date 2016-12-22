@@ -6,4 +6,3 @@ gradle/
 gradle-app.setting
 gradlew
 gradlew.bat
-*.bin

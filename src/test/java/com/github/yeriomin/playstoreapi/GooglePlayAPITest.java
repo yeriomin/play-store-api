@@ -9,7 +9,6 @@ import org.junit.Test;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class GooglePlayAPITest {
@@ -150,19 +149,35 @@ class MockGooglePlayAPI extends GooglePlayAPI {
 }
 
 class MockThrottledOkHttpClient extends ThrottledOkHttpClient {
+	
+	private List<Request> requests = new ArrayList<>();
 
     @Override
     byte[] request(Request.Builder requestBuilder, Map<String, String> headers) throws IOException {
         byte[] body = null;
-        try {
-            body = super.request(requestBuilder, headers);
-        } catch (GooglePlayException e) {
-            body = e.getBody();
-        } finally {
-            write(getBodyFileName(requestBuilder.build()), body);
-            return body;
+		Request request = requestBuilder.headers(Headers.of(headers)).build();
+		this.requests.add(request);
+        String path = getBodyFileName(request);
+        System.out.println("Path to request body: " + path);
+        if (Files.exists(Paths.get(path))) {
+            System.out.println("Body FOUND. Reading from disk.");
+            body = read(path);
+        } else {
+            System.out.println("Body NOT found. Making a live request.");
+            try {
+                body = super.request(requestBuilder, headers);
+            } catch (GooglePlayException e) {
+                body = e.getBody();
+            } finally {
+                write(path, body);
+            }
         }
+        return body;
     }
+	
+	public List<Request> getRequests() {
+		return this.requests;
+	}
 
     private static byte[] read(String path) {
         try {
@@ -185,7 +200,10 @@ class MockThrottledOkHttpClient extends ThrottledOkHttpClient {
     }
 
     private static String getBodyFileName(Request request) {
-        SimpleDateFormat dt = new SimpleDateFormat("yyyymmddhhmmss");
-        return dt.format(new Date()) + request.url().encodedPath().replace("/", ".") + "." + request.hashCode() + ".bin";
+        StringBuilder query = new StringBuilder();
+        for (String key: request.url().queryParameterNames()) {
+            query.append("." + key + "." + request.url().queryParameter(key));
+        }
+        return "request" + request.url().encodedPath().replace("/", ".") + query + ".bin";
     }
 }
