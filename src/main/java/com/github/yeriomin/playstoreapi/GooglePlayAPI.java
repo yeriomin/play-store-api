@@ -24,6 +24,7 @@ public class GooglePlayAPI {
     private static final String BROWSE_URL = FDFE_URL + "browse";
     private static final String DETAILS_URL = FDFE_URL + "details";
     private static final String SEARCH_URL = FDFE_URL + "search";
+    private static final String SEARCHSUGGEST_URL = FDFE_URL + "searchSuggest";
     private static final String BULKDETAILS_URL = FDFE_URL + "bulkDetails";
     private static final String PURCHASE_URL = FDFE_URL + "purchase";
     private static final String REVIEWS_URL = FDFE_URL + "rev";
@@ -48,6 +49,16 @@ public class GooglePlayAPI {
         public int value;
 
         RECOMMENDATION_TYPE(int value) {
+            this.value = value;
+        }
+    }
+
+    public enum SEARCH_SUGGESTION_TYPE {
+        SEARCH_STRING(2), APP(3);
+
+        public int value;
+
+        SEARCH_SUGGESTION_TYPE(int value) {
             this.value = value;
         }
     }
@@ -195,6 +206,24 @@ public class GooglePlayAPI {
     }
 
     /**
+     * A quick search which returns the most relevent app and a list of suggestions of current query continuation
+     * In native Play Store this is used to fetch search suggestions as you type
+     */
+    public SearchSuggestResponse searchSuggest(String query) throws IOException {
+        return searchSuggest(query, SEARCH_SUGGESTION_TYPE.SEARCH_STRING);
+    }
+
+    public SearchSuggestResponse searchSuggest(String query, SEARCH_SUGGESTION_TYPE type) throws IOException {
+        Map<String, String> params = getDefaultGetParams();
+        params.put("q", query);
+        params.put("ssis", "120");
+        params.put("sst", Integer.toString(type.value));
+
+        byte[] responseBytes = getClient().get(SEARCHSUGGEST_URL, params, getDefaultHeaders());
+        return ResponseWrapper.parseFrom(responseBytes).getPayload().getSearchSuggestResponse();
+    }
+
+    /**
      * Equivalent of <code>search(query, null, null)</code>
      */
     public SearchResponse search(String query) throws IOException {
@@ -212,11 +241,10 @@ public class GooglePlayAPI {
      * @deprecated Use getSearchIterator() instead.
      */
     public SearchResponse search(String query, Integer offset, Integer numberOfResults) throws IOException {
-        String url = SEARCH_URL;
         Map<String, String> params = getDefaultGetParams(offset, numberOfResults);
         params.put("q", query);
 
-        byte[] responseBytes = getClient().get(url, params, getDefaultHeaders());
+        byte[] responseBytes = getClient().get(SEARCH_URL, params, getDefaultHeaders());
         return ResponseWrapper.parseFrom(responseBytes).getPayload().getSearchResponse();
     }
 
@@ -264,7 +292,7 @@ public class GooglePlayAPI {
     }
 
     public BrowseResponse browse(String categoryId, String subCategoryId) throws IOException {
-        Map<String, String> params = getDefaultGetParams(null, null);
+        Map<String, String> params = getDefaultGetParams();
         if (null != categoryId && !categoryId.isEmpty()) {
             params.put("cat", categoryId);
         }
@@ -389,6 +417,10 @@ public class GooglePlayAPI {
         }
         headers.put("Accept-Language", this.locale.toString().replace("_", "-"));
         return headers;
+    }
+
+    private Map<String, String> getDefaultGetParams() {
+        return getDefaultGetParams(null, null);
     }
 
     /**

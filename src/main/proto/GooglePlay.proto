@@ -759,6 +759,7 @@ message Payload {
   optional BulkDetailsResponse bulkDetailsResponse = 19;
   optional UploadDeviceConfigResponse uploadDeviceConfigResponse = 25;
   optional AndroidCheckinResponse androidCheckinResponse = 26;
+  optional SearchSuggestResponse searchSuggestResponse = 40;
 }
 message PreFetch {
   optional string url = 1;
@@ -826,6 +827,20 @@ message SearchResponse {
   repeated Bucket bucket = 4;
   repeated DocV2 doc = 5;
   repeated RelatedSearch relatedSearch = 6;
+}
+message SearchSuggestResponse {
+  repeated SearchSuggestEntry entry = 1;
+}
+message SearchSuggestEntry {
+  optional int32 type = 1;
+  optional string suggestedQuery = 2;
+  optional group ImageContainer = 5 {
+    optional string imageUrl = 5;
+  }
+  optional string title = 6;
+  optional group PackageNameContainer = 8 {
+    optional string packageName = 1;
+  }
 }
 
 

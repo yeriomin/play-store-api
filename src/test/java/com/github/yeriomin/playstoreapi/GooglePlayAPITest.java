@@ -17,8 +17,8 @@ public class GooglePlayAPITest {
 
     private static final String EMAIL = "konstantin.razdolbaev@gmail.com";
     private static final String PASSWORD = "TemporaryPassword";
-    private static final String GSFID = "3ebb78cfc63f8426";
-    private static final String TOKEN = "HwSyrOumgrgi1MTCqHLY0KcpiGPvTfeOv1KZcGxzZ1V8nRSItH21IDchDvrDaRZpCstDYQ.";
+    private static final String GSFID = "3f1abe856b0fa7fd";
+    private static final String TOKEN = "IwSyrLX3vSyMI1wdSUEdZ08EVcbg---1Wto-Owy7FP-U9eeRcwASB4z7p-Ne8ECDNp3FNw.";
 
     private MockGooglePlayAPI api;
 
@@ -28,21 +28,12 @@ public class GooglePlayAPITest {
     }
 
     @Test
-    public void setToken() throws Exception {
-
-    }
-
-    @Test
-    public void setGsfId() throws Exception {
-    }
-
-    @Test
     public void getGsfId() throws Exception {
         MockGooglePlayAPI api = initApi();
         api.setGsfId(null);
         api.setToken(null);
         String gsfId = api.getGsfId();
-        Assert.assertEquals("31b6ebdb0ae0c11b", gsfId);
+        Assert.assertEquals("34a77e79566015bf", gsfId);
 
         List<Request> requests = api.getRequests();
         Assert.assertEquals(3, requests.size());
@@ -75,22 +66,23 @@ public class GooglePlayAPITest {
         Assert.assertEquals(1, requestCheckin2.url().pathSegments().size());
         Assert.assertEquals("checkin", requestCheckin2.url().pathSegments().get(0));
         Assert.assertNull(requestCheckin2.header("Authorization"));
-        Assert.assertEquals("31b6ebdb0ae0c11b", requestCheckin2.header("X-DFE-Device-Id"));
+        Assert.assertEquals("34a77e79566015bf", requestCheckin2.header("X-DFE-Device-Id"));
         Assert.assertEquals("Android-Finsky/7.1.15 (api=3,versionCode=80711500,sdk=22,device=C6902,hardware=qcom,product=C6902)", requestCheckin2.header("User-Agent"));
         Assert.assertEquals("en-US", requestCheckin2.header("Accept-Language"));
         AndroidCheckinRequest requestCheckinProto2 = AndroidCheckinRequest.parseFrom(MockThrottledOkHttpClient.getBodyBytes(requestCheckin2));
         Assert.assertEquals("C6902", requestCheckinProto2.getCheckin().getBuild().getDevice());
-        Assert.assertEquals(3582309879632675099L, requestCheckinProto2.getId());
-        Assert.assertEquals(786076436989181620L, requestCheckinProto2.getSecurityToken());
+        Assert.assertEquals(3794140270688212415L, requestCheckinProto2.getId());
+        Assert.assertEquals(7183672034703030426L, requestCheckinProto2.getSecurityToken());
         Assert.assertEquals("[konstantin.razdolbaev@gmail.com]", requestCheckinProto2.getAccountCookie(0));
-        Assert.assertEquals("IwSyrLeS5ebuKhRI0ViSMWr8-Gwj3d8ouwllmDbR5YdmmK6UqUvZrIbttehfRDW8H1xhMA.", requestCheckinProto2.getAccountCookie(1));
+        Assert.assertEquals("IwSyrMy-mgAWKCOUTIv1xWOVIu-IQPEv1c2fVQDgSMr_a_AfCARv8PTID0JG6r9FmnXFaA.", requestCheckinProto2.getAccountCookie(1));
     }
 
     @Test
     public void getToken() throws Exception {
+        MockGooglePlayAPI api = initApi();
         api.setToken(null);
         String token = api.getToken();
-        Assert.assertEquals("IwSyrEnzdIkiy3OH3h9XrIVB1l-spqsoQogW30moMOR0DYeLbNYDlfTYVR2wrgHU_2FY-Q.", token);
+        Assert.assertEquals("IwSyrHW7GxO7BfDcjA1TNJ3tVzbgMFXCGYDSpLQNJ41VbHhZyTXslQTKlzjd7XXDSIBt6w.", token);
 
         List<Request> requests = api.getRequests();
         Assert.assertEquals(1, requests.size());
@@ -106,15 +98,38 @@ public class GooglePlayAPITest {
         Assert.assertEquals("en", vars.get("lang"));
         Assert.assertEquals("22", vars.get("sdk_version"));
         Assert.assertEquals("androidmarket", vars.get("service"));
-        Assert.assertEquals("3ebb78cfc63f8426", vars.get("androidId"));
+        Assert.assertEquals("3f1abe856b0fa7fd", vars.get("androidId"));
         Assert.assertEquals("com.android.vending", vars.get("app"));
+    }
+
+    @Test
+    public void searchSuggest() throws Exception {
+        SearchSuggestResponse response = api.searchSuggest("cp");
+
+        List<Request> requests = api.getRequests();
+        Assert.assertEquals(1, requests.size());
+        Request request = requests.get(0);
+        Assert.assertEquals(2, request.url().pathSegments().size());
+        Assert.assertEquals("fdfe", request.url().pathSegments().get(0));
+        Assert.assertEquals("searchSuggest", request.url().pathSegments().get(1));
+        Assert.assertEquals(4, request.url().queryParameterNames().size());
+        Assert.assertEquals("3", request.url().queryParameter("c"));
+        Assert.assertEquals("cp", request.url().queryParameter("q"));
+        Assert.assertEquals("2", request.url().queryParameter("sst"));
+        Assert.assertEquals("120", request.url().queryParameter("ssis"));
+
+        Assert.assertTrue(response.getEntryCount() > 0);
+        SearchSuggestEntry appEntry = response.getEntry(0);
+        Assert.assertEquals(2, appEntry.getType());
+        SearchSuggestEntry suggestionEntry = response.getEntry(1);
+        Assert.assertTrue(suggestionEntry.hasSuggestedQuery());
+        Assert.assertEquals("cpu cooler", suggestionEntry.getSuggestedQuery());
     }
 
     @Test
     public void search() throws Exception {
         SearchResponse response = api.search("cpu");
 
-        response.getDocList().get(0).getContainerMetadata().hasNextPageUrl();
         Assert.assertTrue(response.getDocCount() > 0);
         Assert.assertTrue(response.getDocList().get(0).hasContainerMetadata());
         Assert.assertTrue(response.getDocList().get(0).getContainerMetadata().hasNextPageUrl());
@@ -221,8 +236,8 @@ public class GooglePlayAPITest {
         BuyResponse response = api.purchase("com.cpuid.cpu_z", 21, 1);
 
         Assert.assertTrue(response.getPurchaseStatusResponse().hasAppDeliveryData());
-        Assert.assertEquals("02571538609323046363", response.getPurchaseStatusResponse().getAppDeliveryData().getDownloadAuthCookie(0).getValue());
-        Assert.assertEquals("https://android.clients.google.com/market/download/Download?packageName=com.cpuid.cpu_z&versionCode=21&ssl=1&token=AOTCm0RTB5_bdEhoQV-pRU29ydtMStgTbGfIfZFZ5MNgdyqMpNasuH5v2LA9k6g_XwBHc9wuuX6e5cUcK-Y718ytG7hDrFsbW0kaKxaNypyJ4LoygvKGZ9ONu3AIyu14wk4rDZrJq6r9wPT_Qr7mcntVvCrWmb4zueoAMcH2xp6KSDkSkfpGtge7dNE7I9ZkHDfWTkIsyupLtggft9hRW0X1vvS6BDJAnY-hDchmSQ-j71ZvUaSRuqa49PEJ2NEh9yp1YKg4UIpD3kctNXTkd4LGUaVCwQ6Ie-joJCoFXnR1n3XFNZh8zcvVZR3y2e3WDUSlUkrU5z4UIR3fwVSQVNR0Au-WPeSh&cpn=XIfdEJ1nJDM4fnb6", response.getPurchaseStatusResponse().getAppDeliveryData().getDownloadUrl());
+        Assert.assertEquals("08242190784708202273", response.getPurchaseStatusResponse().getAppDeliveryData().getDownloadAuthCookie(0).getValue());
+        Assert.assertEquals("https://android.clients.google.com/market/download/Download?packageName=com.cpuid.cpu_z&versionCode=21&ssl=1&token=AOTCm0Qk6Xp0vLAIMTlHfvRcskbmSGugu7zaMbPzul5Ieu2bHAxD5QqKW6whNXp6dO9cid8x171TOLlpMXxAuJZYKl6JbeMUCphFLIBprvX4MX8CV79EOzVAeNiyT0qUOOKulE-5O-YFOM4jd8qkAR5ratStfwTar_eDlbyLQRZObbxVVGUdICUBftnAk-E-gj-mfuClbF-i5dkO_H22KvMrzOLkbsGlCjkmfOxWZvzvtw_LTW-pxD4WWE5_UxrxD6ktnnYnppzWmri687Ju3zkNXLpljvE7Nvr3KQuoW9eye93Wl2hSJSHIghoHQI7H3ImrCk8-gA2Cb-MGGapRne35_SZmjwAS&cpn=tQUzGf5FX6Y4LL14", response.getPurchaseStatusResponse().getAppDeliveryData().getDownloadUrl());
 
         List<Request> requests = api.getRequests();
         Assert.assertEquals(1, requests.size());
