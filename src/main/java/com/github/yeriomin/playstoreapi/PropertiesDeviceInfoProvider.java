@@ -1,7 +1,6 @@
 package com.github.yeriomin.playstoreapi;
 
 import java.util.Arrays;
-import java.util.Locale;
 import java.util.Properties;
 
 public class PropertiesDeviceInfoProvider implements DeviceInfoProvider {
@@ -9,12 +8,22 @@ public class PropertiesDeviceInfoProvider implements DeviceInfoProvider {
     private Properties properties;
     private String localeString;
 
+    /**
+     * Time to report to the google server
+     * Introduced to make tests reproducible
+     */
+    private long timeToReport = System.currentTimeMillis() / 1000;
+
     public void setProperties(Properties properties) {
         this.properties = properties;
     }
 
     public void setLocaleString(String localeString) {
         this.localeString = localeString;
+    }
+
+    void setTimeToReport(long timeToReport) {
+        this.timeToReport = timeToReport;
     }
 
     public int getSdkVersion() {
@@ -51,7 +60,7 @@ public class PropertiesDeviceInfoProvider implements DeviceInfoProvider {
                             .setBuildProduct(this.properties.getProperty("Build.PRODUCT"))
                             .setClient(this.properties.getProperty("Client"))
                             .setOtaInstalled(Boolean.getBoolean(this.properties.getProperty("OtaInstalled")))
-                            .setTimestamp(System.currentTimeMillis() / 1000)
+                            .setTimestamp(this.timeToReport)
                             .setGoogleServices(Integer.parseInt(this.properties.getProperty("GSF.version")))
                     )
                     .setLastCheckinMsec(0)
