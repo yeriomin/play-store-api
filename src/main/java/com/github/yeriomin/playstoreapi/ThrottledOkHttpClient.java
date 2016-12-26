@@ -1,22 +1,13 @@
 package com.github.yeriomin.playstoreapi;
 
+import okhttp3.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import okhttp3.Cookie;
-import okhttp3.CookieJar;
-import okhttp3.FormBody;
-import okhttp3.Headers;
-import okhttp3.HttpUrl;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 
 class ThrottledOkHttpClient {
 
@@ -127,10 +118,12 @@ class ThrottledOkHttpClient {
         int code = response.code();
         byte[] content = response.body().bytes();
 
-        if (code >= 400) {
-            GooglePlayException e = new GooglePlayException("Auth error (probably): " + code, code);
-            e.setBody(content);
-            throw e;
+        if (code == 401 || code == 403) {
+            throw new AuthException("Auth error", code);
+        } else if (code >= 500) {
+            throw new GooglePlayException("Server error", code);
+        } else if (code >= 400) {
+            throw new GooglePlayException("Malformed request", code);
         }
 
         return content;

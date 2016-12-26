@@ -4,11 +4,12 @@ import java.io.IOException;
 
 public class GooglePlayException extends IOException {
 
-	private int code;
+	protected int code;
 
 	public GooglePlayException(String message) {
 		super(message);
 	}
+
 	public GooglePlayException(String message, int code) {
 		super(message);
 		this.code = code;
@@ -18,17 +19,11 @@ public class GooglePlayException extends IOException {
 		super(message, cause);
 	}
 
-	private byte[] body;
+	public void setCode(int code) {
+		this.code = code;
+	}
 
-	public void setBody(byte[] body) {
-	    this.body = body;
-    }
-
-    public byte[] getBody() {
-	    return body;
-    }
-
-    public int getCode() {
-        return this.code;
-    }
+	public int getCode() {
+		return this.code;
+	}
 }

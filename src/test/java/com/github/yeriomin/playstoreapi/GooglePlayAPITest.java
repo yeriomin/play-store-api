@@ -1,12 +1,16 @@
 package com.github.yeriomin.playstoreapi;
 
-import okhttp3.*;
+import okhttp3.Headers;
+import okhttp3.Request;
 import okio.Buffer;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.file.Files;
@@ -360,7 +364,7 @@ class MockThrottledOkHttpClient extends ThrottledOkHttpClient {
             try {
                 body = super.request(requestBuilder, headers);
             } catch (GooglePlayException e) {
-                body = e.getBody();
+                System.out.println("Error making a live request: " + e.getMessage());
             } finally {
                 write(fileName, body);
             }
