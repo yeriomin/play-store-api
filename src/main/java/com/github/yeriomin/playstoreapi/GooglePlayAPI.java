@@ -68,7 +68,6 @@ public class GooglePlayAPI {
     private DeviceInfoProvider deviceInfoProvider;
 
     private String email;
-    private String password;
 
     /**
      * Auth token
@@ -100,9 +99,8 @@ public class GooglePlayAPI {
         this.deviceInfoProvider = deviceInfoProvider;
     }
 
-    public GooglePlayAPI(String email, String password) {
+    public GooglePlayAPI(String email) {
         this.email = email;
-        this.password = password;
     }
 
     public void setToken(String token) {
@@ -121,7 +119,7 @@ public class GooglePlayAPI {
      * using <code>getToken()</code> or from returned
      * {@link AndroidCheckinResponse} instance.
      */
-    public String getGsfId() throws IOException {
+    public String getGsfId(String password) throws IOException {
         AndroidCheckinRequest request = this.deviceInfoProvider.generateAndroidCheckinRequest();
 
         // this first checkin is for generating android-id
@@ -130,7 +128,7 @@ public class GooglePlayAPI {
         String securityToken = BigInteger.valueOf(checkinResponse.getSecurityToken()).toString(16);
 
         AndroidCheckinRequest.Builder checkInbuilder = AndroidCheckinRequest.newBuilder(request);
-        String AC2DMToken = getAC2DMToken();
+        String AC2DMToken = getAC2DMToken(password);
         AndroidCheckinRequest build = checkInbuilder
             .setId(new BigInteger(this.gsfId, 16).longValue())
             .setSecurityToken(new BigInteger(securityToken, 16).longValue())
@@ -159,8 +157,8 @@ public class GooglePlayAPI {
      * authentication token. This token can be used to login instead of using
      * email and password every time.
      */
-    public String getToken() throws IOException {
-        Map<String, String> params = getDefaultLoginParams();
+    public String getToken(String password) throws IOException {
+        Map<String, String> params = getDefaultLoginParams(password);
         params.put("service", "androidmarket");
         params.put("app", "com.android.vending");
         params.put("androidId", this.gsfId);
@@ -180,8 +178,8 @@ public class GooglePlayAPI {
      * <i>GoogleLoginService(package name : com.google.android.gsf)</i> system APK.
      * But google doesn't seem to care of value of this parameter.
      */
-    public String getAC2DMToken() throws IOException {
-        Map<String, String> params = getDefaultLoginParams();
+    public String getAC2DMToken(String password) throws IOException {
+        Map<String, String> params = getDefaultLoginParams(password);
         params.put("service", "ac2dm");
         params.put("add_account", "1");
         params.put("app", "com.google.android.gsf");
@@ -194,13 +192,13 @@ public class GooglePlayAPI {
         }
     }
 
-    public Map<String, String> c2dmRegister(String application, String sender) throws IOException {
+    public Map<String, String> c2dmRegister(String application, String sender, String password) throws IOException {
         Map<String, String> params = new HashMap<>();
         params.put("app", application);
         params.put("sender", sender);
         params.put("device", new BigInteger(this.gsfId, 16).toString());
         Map<String, String> headers = getDefaultHeaders();
-        headers.put("Authorization", "GoogleLogin auth=" + getAC2DMToken());
+        headers.put("Authorization", "GoogleLogin auth=" + getAC2DMToken(password));
         byte[] responseBytes = getClient().post(C2DM_REGISTER_URL, params, headers);
         return parseResponse(new String(responseBytes));
     }
@@ -386,10 +384,10 @@ public class GooglePlayAPI {
      * Most likely not all of these are required, but the Market app sends them, so we will too
      *
      */
-    private Map<String, String> getDefaultLoginParams() {
+    private Map<String, String> getDefaultLoginParams(String password) {
         Map<String, String> params = new HashMap<>();
         params.put("Email", this.email);
-        params.put("Passwd", this.password);
+        params.put("Passwd", password);
         params.put("accountType", ACCOUNT_TYPE_HOSTED_OR_GOOGLE);
         params.put("has_permission", "1");
         params.put("source", "android");
