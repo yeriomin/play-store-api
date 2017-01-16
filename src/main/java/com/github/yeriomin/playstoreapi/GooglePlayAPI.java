@@ -34,7 +34,7 @@ public class GooglePlayAPI {
     private static final String ACCOUNT_TYPE_HOSTED_OR_GOOGLE = "HOSTED_OR_GOOGLE";
 
     public enum REVIEW_SORT {
-        NEWEST(0), HIGHRATING(1), HELPFUL(2);
+        NEWEST(0), HIGHRATING(1), HELPFUL(4);
 
         public int value;
 
@@ -343,13 +343,26 @@ public class GooglePlayAPI {
      * <p>
      * Default values for offset and numberOfResult are "0" and "20"
      * respectively. These values are determined by Google Play Store.
+     *
+     * Supply version code to only get reviews for that version of the app
      */
-    public ReviewResponse reviews(String packageName, REVIEW_SORT sort, Integer offset, Integer numberOfResults) throws IOException {
+    public ReviewResponse reviews(String packageName, REVIEW_SORT sort, Integer offset, Integer numberOfResults, Integer versionCode) throws IOException {
         Map<String, String> params = getDefaultGetParams(offset, numberOfResults);
+        if (null != versionCode) {
+            params.put("vc", String.valueOf(versionCode));
+        }
+        // This device only
+        // Doesn't work properly even in Google Play Store
+        // Also not implementing this because method signature gets fat
+        // params.put("dfil", "1");
         params.put("doc", packageName);
         params.put("sort", (sort == null) ? null : String.valueOf(sort.value));
         byte[] responseBytes = getClient().get(REVIEWS_URL, params, getDefaultHeaders());
         return ResponseWrapper.parseFrom(responseBytes).getPayload().getReviewResponse();
+    }
+
+    public ReviewResponse reviews(String packageName, REVIEW_SORT sort, Integer offset, Integer numberOfResults) throws IOException {
+        return reviews(packageName, sort, offset, numberOfResults, null);
     }
 
     /**

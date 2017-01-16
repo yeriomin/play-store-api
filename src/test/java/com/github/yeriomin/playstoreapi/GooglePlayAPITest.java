@@ -264,6 +264,12 @@ public class GooglePlayAPITest {
 
         Assert.assertTrue(response.getGetResponse().getReviewCount() > 0);
         Assert.assertEquals(5, response.getGetResponse().getReview(0).getStarRating());
+        Assert.assertEquals("It is awesome app I install and it work success fully", response.getGetResponse().getReview(1).getComment());
+        Assert.assertEquals("Nitesh Kumar", response.getGetResponse().getReview(0).getAuthor2().getName());
+        Assert.assertEquals("https://plus.google.com/+NiteshKumar", response.getGetResponse().getReview(0).getAuthor2().getGooglePlusUrl());
+        Assert.assertEquals("https://lh3.googleusercontent.com/-t-T8LKa60Fc/AAAAAAAAAAI/AAAAAAAAStk/wS6mDBhiWQA/photo.jpg", response.getGetResponse().getReview(0).getAuthor2().getUrls().getUrl());
+        Assert.assertEquals("104245217570938637686", response.getGetResponse().getReview(0).getAuthor2().getPersonId());
+        Assert.assertEquals("person-104245217570938637686", response.getGetResponse().getReview(0).getAuthor2().getPersonIdString());
 
         List<Request> requests = api.getRequests();
         Assert.assertEquals(1, requests.size());
