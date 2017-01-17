@@ -9,19 +9,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-class ThrottledOkHttpClient {
+class OkHttpClientWrapper {
 
-    static final long DEFAULT_REQUEST_INTERVAL = 2000;
-
-    long lastRequestTime;
-    long requestInterval = DEFAULT_REQUEST_INTERVAL;
     OkHttpClient client;
 
-    public void setRequestInterval(long requestInterval) {
-        this.requestInterval = requestInterval;
-    }
-
-    public ThrottledOkHttpClient() {
+    public OkHttpClientWrapper() {
         this.client = new OkHttpClient.Builder()
             .connectTimeout(3, TimeUnit.SECONDS)
             .readTimeout(3, TimeUnit.SECONDS)
@@ -97,17 +89,6 @@ class ThrottledOkHttpClient {
     }
 
     byte[] request(Request.Builder requestBuilder, Map<String, String> headers) throws IOException {
-        if (this.lastRequestTime > 0) {
-            long msecRemaining = this.requestInterval - System.currentTimeMillis() + this.lastRequestTime;
-            if (msecRemaining > 0) {
-                try {
-                    Thread.sleep(msecRemaining);
-                } catch (InterruptedException e) {
-                    // Unlikely
-                }
-            }
-        }
-
         Request request = requestBuilder
             .headers(Headers.of(headers))
             .build();

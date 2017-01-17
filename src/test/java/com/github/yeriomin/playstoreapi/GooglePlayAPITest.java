@@ -49,13 +49,13 @@ public class GooglePlayAPITest {
         Assert.assertNull(requestCheckin1.header("X-DFE-Device-Id"));
         Assert.assertEquals("Android-Finsky/7.1.15 (api=3,versionCode=80711500,sdk=22,device=C6902,hardware=qcom,product=C6902)", requestCheckin1.header("User-Agent"));
         Assert.assertEquals("en-US", requestCheckin1.header("Accept-Language"));
-        AndroidCheckinRequest requestCheckinProto1 = AndroidCheckinRequest.parseFrom(MockThrottledOkHttpClient.getBodyBytes(requestCheckin1));
+        AndroidCheckinRequest requestCheckinProto1 = AndroidCheckinRequest.parseFrom(MockOkHttpClientWrapper.getBodyBytes(requestCheckin1));
         Assert.assertEquals("C6902", requestCheckinProto1.getCheckin().getBuild().getDevice());
 
         Request requestAuthAc2dm = requests.get(1);
         Assert.assertEquals(1, requestAuthAc2dm.url().pathSegments().size());
         Assert.assertEquals("auth", requestAuthAc2dm.url().pathSegments().get(0));
-        Map<String, String> vars = MockThrottledOkHttpClient.parseQueryString(MockThrottledOkHttpClient.getBodyBytes(requestAuthAc2dm));
+        Map<String, String> vars = MockOkHttpClientWrapper.parseQueryString(MockOkHttpClientWrapper.getBodyBytes(requestAuthAc2dm));
         Assert.assertEquals(12, vars.size());
         Assert.assertEquals("konstantin.razdolbaev@gmail.com", vars.get("Email"));
         Assert.assertEquals("TemporaryPassword", vars.get("Passwd"));
@@ -73,7 +73,7 @@ public class GooglePlayAPITest {
         Assert.assertEquals("34a77e79566015bf", requestCheckin2.header("X-DFE-Device-Id"));
         Assert.assertEquals("Android-Finsky/7.1.15 (api=3,versionCode=80711500,sdk=22,device=C6902,hardware=qcom,product=C6902)", requestCheckin2.header("User-Agent"));
         Assert.assertEquals("en-US", requestCheckin2.header("Accept-Language"));
-        AndroidCheckinRequest requestCheckinProto2 = AndroidCheckinRequest.parseFrom(MockThrottledOkHttpClient.getBodyBytes(requestCheckin2));
+        AndroidCheckinRequest requestCheckinProto2 = AndroidCheckinRequest.parseFrom(MockOkHttpClientWrapper.getBodyBytes(requestCheckin2));
         Assert.assertEquals("C6902", requestCheckinProto2.getCheckin().getBuild().getDevice());
         Assert.assertEquals(3794140270688212415L, requestCheckinProto2.getId());
         Assert.assertEquals(7183672034703030426L, requestCheckinProto2.getSecurityToken());
@@ -94,7 +94,7 @@ public class GooglePlayAPITest {
         Request request = requests.get(0);
         Assert.assertEquals(1, request.url().pathSegments().size());
         Assert.assertEquals("auth", request.url().pathSegments().get(0));
-        Map<String, String> vars = MockThrottledOkHttpClient.parseQueryString(MockThrottledOkHttpClient.getBodyBytes(request));
+        Map<String, String> vars = MockOkHttpClientWrapper.parseQueryString(MockOkHttpClientWrapper.getBodyBytes(request));
         Assert.assertEquals(12, vars.size());
         Assert.assertEquals("konstantin.razdolbaev@gmail.com", vars.get("Email"));
         Assert.assertEquals("TemporaryPassword", vars.get("Passwd"));
@@ -213,7 +213,7 @@ public class GooglePlayAPITest {
         Assert.assertEquals(2, request.url().pathSegments().size());
         Assert.assertEquals("fdfe", request.url().pathSegments().get(0));
         Assert.assertEquals("bulkDetails", request.url().pathSegments().get(1));
-        BulkDetailsRequest protoRequest = BulkDetailsRequest.parseFrom(MockThrottledOkHttpClient.getBodyBytes(request));
+        BulkDetailsRequest protoRequest = BulkDetailsRequest.parseFrom(MockOkHttpClientWrapper.getBodyBytes(request));
         Assert.assertEquals("com.cpuid.cpu_z", protoRequest.getDocid(0));
         Assert.assertEquals("org.torproject.android", protoRequest.getDocid(1));
     }
@@ -251,7 +251,7 @@ public class GooglePlayAPITest {
         Assert.assertEquals("purchase", request.url().pathSegments().get(1));
         Assert.assertEquals(0, request.url().queryParameterNames().size());
 
-        Map<String, String> vars = MockThrottledOkHttpClient.parseQueryString(MockThrottledOkHttpClient.getBodyBytes(request));
+        Map<String, String> vars = MockOkHttpClientWrapper.parseQueryString(MockOkHttpClientWrapper.getBodyBytes(request));
         Assert.assertEquals(3, vars.size());
         Assert.assertEquals("com.cpuid.cpu_z", vars.get("doc"));
         Assert.assertEquals("1", vars.get("ot"));
@@ -333,15 +333,15 @@ public class GooglePlayAPITest {
 
 class MockGooglePlayAPI extends GooglePlayAPI {
 
-    ThrottledOkHttpClient getClient() {
+    OkHttpClientWrapper getClient() {
         if (this.client == null) {
-            this.client = new MockThrottledOkHttpClient();
+            this.client = new MockOkHttpClientWrapper();
         }
         return this.client;
     }
 
     List<Request> getRequests() {
-        return ((MockThrottledOkHttpClient) this.getClient()).getRequests();
+        return ((MockOkHttpClientWrapper) this.getClient()).getRequests();
     }
 
     MockGooglePlayAPI(String email) {
@@ -349,7 +349,7 @@ class MockGooglePlayAPI extends GooglePlayAPI {
     }
 }
 
-class MockThrottledOkHttpClient extends ThrottledOkHttpClient {
+class MockOkHttpClientWrapper extends OkHttpClientWrapper {
 	
 	private List<Request> requests = new ArrayList<>();
 

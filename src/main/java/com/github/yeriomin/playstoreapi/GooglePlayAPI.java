@@ -63,7 +63,7 @@ public class GooglePlayAPI {
         }
     }
 
-    ThrottledOkHttpClient client;
+    OkHttpClientWrapper client;
     private Locale locale;
     private DeviceInfoProvider deviceInfoProvider;
 
@@ -84,9 +84,9 @@ public class GooglePlayAPI {
      */
     private String gsfId;
 
-    ThrottledOkHttpClient getClient() {
+    OkHttpClientWrapper getClient() {
         if (this.client == null) {
-            this.client = new ThrottledOkHttpClient();
+            this.client = new OkHttpClientWrapper();
         }
         return this.client;
     }
@@ -341,12 +341,13 @@ public class GooglePlayAPI {
     /**
      * Fetches the reviews of given package name by sorting passed choice.
      * <p>
-     * Default values for offset and numberOfResult are "0" and "20"
-     * respectively. These values are determined by Google Play Store.
+     * Default values for offset and numberOfResults are "0" and "20" respectively.
+     * If you request more than 20 reviews, you might get a malformed request exception.
      *
      * Supply version code to only get reviews for that version of the app
      */
     public ReviewResponse reviews(String packageName, REVIEW_SORT sort, Integer offset, Integer numberOfResults, Integer versionCode) throws IOException {
+        // If you request more than 20 reviews, don't be surprised if you get a MalformedRequest exception
         Map<String, String> params = getDefaultGetParams(offset, numberOfResults);
         if (null != versionCode) {
             params.put("vc", String.valueOf(versionCode));
