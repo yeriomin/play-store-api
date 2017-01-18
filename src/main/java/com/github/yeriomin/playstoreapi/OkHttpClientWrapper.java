@@ -100,7 +100,12 @@ class OkHttpClientWrapper {
         byte[] content = response.body().bytes();
 
         if (code == 401 || code == 403) {
-            throw new AuthException("Auth error", code);
+            AuthException e = new AuthException("Auth error", code);
+            Map<String, String> authResponse = GooglePlayAPI.parseResponse(new String(content));
+            if (authResponse.containsKey("Error") && authResponse.get("Error").equals("NeedsBrowser")) {
+                e.setTwoFactorUrl(authResponse.get("Url"));
+            }
+            throw e;
         } else if (code >= 500) {
             throw new GooglePlayException("Server error", code);
         } else if (code >= 400) {

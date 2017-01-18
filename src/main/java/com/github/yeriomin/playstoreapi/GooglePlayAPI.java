@@ -478,7 +478,7 @@ public class GooglePlayAPI {
      *
      * @param response
      */
-    private static Map<String, String> parseResponse(String response) {
+    public static Map<String, String> parseResponse(String response) {
         Map<String, String> keyValueMap = new HashMap<>();
         StringTokenizer st = new StringTokenizer(response, "\n\r");
         while (st.hasMoreTokens()) {
