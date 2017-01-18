@@ -194,6 +194,9 @@ message PurchaseStatusResponse {
   optional Instrument rejectedInstrument = 7;
   optional AndroidAppDeliveryData appDeliveryData = 8;
 }
+message DeliveryResponse {
+  optional AndroidAppDeliveryData appDeliveryData = 2;
+}
 
 message Docid {
   optional string backendDocid = 1;
@@ -757,6 +760,7 @@ message Payload {
   optional BrowseResponse browseResponse = 7;
   optional PurchaseStatusResponse purchaseStatusResponse = 8;
   optional BulkDetailsResponse bulkDetailsResponse = 19;
+  optional DeliveryResponse deliveryResponse = 21;
   optional UploadDeviceConfigResponse uploadDeviceConfigResponse = 25;
   optional AndroidCheckinResponse androidCheckinResponse = 26;
   optional SearchSuggestResponse searchSuggestResponse = 40;

@@ -27,6 +27,7 @@ public class GooglePlayAPI {
     private static final String SEARCHSUGGEST_URL = FDFE_URL + "searchSuggest";
     private static final String BULKDETAILS_URL = FDFE_URL + "bulkDetails";
     private static final String PURCHASE_URL = FDFE_URL + "purchase";
+    private static final String DELIVERY_URL = FDFE_URL + "delivery";
     private static final String REVIEWS_URL = FDFE_URL + "rev";
     private static final String UPLOADDEVICECONFIG_URL = FDFE_URL + "uploadDeviceConfig";
     private static final String RECOMMENDATIONS_URL = FDFE_URL + "rec";
@@ -336,6 +337,24 @@ public class GooglePlayAPI {
         params.put("vc", String.valueOf(versionCode));
         byte[] responseBytes = getClient().post(PURCHASE_URL, params, getDefaultHeaders());
         return ResponseWrapper.parseFrom(responseBytes).getPayload().getBuyResponse();
+    }
+
+    /**
+     * Gets download links for an already purchased app. Can be used instead of purchase() for paid apps.
+     * There is no point in using delivery() for free apps, because you still have to purchase() them
+     * and purchase() returns the download info.
+     *
+     * @param packageName
+     * @param versionCode
+     * @param offerType
+     */
+    public DeliveryResponse delivery(String packageName, int versionCode, int offerType) throws IOException {
+        Map<String, String> params = new HashMap<>();
+        params.put("ot", String.valueOf(offerType));
+        params.put("doc", packageName);
+        params.put("vc", String.valueOf(versionCode));
+        byte[] responseBytes = getClient().get(DELIVERY_URL, params, getDefaultHeaders());
+        return ResponseWrapper.parseFrom(responseBytes).getPayload().getDeliveryResponse();
     }
 
     /**

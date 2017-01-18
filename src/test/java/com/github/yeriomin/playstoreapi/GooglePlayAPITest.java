@@ -259,6 +259,29 @@ public class GooglePlayAPITest {
     }
 
     @Test
+    public void delivery() throws Exception {
+        DeliveryResponse responseFailure = api.delivery("com.mojang.minecraftpe", 871000016, 1);
+        Assert.assertFalse(responseFailure.hasAppDeliveryData());
+
+        DeliveryResponse response = api.delivery("com.cpuid.cpu_z", 21, 1);
+
+        Assert.assertTrue(response.hasAppDeliveryData());
+        Assert.assertEquals("08242190784708202273", response.getAppDeliveryData().getDownloadAuthCookie(0).getValue());
+        Assert.assertEquals("https://android.clients.google.com/market/download/Download?packageName=com.cpuid.cpu_z&versionCode=21&ssl=1&token=AOTCm0RyRkIlbN-jMwP_CI5aTdDMK3wRaOXhz21bIvkVFDm90TyXrbt1YatiLK2LY1zoEU5iJ_u-AYBLnuAr69TiPAbBDfB6JtJGOVhrc1E2r9UDf70WnmKA_8s024v6g2ZJHCDi485u00NyosPHnCsnIfLI1hZSwqoAQ05bURLy72vFLBznWk_mTnjTy1HybRbxvWV_F4_Lw89Jmdr_RGKISl4bGpE943hE23T3Dy_unQKlZ81Q4i8CIfLEg0Dpl0T4KPXg0t8fiA1k4d0Xo3Mqudcyi3BeBBHS-lq4lS-Nx8RF09O92YsOuuFAHhSrGG0_NWNjd9N-4XuzRRJWjVvL1RtjyxUZ&cpn=wiHoRz1NXwwvhNPR", response.getAppDeliveryData().getDownloadUrl());
+
+        List<Request> requests = api.getRequests();
+        Assert.assertEquals(2, requests.size());
+        Request request = requests.get(0);
+        Assert.assertEquals(2, request.url().pathSegments().size());
+        Assert.assertEquals("fdfe", request.url().pathSegments().get(0));
+        Assert.assertEquals("delivery", request.url().pathSegments().get(1));
+        Assert.assertEquals(3, request.url().queryParameterNames().size());
+        Assert.assertEquals("com.mojang.minecraftpe", request.url().queryParameterValues("doc").get(0));
+        Assert.assertEquals("1", request.url().queryParameterValues("ot").get(0));
+        Assert.assertEquals("871000016", request.url().queryParameterValues("vc").get(0));
+    }
+
+    @Test
     public void reviews() throws Exception {
         ReviewResponse response = api.reviews("com.cpuid.cpu_z", GooglePlayAPI.REVIEW_SORT.HIGHRATING, 0, 20);
 
