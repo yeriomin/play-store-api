@@ -483,7 +483,9 @@ public class GooglePlayAPI {
         StringTokenizer st = new StringTokenizer(response, "\n\r");
         while (st.hasMoreTokens()) {
             String[] keyValue = st.nextToken().split("=");
-            keyValueMap.put(keyValue[0], keyValue[1]);
+            if (keyValue.length >= 2) {
+                keyValueMap.put(keyValue[0], keyValue[1]);
+            }
         }
         return keyValueMap;
     }
