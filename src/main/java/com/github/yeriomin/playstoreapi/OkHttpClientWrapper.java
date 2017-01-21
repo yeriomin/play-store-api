@@ -39,18 +39,15 @@ class OkHttpClientWrapper {
     }
 
     public byte[] get(String url, Map<String, String> params, Map<String, String> headers) throws IOException {
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(url).newBuilder();
-        if (null != params && !params.isEmpty()) {
-            for (String name: params.keySet()) {
-                urlBuilder.addQueryParameter(name, params.get(name));
-            }
-        }
-
         Request.Builder requestBuilder = new Request.Builder()
-            .url(urlBuilder.build())
+            .url(buildUrl(url, params))
             .get();
 
         return request(requestBuilder, headers);
+    }
+
+    public byte[] post(String url, Map<String, String> urlParams, Map<String, String> bodyParams, Map<String, String> headers) throws IOException {
+        return post(buildUrl(url, urlParams).toString(), bodyParams, headers);
     }
 
     public byte[] post(String url, Map<String, String> params, Map<String, String> headers) throws IOException {
@@ -113,5 +110,15 @@ class OkHttpClientWrapper {
         }
 
         return content;
+    }
+
+    static private HttpUrl buildUrl(String url, Map<String, String> params) {
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(url).newBuilder();
+        if (null != params && !params.isEmpty()) {
+            for (String name: params.keySet()) {
+                urlBuilder.addQueryParameter(name, params.get(name));
+            }
+        }
+        return urlBuilder.build();
     }
 }

@@ -309,6 +309,32 @@ public class GooglePlayAPITest {
     }
 
     @Test
+    public void addReview() throws Exception {
+        ReviewResponse response = api.addOrEditReview("com.cpuid.cpu_z", "Работает!", "", 5);
+
+        Assert.assertTrue(response.hasUserReview());
+        Assert.assertEquals(5, response.getUserReview().getStarRating());
+        Assert.assertEquals("Работает!", response.getUserReview().getComment());
+        Assert.assertEquals("konstantin razdolbaev", response.getUserReview().getAuthor2().getName());
+        Assert.assertEquals("", response.getUserReview().getAuthor2().getGooglePlusUrl());
+        Assert.assertEquals("https://lh3.googleusercontent.com/-PkFVwXLKCKk/AAAAAAAAAAI/AAAAAAAAAAA/AKB_U8valX_uc0SKPSZEhVtxDUqYtRwIgQ/photo.jpg", response.getUserReview().getAuthor2().getUrls().getUrl());
+        Assert.assertEquals("100687909122075437983", response.getUserReview().getAuthor2().getPersonId());
+        Assert.assertEquals("person-100687909122075437983", response.getUserReview().getAuthor2().getPersonIdString());
+
+        List<Request> requests = api.getRequests();
+        Assert.assertEquals(1, requests.size());
+        Request request = requests.get(0);
+        Assert.assertEquals(2, request.url().pathSegments().size());
+        Assert.assertEquals("fdfe", request.url().pathSegments().get(0));
+        Assert.assertEquals("addReview", request.url().pathSegments().get(1));
+        Assert.assertEquals(4, request.url().queryParameterNames().size());
+        Assert.assertEquals("com.cpuid.cpu_z", request.url().queryParameter("doc"));
+        Assert.assertEquals("Работает!", request.url().queryParameter("content"));
+        Assert.assertEquals("", request.url().queryParameter("title"));
+        Assert.assertEquals("5", request.url().queryParameter("rating"));
+    }
+
+    @Test
     public void recommendations() throws Exception {
         ListResponse response = api.recommendations("com.cpuid.cpu_z", GooglePlayAPI.RECOMMENDATION_TYPE.ALSO_VIEWED, 0, 20);
 

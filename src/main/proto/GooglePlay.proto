@@ -827,6 +827,7 @@ message Avatar {
 message ReviewResponse {
   optional GetReviewsResponse getResponse = 1;
   optional string nextPageUrl = 2;
+  optional Review userReview = 3;
 }
 
 message RelatedSearch {

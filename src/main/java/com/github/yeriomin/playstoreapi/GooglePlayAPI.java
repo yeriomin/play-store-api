@@ -1,5 +1,7 @@
 package com.github.yeriomin.playstoreapi;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.*;
@@ -29,6 +31,8 @@ public class GooglePlayAPI {
     private static final String PURCHASE_URL = FDFE_URL + "purchase";
     private static final String DELIVERY_URL = FDFE_URL + "delivery";
     private static final String REVIEWS_URL = FDFE_URL + "rev";
+    private static final String ADD_REVIEW_URL = FDFE_URL + "addReview";
+    private static final String DELETE_REVIEW_URL = FDFE_URL + "deleteReview";
     private static final String UPLOADDEVICECONFIG_URL = FDFE_URL + "uploadDeviceConfig";
     private static final String RECOMMENDATIONS_URL = FDFE_URL + "rec";
 
@@ -371,7 +375,7 @@ public class GooglePlayAPI {
         if (null != versionCode) {
             params.put("vc", String.valueOf(versionCode));
         }
-        // This device only
+        // "This device only" flag
         // Doesn't work properly even in Google Play Store
         // Also not implementing this because method signature gets fat
         // params.put("dfil", "1");
@@ -383,6 +387,36 @@ public class GooglePlayAPI {
 
     public ReviewResponse reviews(String packageName, REVIEW_SORT sort, Integer offset, Integer numberOfResults) throws IOException {
         return reviews(packageName, sort, offset, numberOfResults, null);
+    }
+
+    /**
+     * Adds a review
+     * Only package name and rating are mandatory
+     *
+     * @param packageName
+     * @param comment
+     * @param title
+     * @param stars
+     */
+    public ReviewResponse addOrEditReview(String packageName, String comment, String title, int stars) throws IOException {
+        Map<String, String> params = new HashMap<>();
+        params.put("doc", packageName);
+        params.put("title", title);
+        params.put("content", comment);
+        params.put("rating", String.valueOf(stars));
+        // I don't know what these do, but Google Play Store sends these
+        // params.put("ipr", "true");
+        // params.put("itpr", "false");
+        byte[] responseBytes = getClient().post(ADD_REVIEW_URL, params, null, getDefaultHeaders());
+        return ResponseWrapper.parseFrom(responseBytes).getPayload().getReviewResponse();
+    }
+
+    public void deleteReview(String packageName) throws IOException {
+        Map<String, String> params = new HashMap<>();
+        params.put("doc", packageName);
+        // Some unknown parameter Google Play Store sends
+        // params.put("itpr", "false");
+        getClient().post(DELETE_REVIEW_URL, params, getDefaultHeaders());
     }
 
     /**
