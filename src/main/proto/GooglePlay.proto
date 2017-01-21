@@ -2,8 +2,6 @@ syntax = "proto2";
 option java_package = "com.github.yeriomin.playstoreapi";
 option java_multiple_files = true;
 
-import "GoogleServicesFramework.proto";
-
 message AndroidAppDeliveryData {
   optional int64 downloadSize = 1;
   optional string signature = 2;
@@ -767,7 +765,7 @@ message Payload {
 }
 message PreFetch {
   optional string url = 1;
-  optional bytes response = 2;
+  optional ResponseWrapper response = 2;
   optional string etag = 3;
   optional int64 ttl = 4;
   optional int64 softTtl = 5;

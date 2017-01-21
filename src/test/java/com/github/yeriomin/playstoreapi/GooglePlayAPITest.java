@@ -187,6 +187,14 @@ public class GooglePlayAPITest {
         Assert.assertEquals("CPU-Z", details.getTitle());
         Assert.assertEquals(1, details.getOffer(0).getOfferType());
         Assert.assertEquals(21, details.getDetails().getAppDetails().getVersionCode());
+        Assert.assertEquals(3, details.getChildCount());
+        Assert.assertTrue(details.getChild(0).getBackendDocid().startsWith("similar_apps"));
+        Assert.assertEquals(21, details.getChild(0).getChildCount());
+        Assert.assertTrue(details.getChild(1).getBackendDocid().startsWith("users_also_installed"));
+        Assert.assertEquals(20, details.getChild(1).getChildCount());
+        Assert.assertTrue(details.getChild(2).getBackendDocid().startsWith("users_also_installed"));
+        Assert.assertEquals(20, details.getChild(2).getChildCount());
+        Assert.assertEquals("AIDA64", details.getChild(2).getChild(0).getTitle());
 
         List<Request> requests = api.getRequests();
         Assert.assertEquals(1, requests.size());

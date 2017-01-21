@@ -264,15 +264,22 @@ public class GooglePlayAPI {
     }
 
     /**
-     * Fetches detailed information about passed package name. If it is needed
-     * to fetch information about more than one application, consider using bulkDetails
+     * Fetches detailed information about passed package name.
+     * If you need to fetch information about more than one application, consider using bulkDetails.
      */
     public DetailsResponse details(String packageName) throws IOException {
         Map<String, String> params = new HashMap<>();
         params.put("doc", packageName);
 
         byte[] responseBytes = getClient().get(DETAILS_URL, params, getDefaultHeaders());
-        return ResponseWrapper.parseFrom(responseBytes).getPayload().getDetailsResponse();
+        ResponseWrapper w = ResponseWrapper.parseFrom(responseBytes);
+
+        DetailsResponse detailsResponse = w.getPayload().getDetailsResponse();
+        DocV2.Builder docV2Builder = DocV2.newBuilder(detailsResponse.getDocV2());
+        for (PreFetch prefetch: w.getPreFetchList()) {
+            docV2Builder.addChild(prefetch.getResponse().getPayload().getListResponse().getDocList().get(0));
+        }
+        return DetailsResponse.newBuilder(detailsResponse).setDocV2(docV2Builder).build();
     }
 
     /**
