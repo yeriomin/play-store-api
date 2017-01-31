@@ -435,7 +435,13 @@ public class GooglePlayAPI {
         UploadDeviceConfigRequest request = UploadDeviceConfigRequest.newBuilder()
             .setDeviceConfiguration(this.deviceInfoProvider.getDeviceConfigurationProto())
             .build();
-        byte[] responseBytes = getClient().post(UPLOADDEVICECONFIG_URL, request.toByteArray(), getDefaultHeaders());
+        Map<String, String> headers = getDefaultHeaders();
+        headers.put("X-DFE-Enabled-Experiments", "cl:billing.select_add_instrument_by_default");
+        headers.put("X-DFE-Unsupported-Experiments", "nocache:billing.use_charging_poller,market_emails,buyer_currency,prod_baseline,checkin.set_asset_paid_app_field,shekel_test,content_ratings,buyer_currency_in_app,nocache:encrypted_apk,recent_changes");
+        headers.put("X-DFE-Client-Id", "am-android-google");
+        headers.put("X-DFE-SmallestScreenWidthDp", "320");
+        headers.put("X-DFE-Filter-Level", "3");
+        byte[] responseBytes = getClient().post(UPLOADDEVICECONFIG_URL, request.toByteArray(), headers);
         return ResponseWrapper.parseFrom(responseBytes).getPayload().getUploadDeviceConfigResponse();
     }
 
