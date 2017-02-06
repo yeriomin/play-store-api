@@ -1,10 +1,14 @@
 package com.github.yeriomin.playstoreapi;
 
-import com.google.protobuf.InvalidProtocolBufferException;
-
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
 
 /**
  * This class provides
@@ -124,26 +128,24 @@ public class GooglePlayAPI {
      * using <code>getToken()</code> or from returned
      * {@link AndroidCheckinResponse} instance.
      */
-    public String getGsfId(String password) throws IOException {
-        AndroidCheckinRequest request = this.deviceInfoProvider.generateAndroidCheckinRequest();
-
+    public String getGsfId(String ac2dmToken) throws IOException {
         // this first checkin is for generating android-id
-        AndroidCheckinResponse checkinResponse = checkin(request.toByteArray());
-        this.gsfId = BigInteger.valueOf(checkinResponse.getAndroidId()).toString(16);
-        String securityToken = BigInteger.valueOf(checkinResponse.getSecurityToken()).toString(16);
+        AndroidCheckinRequest request = this.deviceInfoProvider.generateAndroidCheckinRequest();
+        AndroidCheckinResponse checkinResponse1 = checkin(request.toByteArray());
+        String securityToken = BigInteger.valueOf(checkinResponse1.getSecurityToken()).toString(16);
 
-        AndroidCheckinRequest.Builder checkInbuilder = AndroidCheckinRequest.newBuilder(request);
-        String AC2DMToken = getAC2DMToken(password);
-        AndroidCheckinRequest build = checkInbuilder
-            .setId(new BigInteger(this.gsfId, 16).longValue())
-            .setSecurityToken(new BigInteger(securityToken, 16).longValue())
-            .addAccountCookie("[" + this.email + "]")
-            .addAccountCookie(AC2DMToken)
-            .build();
         // this is the second checkin to match credentials with android-id
+        AndroidCheckinRequest.Builder checkInbuilder = AndroidCheckinRequest.newBuilder(request);
+        String gsfId = BigInteger.valueOf(checkinResponse1.getAndroidId()).toString(16);
+        AndroidCheckinRequest build = checkInbuilder
+                .setId(new BigInteger(gsfId, 16).longValue())
+                .setSecurityToken(new BigInteger(securityToken, 16).longValue())
+                .addAccountCookie("[" + this.email + "]")
+                .addAccountCookie(ac2dmToken)
+                .build();
         checkin(build.toByteArray());
 
-        return this.gsfId;
+        return gsfId;
     }
 
     /**
@@ -166,7 +168,6 @@ public class GooglePlayAPI {
         Map<String, String> params = getDefaultLoginParams(password);
         params.put("service", "androidmarket");
         params.put("app", "com.android.vending");
-        params.put("androidId", this.gsfId);
         byte[] responseBytes = getClient().post(URL_LOGIN, params, getDefaultHeaders());
         Map<String, String> response = parseResponse(new String(responseBytes));
         if (response.containsKey("Auth")) {
@@ -433,8 +434,8 @@ public class GooglePlayAPI {
      */
     public UploadDeviceConfigResponse uploadDeviceConfig() throws IOException {
         UploadDeviceConfigRequest request = UploadDeviceConfigRequest.newBuilder()
-            .setDeviceConfiguration(this.deviceInfoProvider.getDeviceConfigurationProto())
-            .build();
+                .setDeviceConfiguration(this.deviceInfoProvider.getDeviceConfigurationProto())
+                .build();
         Map<String, String> headers = getDefaultHeaders();
         headers.put("X-DFE-Enabled-Experiments", "cl:billing.select_add_instrument_by_default");
         headers.put("X-DFE-Unsupported-Experiments", "nocache:billing.use_charging_poller,market_emails,buyer_currency,prod_baseline,checkin.set_asset_paid_app_field,shekel_test,content_ratings,buyer_currency_in_app,nocache:encrypted_apk,recent_changes");
@@ -482,7 +483,7 @@ public class GooglePlayAPI {
      * Using Accept-Language you can fetch localized informations such as reviews and descriptions.
      * Note that changing this value has no affect on localized application list that
      * server provides. It depends on only your IP location.
-     * 
+     *
      */
     private Map<String, String> getDefaultHeaders() {
         Map<String, String> headers = new HashMap<>();
@@ -583,10 +584,10 @@ public class GooglePlayAPI {
             }
 
             if (null != response
-                && response.getDocCount() > 0
-                && response.getDocList().get(0).hasContainerMetadata()
-                && response.getDocList().get(0).getContainerMetadata().hasNextPageUrl()
-            ) {
+                    && response.getDocCount() > 0
+                    && response.getDocList().get(0).hasContainerMetadata()
+                    && response.getDocList().get(0).getContainerMetadata().hasNextPageUrl()
+                    ) {
                 this.nextPageUrl = FDFE_URL + response.getDocList().get(0).getContainerMetadata().getNextPageUrl();
             } else {
                 this.nextPageUrl = null;
