@@ -23,6 +23,7 @@ public class GooglePlayAPITest {
     private static final String PASSWORD = "TemporaryPassword!";
     private static final String GSFID = "3f1abe856b0fa7fd";
     private static final String TOKEN = "IwSyrLX3vSyMI1wdSUEdZ08EVcbg---1Wto-Owy7FP-U9eeRcwASB4z7p-Ne8ECDNp3FNw.";
+//    private static final String TOKEN = "UgSyrMiu3PtcE60Ywfbx8vQa_rntiOJQLbakoyy12lwNFkBSr0hePu2m-Qu-XO6djRTU2A.";
 
     private MockGooglePlayAPI api;
 
@@ -362,6 +363,61 @@ public class GooglePlayAPITest {
         Assert.assertEquals("3", request.url().queryParameter("c"));
         Assert.assertEquals("0", request.url().queryParameter("o"));
         Assert.assertEquals("20", request.url().queryParameter("n"));
+    }
+
+    @Test
+    public void categoriesTop() throws Exception {
+        BrowseResponse response = api.categories();
+
+        Assert.assertTrue(response.hasCategoryContainer());
+        Assert.assertEquals(35, response.getCategoryContainer().getCategoryCount());
+        Assert.assertEquals("Games", response.getCategoryContainer().getCategory(14).getName());
+        Assert.assertEquals("homeV2?cat=GAME&c=3", response.getCategoryContainer().getCategory(14).getDataUrl());
+        Assert.assertTrue(response.getCategoryContainer().getCategory(14).hasUnknownCategoryContainer());
+        Assert.assertTrue(response.getCategoryContainer().getCategory(14).getUnknownCategoryContainer().hasCategoryIdContainer());
+        Assert.assertTrue(response.getCategoryContainer().getCategory(14).getUnknownCategoryContainer().getCategoryIdContainer().hasCategoryId());
+        Assert.assertEquals("GAME", response.getCategoryContainer().getCategory(14).getUnknownCategoryContainer().getCategoryIdContainer().getCategoryId());
+        Assert.assertTrue(response.getCategoryContainer().getCategory(14).hasIcon());
+        Assert.assertEquals(5, response.getCategoryContainer().getCategory(14).getIcon().getImageType());
+        Assert.assertEquals("http://lh3.ggpht.com/9B4h3oV3V976QI22pHX5CAZmpOjhtjxmJ85x234iVasadqm_lQjL4rebkIoHpDvv_qM09sXlH9UVyHvhmQ", response.getCategoryContainer().getCategory(14).getIcon().getImageUrl());
+        Assert.assertEquals("#FF0F9D58", response.getCategoryContainer().getCategory(14).getIcon().getColor());
+
+        List<Request> requests = api.getRequests();
+        Assert.assertEquals(1, requests.size());
+        Request request = requests.get(0);
+        Assert.assertEquals(2, request.url().pathSegments().size());
+        Assert.assertEquals("fdfe", request.url().pathSegments().get(0));
+        Assert.assertEquals("categories", request.url().pathSegments().get(1));
+        Assert.assertEquals(1, request.url().queryParameterNames().size());
+        Assert.assertEquals("3", request.url().queryParameter("c"));
+    }
+
+    @Test
+    public void categoriesSub() throws Exception {
+        BrowseResponse response = api.categories("GAME");
+
+        Assert.assertTrue(response.hasCategoryContainer());
+        Assert.assertEquals(18, response.getCategoryContainer().getCategoryCount());
+        Assert.assertEquals("Action", response.getCategoryContainer().getCategory(0).getName());
+        Assert.assertEquals("homeV2?cat=GAME_ACTION&c=3", response.getCategoryContainer().getCategory(0).getDataUrl());
+        Assert.assertTrue(response.getCategoryContainer().getCategory(0).hasUnknownCategoryContainer());
+        Assert.assertTrue(response.getCategoryContainer().getCategory(0).getUnknownCategoryContainer().hasCategoryIdContainer());
+        Assert.assertTrue(response.getCategoryContainer().getCategory(0).getUnknownCategoryContainer().getCategoryIdContainer().hasCategoryId());
+        Assert.assertEquals("GAME_ACTION", response.getCategoryContainer().getCategory(0).getUnknownCategoryContainer().getCategoryIdContainer().getCategoryId());
+        Assert.assertTrue(response.getCategoryContainer().getCategory(0).hasIcon());
+        Assert.assertEquals(5, response.getCategoryContainer().getCategory(14).getIcon().getImageType());
+        Assert.assertEquals("http://lh3.ggpht.com/k4nI1STlxTBgEuwyMNapY9U_vBh38h_nIvYtLVVIaT9PtgOIXfRZKccsGa2wK8gVebKX8S7xG72Bu-8kmmY", response.getCategoryContainer().getCategory(14).getIcon().getImageUrl());
+        Assert.assertEquals("#FF0F9D58", response.getCategoryContainer().getCategory(14).getIcon().getColor());
+
+        List<Request> requests = api.getRequests();
+        Assert.assertEquals(1, requests.size());
+        Request request = requests.get(0);
+        Assert.assertEquals(2, request.url().pathSegments().size());
+        Assert.assertEquals("fdfe", request.url().pathSegments().get(0));
+        Assert.assertEquals("categories", request.url().pathSegments().get(1));
+        Assert.assertEquals(2, request.url().queryParameterNames().size());
+        Assert.assertEquals("3", request.url().queryParameter("c"));
+        Assert.assertEquals("GAME", request.url().queryParameter("cat"));
     }
 
     private MockGooglePlayAPI initApi() {

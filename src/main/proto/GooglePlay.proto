@@ -89,12 +89,24 @@ message BookSubject {
 message BrowseLink {
   optional string name = 1;
   optional string dataUrl = 3;
+  optional Image icon = 5;
+  optional UnknownCategoryContainer unknownCategoryContainer = 4;
+}
+message UnknownCategoryContainer {
+  optional CategoryIdContainer categoryIdContainer = 5;
+}
+message CategoryIdContainer {
+  optional string categoryId = 4;
 }
 message BrowseResponse {
   optional string contentsUrl = 1;
   optional string promoUrl = 2;
   repeated BrowseLink category = 3;
   repeated BrowseLink breadcrumb = 4;
+  optional CategoryContainer categoryContainer = 9;
+}
+message CategoryContainer {
+  repeated BrowseLink category = 4;
 }
 message AddressChallenge {
   optional string responseAddressParam = 1;
@@ -407,6 +419,7 @@ message Image {
     optional string titleLocalized = 11;
     optional string url = 12;
   }
+  optional string color = 15;
 }
 message TranslatedText {
   optional string text = 1;
@@ -605,7 +618,7 @@ message DocV2 {
   optional ContainerMetadata containerMetadata = 12;
   optional DocumentDetails details = 13;
   optional AggregateRating aggregateRating = 14;
-
+  optional RelatedLinks relatedLinks = 15;
   optional string detailsUrl = 16;
   optional string shareUrl = 17;
   optional string reviewsUrl = 18;
@@ -613,6 +626,22 @@ message DocV2 {
   optional string purchaseDetailsUrl = 20;
   optional bool detailsReusable = 21;
   optional string subtitle = 22;
+}
+message RelatedLinks {
+  optional string privacyPolicyUrl = 18;
+  optional RelatedLink youMightAlsoLike = 24;
+  optional Rated rated = 29;
+  repeated RelatedLink relatedLink = 34;
+}
+message Rated {
+  optional string label = 1;
+  optional Image image = 2;
+  optional string learnMoreHtmlLink = 4;
+}
+message RelatedLink {
+  optional string label = 1;
+  optional string url1 = 2;
+  optional string url2 = 3;
 }
 message EncryptedSubscriberInfo {
   optional string data = 1;

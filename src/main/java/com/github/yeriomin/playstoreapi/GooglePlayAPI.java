@@ -20,6 +20,12 @@ import java.util.StringTokenizer;
  */
 public class GooglePlayAPI {
 
+    private static final int IMAGE_TYPE_APP_SCREENSHOT = 1;
+    private static final int IMAGE_TYPE_PLAY_STORE_PAGE_BACKGROUND = 2;
+    private static final int IMAGE_TYPE_YOUTUBE_VIDEO_LINK = 3;
+    private static final int IMAGE_TYPE_APP_ICON = 4;
+    private static final int IMAGE_TYPE_CATEGORY_ICON = 5;
+
     private static final String SCHEME = "https://";
     private static final String HOST = "android.clients.google.com";
     private static final String CHECKIN_URL = SCHEME + HOST + "/checkin";
@@ -39,6 +45,7 @@ public class GooglePlayAPI {
     private static final String DELETE_REVIEW_URL = FDFE_URL + "deleteReview";
     private static final String UPLOADDEVICECONFIG_URL = FDFE_URL + "uploadDeviceConfig";
     private static final String RECOMMENDATIONS_URL = FDFE_URL + "rec";
+    private static final String CATEGORIES_URL = FDFE_URL + "categories";
 
     private static final String ACCOUNT_TYPE_HOSTED_OR_GOOGLE = "HOSTED_OR_GOOGLE";
 
@@ -458,6 +465,25 @@ public class GooglePlayAPI {
         params.put("rt", (type == null) ? null : String.valueOf(type.value));
         byte[] responseBytes = getClient().get(RECOMMENDATIONS_URL, params, getDefaultHeaders());
         return ResponseWrapper.parseFrom(responseBytes).getPayload().getListResponse();
+    }
+
+    /**
+     * Fetches top level categories list
+     */
+    public BrowseResponse categories() throws IOException {
+        return categories(null);
+    }
+
+    /**
+     * Fetches sub categories of the given category
+     */
+    public BrowseResponse categories(String category) throws IOException {
+        Map<String, String> params = getDefaultGetParams();
+        if (null != category && !category.isEmpty()) {
+            params.put("cat", category);
+        }
+        byte[] responseBytes = getClient().get(CATEGORIES_URL, params, getDefaultHeaders());
+        return ResponseWrapper.parseFrom(responseBytes).getPayload().getBrowseResponse();
     }
 
     /**
