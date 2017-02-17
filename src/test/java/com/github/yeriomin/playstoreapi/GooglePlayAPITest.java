@@ -142,6 +142,10 @@ public class GooglePlayAPITest {
         Assert.assertEquals(20, response.getDocList().get(0).getChildCount());
         DocV2 details = response.getDocList().get(0).getChild(0);
         Assert.assertEquals("CPU-Z", details.getTitle());
+        Assert.assertTrue(details.hasRelatedLinks());
+        Assert.assertTrue(details.getRelatedLinks().hasCategoryInfo());
+        Assert.assertTrue(details.getRelatedLinks().getCategoryInfo().hasAppCategory());
+        Assert.assertEquals("TOOLS", details.getRelatedLinks().getCategoryInfo().getAppCategory());
 
         List<Request> requests = api.getRequests();
         Assert.assertEquals(1, requests.size());
@@ -196,6 +200,14 @@ public class GooglePlayAPITest {
         Assert.assertTrue(details.getChild(2).getBackendDocid().startsWith("users_also_installed"));
         Assert.assertEquals(20, details.getChild(2).getChildCount());
         Assert.assertEquals("AIDA64", details.getChild(2).getChild(0).getTitle());
+        Assert.assertTrue(details.getChild(2).getChild(0).hasRelatedLinks());
+        Assert.assertTrue(details.getChild(2).getChild(0).getRelatedLinks().hasCategoryInfo());
+        Assert.assertTrue(details.getChild(2).getChild(0).getRelatedLinks().getCategoryInfo().hasAppCategory());
+        Assert.assertEquals("TOOLS", details.getChild(2).getChild(0).getRelatedLinks().getCategoryInfo().getAppCategory());
+        Assert.assertTrue(details.hasRelatedLinks());
+        Assert.assertTrue(details.getRelatedLinks().hasCategoryInfo());
+        Assert.assertTrue(details.getRelatedLinks().getCategoryInfo().hasAppCategory());
+        Assert.assertEquals("TOOLS", details.getRelatedLinks().getCategoryInfo().getAppCategory());
 
         List<Request> requests = api.getRequests();
         Assert.assertEquals(1, requests.size());

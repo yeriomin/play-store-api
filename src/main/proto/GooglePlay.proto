@@ -631,7 +631,8 @@ message RelatedLinks {
   optional string privacyPolicyUrl = 18;
   optional RelatedLink youMightAlsoLike = 24;
   optional Rated rated = 29;
-  repeated RelatedLink relatedLink = 34;
+  repeated RelatedLink relatedLinks = 34;
+  optional CategoryInfo categoryInfo = 53;
 }
 message Rated {
   optional string label = 1;
@@ -642,6 +643,10 @@ message RelatedLink {
   optional string label = 1;
   optional string url1 = 2;
   optional string url2 = 3;
+}
+message CategoryInfo {
+  optional string appType = 1;
+  optional string appCategory = 2;
 }
 message EncryptedSubscriberInfo {
   optional string data = 1;
@@ -695,8 +700,8 @@ message LibraryAppDetails {
   optional int64 postDeliveryRefundWindowMsec = 4;
 }
 message LibraryInAppDetails {
-    optional string signedPurchaseData = 1;
-    optional string signature = 2;
+  optional string signedPurchaseData = 1;
+  optional string signature = 2;
 }
 message LibraryMutation {
   optional Docid docid = 1;
@@ -889,12 +894,12 @@ message SearchSuggestEntry {
 
 
 message UploadDeviceConfigRequest {
-	optional DeviceConfigurationProto deviceConfiguration = 1;
-	optional string manufacturer = 2;
-	optional string gcmRegistrationId = 3;
+  optional DeviceConfigurationProto deviceConfiguration = 1;
+  optional string manufacturer = 2;
+  optional string gcmRegistrationId = 3;
 }
 message UploadDeviceConfigResponse {
-	optional string uploadDeviceConfigToken = 1;
+  optional string uploadDeviceConfigToken = 1;
 }
 message AndroidCheckinRequest {
   optional string imei = 1;
@@ -991,64 +996,64 @@ message ClientLibraryState {
   optional string libraryId = 5;
 }
 message AndroidDataUsageProto {
-    optional int32 version = 1;
-    optional int64 currentReportMsec = 2;
-    repeated KeyToPackageNameMapping keyToPackageNameMapping = 3;
-    repeated PayloadLevelAppStat payloadLevelAppStat = 4;
-    repeated IpLayerNetworkStat ipLayerNetworkStat = 5;
+  optional int32 version = 1;
+  optional int64 currentReportMsec = 2;
+  repeated KeyToPackageNameMapping keyToPackageNameMapping = 3;
+  repeated PayloadLevelAppStat payloadLevelAppStat = 4;
+  repeated IpLayerNetworkStat ipLayerNetworkStat = 5;
 }
 message AndroidUsageStatsReport {
-    optional int64 androidId = 1;
-    optional int64 loggingId = 2;
-    optional UsageStatsExtensionProto usageStats = 3;
+  optional int64 androidId = 1;
+  optional int64 loggingId = 2;
+  optional UsageStatsExtensionProto usageStats = 3;
 }
 message AppBucket {
-    optional int64 bucketStartMsec = 1;
-    optional int64 bucketDurationMsec = 2;
-    repeated StatCounters statCounters = 3;
-    optional int64 operationCount = 4;
+  optional int64 bucketStartMsec = 1;
+  optional int64 bucketDurationMsec = 2;
+  repeated StatCounters statCounters = 3;
+  optional int64 operationCount = 4;
 }
 message CounterData {
-    optional int64 bytes = 1;
-    optional int64 packets = 2;
+  optional int64 bytes = 1;
+  optional int64 packets = 2;
 }
 message IpLayerAppStat {
-    optional int32 packageKey = 1;
-    optional int32 applicationTag = 2;
-    repeated AppBucket ipLayerAppBucket = 3;
+  optional int32 packageKey = 1;
+  optional int32 applicationTag = 2;
+  repeated AppBucket ipLayerAppBucket = 3;
 }
 message IpLayerNetworkBucket {
-    optional int64 bucketStartMsec = 1;
-    optional int64 bucketDurationMsec = 2;
-    repeated StatCounters statCounters = 3;
-    optional int64 networkActiveDuration = 4;
+  optional int64 bucketStartMsec = 1;
+  optional int64 bucketDurationMsec = 2;
+  repeated StatCounters statCounters = 3;
+  optional int64 networkActiveDuration = 4;
 }
 message IpLayerNetworkStat {
-    optional string networkDetails = 1;
-    optional int32 type = 2;
-    repeated IpLayerNetworkBucket ipLayerNetworkBucket = 3;
-    repeated IpLayerAppStat ipLayerAppStat = 4;
+  optional string networkDetails = 1;
+  optional int32 type = 2;
+  repeated IpLayerNetworkBucket ipLayerNetworkBucket = 3;
+  repeated IpLayerAppStat ipLayerAppStat = 4;
 }
 message KeyToPackageNameMapping {
-    optional int32 packageKey = 1;
-    optional string uidName = 2;
-    repeated PackageInfo sharedPackageList = 3;
+  optional int32 packageKey = 1;
+  optional string uidName = 2;
+  repeated PackageInfo sharedPackageList = 3;
 }
 message PackageInfo {
-    optional string pkgName = 1;
-    optional int32 versionCode = 2;
+  optional string pkgName = 1;
+  optional int32 versionCode = 2;
 }
 message PayloadLevelAppStat {
-    optional int32 packageKey = 1;
-    optional int32 applicationTag = 2;
-    repeated AppBucket payloadLevelAppBucket = 3;
+  optional int32 packageKey = 1;
+  optional int32 applicationTag = 2;
+  repeated AppBucket payloadLevelAppBucket = 3;
 }
 message StatCounters {
-    optional int32 networkProto = 1;
-    optional int32 direction = 2;
-    optional CounterData counterData = 3;
-    optional int32 fgBg = 4;
+  optional int32 networkProto = 1;
+  optional int32 direction = 2;
+  optional CounterData counterData = 3;
+  optional int32 fgBg = 4;
 }
 message UsageStatsExtensionProto {
-    optional AndroidDataUsageProto dataUsage = 1;
+  optional AndroidDataUsageProto dataUsage = 1;
 }
