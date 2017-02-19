@@ -289,8 +289,9 @@ public class GooglePlayAPI {
             Payload subPayload = prefetch.getResponse().getPayload();
             if (subPayload.hasListResponse()) {
                 docV2Builder.addChild(subPayload.getListResponse().getDocList().get(0));
-            } else if (subPayload.hasReviewResponse()) {
-                detailsBuilder.setUserReview(subPayload.getReviewResponse().getUserReview());
+            }
+            if (subPayload.hasReviewResponse()) {
+                detailsBuilder.setUserReview(subPayload.getReviewResponse().getGetResponse().getReview(0));
             }
         }
         return detailsBuilder.setDocV2(docV2Builder).build();
