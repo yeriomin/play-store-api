@@ -23,7 +23,6 @@ public class GooglePlayAPITest {
     private static final String PASSWORD = "TemporaryPassword!";
     private static final String GSFID = "3f1abe856b0fa7fd";
     private static final String TOKEN = "IwSyrLX3vSyMI1wdSUEdZ08EVcbg---1Wto-Owy7FP-U9eeRcwASB4z7p-Ne8ECDNp3FNw.";
-//    private static final String TOKEN = "UgSyrMiu3PtcE60Ywfbx8vQa_rntiOJQLbakoyy12lwNFkBSr0hePu2m-Qu-XO6djRTU2A.";
 
     private MockGooglePlayAPI api;
 
