@@ -283,14 +283,17 @@ public class GooglePlayAPI {
         ResponseWrapper w = ResponseWrapper.parseFrom(responseBytes);
 
         DetailsResponse detailsResponse = w.getPayload().getDetailsResponse();
+        DetailsResponse.Builder detailsBuilder = DetailsResponse.newBuilder(detailsResponse);
         DocV2.Builder docV2Builder = DocV2.newBuilder(detailsResponse.getDocV2());
         for (PreFetch prefetch: w.getPreFetchList()) {
             Payload subPayload = prefetch.getResponse().getPayload();
             if (subPayload.hasListResponse()) {
                 docV2Builder.addChild(subPayload.getListResponse().getDocList().get(0));
+            } else if (subPayload.hasReviewResponse()) {
+                detailsBuilder.setUserReview(subPayload.getReviewResponse().getUserReview());
             }
         }
-        return DetailsResponse.newBuilder(detailsResponse).setDocV2(docV2Builder).build();
+        return detailsBuilder.setDocV2(docV2Builder).build();
     }
 
     /**
