@@ -256,7 +256,23 @@ public class GooglePlayAPI {
         params.put("q", query);
 
         byte[] responseBytes = getClient().get(SEARCH_URL, params, getDefaultHeaders());
-        return ResponseWrapper.parseFrom(responseBytes).getPayload().getSearchResponse();
+        return makeSureItsApps(ResponseWrapper.parseFrom(responseBytes).getPayload().getSearchResponse());
+    }
+
+    /**
+     * Sometimes not a list of apps is returned by search, but a list of content types (musix and apps, for example)
+     * each of them having a list of items
+     * In this case we have to find the apps list and return it
+     */
+    private SearchResponse makeSureItsApps(SearchResponse response) {
+        DocV2 doc = response.getDocList().get(0);
+        for (DocV2 child: doc.getChildList()) {
+            if (child.getDocType() == 45 && child.getTitle().equals("Apps")) {
+                response = SearchResponse.newBuilder(response).setDoc(0, child).build();
+                break;
+            }
+        }
+        return response;
     }
 
     /**
@@ -614,22 +630,25 @@ public class GooglePlayAPI {
             SearchResponse response;
             try {
                 byte[] responseBytes = getClient().get(url, params, getDefaultHeaders());
-                response = ResponseWrapper.parseFrom(responseBytes).getPayload().getSearchResponse();
+                response = makeSureItsApps(ResponseWrapper.parseFrom(responseBytes).getPayload().getSearchResponse());
                 this.firstQuery = false;
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
 
+            this.nextPageUrl = getNextPageUrl(response);
+            return response;
+        }
+
+        private String getNextPageUrl(SearchResponse response) {
             if (null != response
                     && response.getDocCount() > 0
                     && response.getDocList().get(0).hasContainerMetadata()
                     && response.getDocList().get(0).getContainerMetadata().hasNextPageUrl()
                     ) {
-                this.nextPageUrl = FDFE_URL + response.getDocList().get(0).getContainerMetadata().getNextPageUrl();
-            } else {
-                this.nextPageUrl = null;
+                return FDFE_URL + response.getDocList().get(0).getContainerMetadata().getNextPageUrl();
             }
-            return response;
+            return null;
         }
 
         @Override
