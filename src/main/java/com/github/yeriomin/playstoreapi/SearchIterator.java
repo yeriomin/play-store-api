@@ -2,7 +2,6 @@ package com.github.yeriomin.playstoreapi;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -11,7 +10,7 @@ import java.util.NoSuchElementException;
  * Iterates through search result pages
  * Each next() call gets you a next page of search results for the provided query
  */
-public class SearchIterator extends AppPageIterator {
+public class SearchIterator extends AppListIterator {
 
     private final String query;
 
@@ -39,7 +38,13 @@ public class SearchIterator extends AppPageIterator {
 
         SearchResponse response;
         try {
-            response = makeSureItsApps(googlePlayApi.genericGet(url, params).getSearchResponse());
+            response = googlePlayApi.genericGet(url, params).getSearchResponse();
+            if (notOnlyApps(response)) {
+                String abnormalNextPageUrl = getAbnormalNextPageUrl(response);
+                if (null != abnormalNextPageUrl) {
+                    response = googlePlayApi.genericGet(abnormalNextPageUrl, params).getSearchResponse();
+                }
+            }
             this.firstQuery = false;
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -50,29 +55,41 @@ public class SearchIterator extends AppPageIterator {
     }
 
     private String getNextPageUrl(SearchResponse response) {
-        if (null != response
-                && response.getDocCount() > 0
-                && response.getDocList().get(0).hasContainerMetadata()
-                && response.getDocList().get(0).getContainerMetadata().hasNextPageUrl()
-                ) {
-            return GooglePlayAPI.FDFE_URL + response.getDocList().get(0).getContainerMetadata().getNextPageUrl();
+        if (null == response || response.getDocCount() == 0) {
+            return null;
+        }
+        DocV2 doc = response.getDoc(0);
+        if (doc.hasContainerMetadata() && doc.getContainerMetadata().hasNextPageUrl()) {
+            return GooglePlayAPI.FDFE_URL + doc.getContainerMetadata().getNextPageUrl();
         }
         return null;
     }
 
     /**
-     * Sometimes not a list of apps is returned by search, but a list of content types (musix and apps, for example)
+     * Sometimes not a list of apps is returned by search, but a list of content types (music and apps, for example)
      * each of them having a list of items
      * In this case we have to find the apps list and return it
      */
-    private SearchResponse makeSureItsApps(SearchResponse response) {
-        DocV2 doc = response.getDocList().get(0);
+    private boolean notOnlyApps(SearchResponse response) {
+        return response.getDocList().get(0).getDocType() != 45 || !response.getDocList().get(0).getTitle().equals("Apps");
+    }
+
+    private String getAbnormalNextPageUrl(SearchResponse response) {
+        if (null == response || response.getDocCount() == 0) {
+            return null;
+        }
+        DocV2 doc = response.getDoc(0);
         for (DocV2 child: doc.getChildList()) {
-            if (child.getDocType() == 45 && child.getTitle().equals("Apps")) {
-                response = SearchResponse.newBuilder(response).setDoc(0, child).build();
-                break;
+            if (child.getDocType() == 45
+                && child.getTitle().equals("Apps")
+                && child.hasRelatedLinks()
+                && child.getRelatedLinks().hasUnknown1()
+                && child.getRelatedLinks().getUnknown1().hasUnknown2()
+                && child.getRelatedLinks().getUnknown1().getUnknown2().hasNextPageUrl()
+            ) {
+                return GooglePlayAPI.FDFE_URL + child.getRelatedLinks().getUnknown1().getUnknown2().getNextPageUrl();
             }
         }
-        return response;
+        return null;
     }
 }

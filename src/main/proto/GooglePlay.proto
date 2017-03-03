@@ -628,11 +628,18 @@ message DocV2 {
   optional string subtitle = 22;
 }
 message RelatedLinks {
+  optional RelatedLinksUnknown1 unknown1 = 10;
   optional string privacyPolicyUrl = 18;
   optional RelatedLink youMightAlsoLike = 24;
   optional Rated rated = 29;
   repeated RelatedLink relatedLinks = 34;
   optional CategoryInfo categoryInfo = 53;
+}
+message RelatedLinksUnknown1 {
+  optional RelatedLinksUnknown2 unknown2 = 2;
+}
+message RelatedLinksUnknown2 {
+  optional string nextPageUrl = 3;
 }
 message Rated {
   optional string label = 1;

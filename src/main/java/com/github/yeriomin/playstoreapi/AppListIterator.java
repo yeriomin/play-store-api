@@ -2,13 +2,13 @@ package com.github.yeriomin.playstoreapi;
 
 import java.util.Iterator;
 
-abstract public class AppPageIterator implements Iterator {
+abstract public class AppListIterator implements Iterator {
 
     protected GooglePlayAPI googlePlayApi;
     protected boolean firstQuery = true;
     protected String nextPageUrl;
 
-    public AppPageIterator(GooglePlayAPI googlePlayApi) {
+    public AppListIterator(GooglePlayAPI googlePlayApi) {
         this.googlePlayApi = googlePlayApi;
     }
 

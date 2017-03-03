@@ -5,12 +5,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-public class CategoryAppIterator extends AppPageIterator {
+public class CategoryAppsIterator extends AppListIterator {
 
     private String categoryId;
     private GooglePlayAPI.SUBCATEGORY subcategory;
 
-    public CategoryAppIterator(GooglePlayAPI googlePlayApi, String categoryId, GooglePlayAPI.SUBCATEGORY subcategory) {
+    public CategoryAppsIterator(GooglePlayAPI googlePlayApi, String categoryId, GooglePlayAPI.SUBCATEGORY subcategory) {
         super(googlePlayApi);
         this.categoryId = categoryId;
         this.subcategory = subcategory;

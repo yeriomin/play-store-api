@@ -138,47 +138,84 @@ public class GooglePlayAPITest {
 
         SearchResponse response = i.next();
         Assert.assertTrue(response.getDocCount() > 0);
-        Assert.assertTrue(response.getDocList().get(0).hasContainerMetadata());
-        Assert.assertTrue(response.getDocList().get(0).getContainerMetadata().hasNextPageUrl());
-        Assert.assertEquals("clusterSearch?q=cpu&n=20&o=20&ecp=ggEFCgNjcHU%3D&ctntkn=-p6BnQMCCBQ%3D&fss=0&c=3&adsEnabled=1", response.getDocList().get(0).getContainerMetadata().getNextPageUrl());
-        Assert.assertEquals(20, response.getDocList().get(0).getChildCount());
-        DocV2 details = response.getDocList().get(0).getChild(0);
+        Assert.assertTrue(response.getDoc(0).hasContainerMetadata());
+        Assert.assertTrue(response.getDoc(0).getContainerMetadata().hasNextPageUrl());
+        Assert.assertEquals("clusterSearch?q=cpu&n=20&o=20&ecp=ggEFCgNjcHU%3D&ctntkn=-p6BnQMCCBQ%3D&fss=0&c=3&adsEnabled=1", response.getDoc(0).getContainerMetadata().getNextPageUrl());
+        Assert.assertEquals(20, response.getDoc(0).getChildCount());
+        DocV2 details = response.getDoc(0).getChild(0);
         Assert.assertEquals("CPU-Z", details.getTitle());
 
         Assert.assertTrue(i.hasNext());
         SearchResponse response1 = i.next();
         Assert.assertTrue(response1.getDocCount() > 0);
-        Assert.assertTrue(response1.getDocList().get(0).hasContainerMetadata());
-        Assert.assertTrue(response1.getDocList().get(0).getContainerMetadata().hasNextPageUrl());
-        Assert.assertEquals("clusterSearch?q=cpu&n=20&o=40&ecp=ggEFCgNjcHU%3D&ctntkn=-p6BnQMCCCg%3D&fss=0&c=3&adsEnabled=1", response1.getDocList().get(0).getContainerMetadata().getNextPageUrl());
-        Assert.assertEquals(20, response1.getDocList().get(0).getChildCount());
-        DocV2 details1 = response1.getDocList().get(0).getChild(0);
+        Assert.assertTrue(response1.getDoc(0).hasContainerMetadata());
+        Assert.assertTrue(response1.getDoc(0).getContainerMetadata().hasNextPageUrl());
+        Assert.assertEquals("clusterSearch?q=cpu&n=20&o=40&ecp=ggEFCgNjcHU%3D&ctntkn=-p6BnQMCCCg%3D&fss=0&c=3&adsEnabled=1", response1.getDoc(0).getContainerMetadata().getNextPageUrl());
+        Assert.assertEquals(20, response1.getDoc(0).getChildCount());
+        DocV2 details1 = response1.getDoc(0).getChild(0);
         Assert.assertEquals("AnTuTu Benchmark", details1.getTitle());
     }
 
     @Test
+    public void searchIteratorAbnormal() throws Exception {
+        SearchIterator i = new SearchIterator(api, "english");
+        Assert.assertEquals("english", i.getQuery());
+        Assert.assertTrue(i.hasNext());
+
+        SearchResponse response = i.next();
+
+        List<Request> requests = api.getRequests();
+        Assert.assertEquals(2, requests.size());
+        Request request = requests.get(0);
+        Assert.assertEquals(2, request.url().pathSegments().size());
+        Assert.assertEquals("fdfe", request.url().pathSegments().get(0));
+        Assert.assertEquals("search", request.url().pathSegments().get(1));
+        Assert.assertEquals(2, request.url().queryParameterNames().size());
+        Assert.assertEquals("english", request.url().queryParameter("q"));
+        Assert.assertEquals("3", request.url().queryParameter("c"));
+
+        Assert.assertTrue(response.getDocCount() > 0);
+        Assert.assertTrue(response.getDoc(0).hasContainerMetadata());
+        Assert.assertTrue(response.getDoc(0).getContainerMetadata().hasNextPageUrl());
+        Assert.assertEquals("clusterSearch?q=english&n=20&o=10&ecp=ggEJCgdlbmdsaXNo&ctntkn=-p6BnQMCCAo%3D&fss=0&c=3&adsEnabled=1", response.getDoc(0).getContainerMetadata().getNextPageUrl());
+        Assert.assertEquals(10, response.getDoc(0).getChildCount());
+        DocV2 details = response.getDoc(0).getChild(0);
+        Assert.assertEquals("Duolingo: Learn Languages Free", details.getTitle());
+
+        Assert.assertTrue(i.hasNext());
+        SearchResponse response1 = i.next();
+        Assert.assertTrue(response1.getDocCount() > 0);
+        Assert.assertTrue(response1.getDoc(0).hasContainerMetadata());
+        Assert.assertTrue(response1.getDoc(0).getContainerMetadata().hasNextPageUrl());
+        Assert.assertEquals("clusterSearch?q=english&n=20&o=30&ecp=ggEJCgdlbmdsaXNo&ctntkn=-p6BnQMCCB4%3D&fss=0&c=3&adsEnabled=1", response1.getDoc(0).getContainerMetadata().getNextPageUrl());
+        Assert.assertEquals(20, response1.getDoc(0).getChildCount());
+        DocV2 details1 = response1.getDoc(0).getChild(0);
+        Assert.assertEquals("Learn English - 5000 Phrases", details1.getTitle());
+    }
+
+    @Test
     public void categoryAppIterator() throws Exception {
-        CategoryAppIterator i = new CategoryAppIterator(api, "FINANCE", GooglePlayAPI.SUBCATEGORY.TOP_FREE);
+        CategoryAppsIterator i = new CategoryAppsIterator(api, "FINANCE", GooglePlayAPI.SUBCATEGORY.TOP_FREE);
         Assert.assertEquals("FINANCE", i.getCategoryId());
         Assert.assertTrue(i.hasNext());
 
         ListResponse response = i.next();
         Assert.assertTrue(response.getDocCount() > 0);
-        Assert.assertTrue(response.getDocList().get(0).hasContainerMetadata());
-        Assert.assertTrue(response.getDocList().get(0).getContainerMetadata().hasNextPageUrl());
-        Assert.assertEquals("list?c=3&ctr=apps_topselling_free&cat=FINANCE&n=20&o=20&ctntkn=CBQ%3D", response.getDocList().get(0).getContainerMetadata().getNextPageUrl());
-        Assert.assertEquals(20, response.getDocList().get(0).getChildCount());
-        DocV2 details = response.getDocList().get(0).getChild(0);
+        Assert.assertTrue(response.getDoc(0).hasContainerMetadata());
+        Assert.assertTrue(response.getDoc(0).getContainerMetadata().hasNextPageUrl());
+        Assert.assertEquals("list?c=3&ctr=apps_topselling_free&cat=FINANCE&n=20&o=20&ctntkn=CBQ%3D", response.getDoc(0).getContainerMetadata().getNextPageUrl());
+        Assert.assertEquals(20, response.getDoc(0).getChildCount());
+        DocV2 details = response.getDoc(0).getChild(0);
         Assert.assertEquals("Сбербанк Онлайн", details.getTitle());
 
         Assert.assertTrue(i.hasNext());
         ListResponse response1 = i.next();
         Assert.assertTrue(response1.getDocCount() > 0);
-        Assert.assertTrue(response1.getDocList().get(0).hasContainerMetadata());
-        Assert.assertTrue(response1.getDocList().get(0).getContainerMetadata().hasNextPageUrl());
-        Assert.assertEquals("list?c=3&ctr=apps_topselling_free&cat=FINANCE&n=20&o=40&ctntkn=CCg%3D", response1.getDocList().get(0).getContainerMetadata().getNextPageUrl());
-        Assert.assertEquals(20, response1.getDocList().get(0).getChildCount());
-        DocV2 details1 = response1.getDocList().get(0).getChild(0);
+        Assert.assertTrue(response1.getDoc(0).hasContainerMetadata());
+        Assert.assertTrue(response1.getDoc(0).getContainerMetadata().hasNextPageUrl());
+        Assert.assertEquals("list?c=3&ctr=apps_topselling_free&cat=FINANCE&n=20&o=40&ctntkn=CCg%3D", response1.getDoc(0).getContainerMetadata().getNextPageUrl());
+        Assert.assertEquals(20, response1.getDoc(0).getChildCount());
+        DocV2 details1 = response1.getDoc(0).getChild(0);
         Assert.assertEquals("Денежные Переводы", details1.getTitle());
     }
 
