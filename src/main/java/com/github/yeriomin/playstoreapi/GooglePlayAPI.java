@@ -3,11 +3,9 @@ package com.github.yeriomin.playstoreapi;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 /**
@@ -31,11 +29,11 @@ public class GooglePlayAPI {
     private static final String CHECKIN_URL = SCHEME + HOST + "/checkin";
     private static final String URL_LOGIN = SCHEME + HOST + "/auth";
     private static final String C2DM_REGISTER_URL = SCHEME + HOST + "/c2dm/register2";
-    private static final String FDFE_URL = SCHEME + HOST + "/fdfe/";
-    private static final String LIST_URL = FDFE_URL + "list";
+    public static final String FDFE_URL = SCHEME + HOST + "/fdfe/";
+    public static final String LIST_URL = FDFE_URL + "list";
     private static final String BROWSE_URL = FDFE_URL + "browse";
     private static final String DETAILS_URL = FDFE_URL + "details";
-    private static final String SEARCH_URL = FDFE_URL + "search";
+    public static final String SEARCH_URL = FDFE_URL + "search";
     private static final String SEARCHSUGGEST_URL = FDFE_URL + "searchSuggest";
     private static final String BULKDETAILS_URL = FDFE_URL + "bulkDetails";
     private static final String PURCHASE_URL = FDFE_URL + "purchase";
@@ -75,6 +73,16 @@ public class GooglePlayAPI {
         public int value;
 
         SEARCH_SUGGESTION_TYPE(int value) {
+            this.value = value;
+        }
+    }
+
+    public enum SUBCATEGORY {
+        TOP_FREE("apps_topselling_free"), TOP_GROSSING("apps_topgrossing"), MOVERS_SHAKERS("apps_movers_shakers");
+
+        public String value;
+
+        SUBCATEGORY(String value) {
             this.value = value;
         }
     }
@@ -235,59 +243,6 @@ public class GooglePlayAPI {
     }
 
     /**
-     * Equivalent of <code>search(query, null, null)</code>
-     */
-    public SearchResponse search(String query) throws IOException {
-        return search(query, null, null);
-    }
-
-    /**
-     * Fetches a search results for given query.
-     * Offset and numberOfResults parameters are optional.
-     *
-     * Warning! offset and numberOfResults do not seem to work anymore.
-     * The api always returns a fixed number of results. And always the first results.
-     * Fetching further results is done through next page url returned with the search result.
-     *
-     * @deprecated Use getSearchIterator() instead.
-     */
-    public SearchResponse search(String query, Integer offset, Integer numberOfResults) throws IOException {
-        Map<String, String> params = getDefaultGetParams(offset, numberOfResults);
-        params.put("q", query);
-
-        byte[] responseBytes = getClient().get(SEARCH_URL, params, getDefaultHeaders());
-        return makeSureItsApps(ResponseWrapper.parseFrom(responseBytes).getPayload().getSearchResponse());
-    }
-
-    /**
-     * Sometimes not a list of apps is returned by search, but a list of content types (musix and apps, for example)
-     * each of them having a list of items
-     * In this case we have to find the apps list and return it
-     */
-    private SearchResponse makeSureItsApps(SearchResponse response) {
-        DocV2 doc = response.getDocList().get(0);
-        for (DocV2 child: doc.getChildList()) {
-            if (child.getDocType() == 45 && child.getTitle().equals("Apps")) {
-                response = SearchResponse.newBuilder(response).setDoc(0, child).build();
-                break;
-            }
-        }
-        return response;
-    }
-
-    /**
-     * Search - the new way
-     * Returns an iterator which requests the first search result page and then remembers the next page urls
-     * provided with each next response.
-     *
-     * @param query
-     * @return SearchIterator
-     */
-    public SearchIterator getSearchIterator(String query) {
-        return new SearchIterator(query);
-    }
-
-    /**
      * Fetches detailed information about passed package name.
      * If you need to fetch information about more than one application, consider using bulkDetails.
      */
@@ -342,30 +297,6 @@ public class GooglePlayAPI {
         }
         byte[] responseBytes = getClient().get(BROWSE_URL, params, getDefaultHeaders());
         return ResponseWrapper.parseFrom(responseBytes).getPayload().getBrowseResponse();
-    }
-
-    /**
-     * Equivalent of <code>list(categoryId, null, null, null)</code>. It fetches
-     * sub-categories of given category!
-     */
-    public ListResponse list(String categoryId) throws IOException {
-        return list(categoryId, null, null, null);
-    }
-
-    /**
-     * Fetches applications within supplied category and sub-category. If
-     * <code>null</code> is given for sub-category, it fetches sub-categories of
-     * passed category.
-     * <p>
-     * Default values for offset and numberOfResult are "0" and "20"
-     * respectively. These values are determined by Google Play Store.
-     */
-    public ListResponse list(String categoryId, String subCategoryId, Integer offset, Integer numberOfResults) throws IOException {
-        Map<String, String> params = getDefaultGetParams(offset, numberOfResults);
-        params.put("cat", categoryId);
-        params.put("ctr", subCategoryId);
-        byte[] responseBytes = getClient().get(LIST_URL, params, getDefaultHeaders());
-        return ResponseWrapper.parseFrom(responseBytes).getPayload().getListResponse();
     }
 
     /**
@@ -510,6 +441,21 @@ public class GooglePlayAPI {
     }
 
     /**
+     * Use this with the urls which play store returns: next page urls, suggests and so on
+     *
+     */
+    public Payload genericGet(String url, Map<String, String> params) throws IOException {
+        if (null == params) {
+            params = new HashMap<>();
+        }
+        if (!params.containsKey("c")) {
+            params.put("c", "3");
+        }
+        byte[] responseBytes = getClient().get(url, params, getDefaultHeaders());
+        return ResponseWrapper.parseFrom(responseBytes).getPayload();
+    }
+
+    /**
      * login methods use this
      * Most likely not all of these are required, but the Market app sends them, so we will too
      *
@@ -589,71 +535,5 @@ public class GooglePlayAPI {
             }
         }
         return keyValueMap;
-    }
-
-    /**
-     * Iterates through search result pages
-     * Each next() call gets you a next page of search results for the provided query
-     */
-    public class SearchIterator implements Iterator<SearchResponse> {
-
-        private boolean firstQuery = true;
-        private final String query;
-        private String nextPageUrl;
-
-        SearchIterator(String query) {
-            this.query = query;
-        }
-
-        public String getQuery() {
-            return query;
-        }
-
-        @Override
-        public boolean hasNext() {
-            return this.firstQuery || (null != this.nextPageUrl && !this.nextPageUrl.isEmpty());
-        }
-
-        @Override
-        public SearchResponse next() {
-            String url = SEARCH_URL;
-            Map<String, String> params = new HashMap<>();
-            if (this.firstQuery) {
-                params.put("c", "3");
-                params.put("q", query);
-            } else if (null != this.nextPageUrl && !this.nextPageUrl.isEmpty()) {
-                url = this.nextPageUrl;
-            } else {
-                throw new NoSuchElementException();
-            }
-
-            SearchResponse response;
-            try {
-                byte[] responseBytes = getClient().get(url, params, getDefaultHeaders());
-                response = makeSureItsApps(ResponseWrapper.parseFrom(responseBytes).getPayload().getSearchResponse());
-                this.firstQuery = false;
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            this.nextPageUrl = getNextPageUrl(response);
-            return response;
-        }
-
-        private String getNextPageUrl(SearchResponse response) {
-            if (null != response
-                    && response.getDocCount() > 0
-                    && response.getDocList().get(0).hasContainerMetadata()
-                    && response.getDocList().get(0).getContainerMetadata().hasNextPageUrl()
-                    ) {
-                return FDFE_URL + response.getDocList().get(0).getContainerMetadata().getNextPageUrl();
-            }
-            return null;
-        }
-
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException();
-        }
     }
 }

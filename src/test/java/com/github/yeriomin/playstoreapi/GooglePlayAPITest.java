@@ -131,35 +131,8 @@ public class GooglePlayAPITest {
     }
 
     @Test
-    public void search() throws Exception {
-        SearchResponse response = api.search("cpu");
-
-        Assert.assertTrue(response.getDocCount() > 0);
-        Assert.assertTrue(response.getDocList().get(0).hasContainerMetadata());
-        Assert.assertTrue(response.getDocList().get(0).getContainerMetadata().hasNextPageUrl());
-        Assert.assertEquals("clusterSearch?q=cpu&n=20&o=20&ecp=ggEFCgNjcHU%3D&ctntkn=-p6BnQMCCBQ%3D&fss=0&c=3&adsEnabled=1", response.getDocList().get(0).getContainerMetadata().getNextPageUrl());
-        Assert.assertEquals(20, response.getDocList().get(0).getChildCount());
-        DocV2 details = response.getDocList().get(0).getChild(0);
-        Assert.assertEquals("CPU-Z", details.getTitle());
-        Assert.assertTrue(details.hasRelatedLinks());
-        Assert.assertTrue(details.getRelatedLinks().hasCategoryInfo());
-        Assert.assertTrue(details.getRelatedLinks().getCategoryInfo().hasAppCategory());
-        Assert.assertEquals("TOOLS", details.getRelatedLinks().getCategoryInfo().getAppCategory());
-
-        List<Request> requests = api.getRequests();
-        Assert.assertEquals(1, requests.size());
-        Request request = requests.get(0);
-        Assert.assertEquals(2, request.url().pathSegments().size());
-        Assert.assertEquals("fdfe", request.url().pathSegments().get(0));
-        Assert.assertEquals("search", request.url().pathSegments().get(1));
-        Assert.assertEquals(2, request.url().queryParameterNames().size());
-        Assert.assertEquals("3", request.url().queryParameter("c"));
-        Assert.assertEquals("cpu", request.url().queryParameter("q"));
-    }
-
-    @Test
-    public void getSearchIterator() throws Exception {
-        GooglePlayAPI.SearchIterator i = api.getSearchIterator("cpu");
+    public void searchIterator() throws Exception {
+        SearchIterator i = new SearchIterator(api, "cpu");
         Assert.assertEquals("cpu", i.getQuery());
         Assert.assertTrue(i.hasNext());
 
@@ -181,6 +154,32 @@ public class GooglePlayAPITest {
         Assert.assertEquals(20, response1.getDocList().get(0).getChildCount());
         DocV2 details1 = response1.getDocList().get(0).getChild(0);
         Assert.assertEquals("AnTuTu Benchmark", details1.getTitle());
+    }
+
+    @Test
+    public void categoryAppIterator() throws Exception {
+        CategoryAppIterator i = new CategoryAppIterator(api, "FINANCE", GooglePlayAPI.SUBCATEGORY.TOP_FREE);
+        Assert.assertEquals("FINANCE", i.getCategoryId());
+        Assert.assertTrue(i.hasNext());
+
+        ListResponse response = i.next();
+        Assert.assertTrue(response.getDocCount() > 0);
+        Assert.assertTrue(response.getDocList().get(0).hasContainerMetadata());
+        Assert.assertTrue(response.getDocList().get(0).getContainerMetadata().hasNextPageUrl());
+        Assert.assertEquals("list?c=3&ctr=apps_topselling_free&cat=FINANCE&n=20&o=20&ctntkn=CBQ%3D", response.getDocList().get(0).getContainerMetadata().getNextPageUrl());
+        Assert.assertEquals(20, response.getDocList().get(0).getChildCount());
+        DocV2 details = response.getDocList().get(0).getChild(0);
+        Assert.assertEquals("Сбербанк Онлайн", details.getTitle());
+
+        Assert.assertTrue(i.hasNext());
+        ListResponse response1 = i.next();
+        Assert.assertTrue(response1.getDocCount() > 0);
+        Assert.assertTrue(response1.getDocList().get(0).hasContainerMetadata());
+        Assert.assertTrue(response1.getDocList().get(0).getContainerMetadata().hasNextPageUrl());
+        Assert.assertEquals("list?c=3&ctr=apps_topselling_free&cat=FINANCE&n=20&o=40&ctntkn=CCg%3D", response1.getDocList().get(0).getContainerMetadata().getNextPageUrl());
+        Assert.assertEquals(20, response1.getDocList().get(0).getChildCount());
+        DocV2 details1 = response1.getDocList().get(0).getChild(0);
+        Assert.assertEquals("Денежные Переводы", details1.getTitle());
     }
 
     @Test
