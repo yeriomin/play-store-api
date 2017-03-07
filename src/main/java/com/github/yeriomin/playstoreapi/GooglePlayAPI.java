@@ -91,8 +91,6 @@ public class GooglePlayAPI {
     private Locale locale;
     private DeviceInfoProvider deviceInfoProvider;
 
-    private String email;
-
     /**
      * Auth token
      * Seems to have a very long lifetime - months
@@ -123,10 +121,6 @@ public class GooglePlayAPI {
         this.deviceInfoProvider = deviceInfoProvider;
     }
 
-    public GooglePlayAPI(String email) {
-        this.email = email;
-    }
-
     public void setToken(String token) {
         this.token = token;
     }
@@ -143,7 +137,7 @@ public class GooglePlayAPI {
      * using <code>getToken()</code> or from returned
      * {@link AndroidCheckinResponse} instance.
      */
-    public String getGsfId(String ac2dmToken) throws IOException {
+    public String getGsfId(String email, String ac2dmToken) throws IOException {
         // this first checkin is for generating android-id
         AndroidCheckinRequest request = this.deviceInfoProvider.generateAndroidCheckinRequest();
         AndroidCheckinResponse checkinResponse1 = checkin(request.toByteArray());
@@ -155,7 +149,7 @@ public class GooglePlayAPI {
         AndroidCheckinRequest build = checkInbuilder
                 .setId(new BigInteger(gsfId, 16).longValue())
                 .setSecurityToken(new BigInteger(securityToken, 16).longValue())
-                .addAccountCookie("[" + this.email + "]")
+                .addAccountCookie("[" + email + "]")
                 .addAccountCookie(ac2dmToken)
                 .build();
         checkin(build.toByteArray());
@@ -179,8 +173,8 @@ public class GooglePlayAPI {
      * authentication token. This token can be used to login instead of using
      * email and password every time.
      */
-    public String getToken(String password) throws IOException {
-        Map<String, String> params = getDefaultLoginParams(password);
+    public String getToken(String email, String password) throws IOException {
+        Map<String, String> params = getDefaultLoginParams(email, password);
         params.put("service", "androidmarket");
         params.put("app", "com.android.vending");
         byte[] responseBytes = getClient().post(URL_LOGIN, params, getDefaultHeaders());
@@ -199,8 +193,8 @@ public class GooglePlayAPI {
      * <i>GoogleLoginService(package name : com.google.android.gsf)</i> system APK.
      * But google doesn't seem to care of value of this parameter.
      */
-    public String getAC2DMToken(String password) throws IOException {
-        Map<String, String> params = getDefaultLoginParams(password);
+    public String getAC2DMToken(String email, String password) throws IOException {
+        Map<String, String> params = getDefaultLoginParams(email, password);
         params.put("service", "ac2dm");
         params.put("add_account", "1");
         params.put("app", "com.google.android.gsf");
@@ -213,13 +207,13 @@ public class GooglePlayAPI {
         }
     }
 
-    public Map<String, String> c2dmRegister(String application, String sender, String password) throws IOException {
+    public Map<String, String> c2dmRegister(String application, String sender, String email, String password) throws IOException {
         Map<String, String> params = new HashMap<>();
         params.put("app", application);
         params.put("sender", sender);
         params.put("device", new BigInteger(this.gsfId, 16).toString());
         Map<String, String> headers = getDefaultHeaders();
-        headers.put("Authorization", "GoogleLogin auth=" + getAC2DMToken(password));
+        headers.put("Authorization", "GoogleLogin auth=" + getAC2DMToken(email, password));
         byte[] responseBytes = getClient().post(C2DM_REGISTER_URL, params, headers);
         return parseResponse(new String(responseBytes));
     }
@@ -460,9 +454,9 @@ public class GooglePlayAPI {
      * Most likely not all of these are required, but the Market app sends them, so we will too
      *
      */
-    private Map<String, String> getDefaultLoginParams(String password) {
+    private Map<String, String> getDefaultLoginParams(String email, String password) {
         Map<String, String> params = new HashMap<>();
-        params.put("Email", this.email);
+        params.put("Email", email);
         params.put("Passwd", password);
         params.put("accountType", ACCOUNT_TYPE_HOSTED_OR_GOOGLE);
         params.put("has_permission", "1");

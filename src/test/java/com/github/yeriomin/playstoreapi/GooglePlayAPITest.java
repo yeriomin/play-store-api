@@ -36,9 +36,9 @@ public class GooglePlayAPITest {
         MockGooglePlayAPI api = initApi();
         api.setGsfId(null);
         api.setToken(null);
-        String ac2dmToken = api.getAC2DMToken(PASSWORD);
+        String ac2dmToken = api.getAC2DMToken(EMAIL, PASSWORD);
         Assert.assertEquals("TgSyrINgeerWByF9lukvliiumvlSapg-Gl2d7KbpL7esPQzdbcZ0BK2ktdohPRc2RZHRXw.", ac2dmToken);
-        String gsfId = api.getGsfId(ac2dmToken);
+        String gsfId = api.getGsfId(EMAIL, ac2dmToken);
         Assert.assertEquals("34a77e79566015bf", gsfId);
 
         List<Request> requests = api.getRequests();
@@ -86,7 +86,7 @@ public class GooglePlayAPITest {
     public void getToken() throws Exception {
         MockGooglePlayAPI api = initApi();
         api.setToken(null);
-        String token = api.getToken(PASSWORD);
+        String token = api.getToken(EMAIL, PASSWORD);
         Assert.assertEquals("TgSyrOQWSodzTLUtSuMebIW5k1XUvhsDE3gVcf-vnL8q9qT_oofA6ygYpE4m6sSi1UrCSQ.", token);
 
         List<Request> requests = api.getRequests();
@@ -481,7 +481,7 @@ public class GooglePlayAPITest {
         deviceInfoProvider.setLocaleString(Locale.ENGLISH.toString());
         deviceInfoProvider.setTimeToReport(1482626488L);
 
-        MockGooglePlayAPI api = new MockGooglePlayAPI(EMAIL);
+        MockGooglePlayAPI api = new MockGooglePlayAPI();
         api.setLocale(Locale.US);
         api.setDeviceInfoProvider(deviceInfoProvider);
         api.setGsfId(GSFID);
@@ -502,10 +502,6 @@ class MockGooglePlayAPI extends GooglePlayAPI {
 
     List<Request> getRequests() {
         return ((MockOkHttpClientWrapper) this.getClient()).getRequests();
-    }
-
-    MockGooglePlayAPI(String email) {
-        super(email);
     }
 }
 
