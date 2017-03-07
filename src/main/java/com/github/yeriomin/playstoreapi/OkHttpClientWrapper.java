@@ -14,9 +14,9 @@ class OkHttpClientWrapper {
     OkHttpClient client;
 
     public OkHttpClientWrapper() {
-        this.client = new OkHttpClient.Builder()
-            .connectTimeout(3, TimeUnit.SECONDS)
-            .readTimeout(3, TimeUnit.SECONDS)
+        setClient(new OkHttpClient.Builder()
+            .connectTimeout(6, TimeUnit.SECONDS)
+            .readTimeout(6, TimeUnit.SECONDS)
             .cookieJar(new CookieJar() {
                 private final HashMap<HttpUrl, List<Cookie>> cookieStore = new HashMap<>();
 
@@ -31,7 +31,12 @@ class OkHttpClientWrapper {
                     return cookies != null ? cookies : new ArrayList<Cookie>();
                 }
             })
-            .build();
+            .build()
+        );
+    }
+
+    public void setClient(OkHttpClient client) {
+        this.client = client;
     }
 
     public byte[] get(String url, Map<String, String> params) throws IOException {
