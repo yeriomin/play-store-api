@@ -106,7 +106,7 @@ public class GooglePlayAPI {
      */
     private String gsfId;
 
-    OkHttpClientWrapper getClient() {
+    public OkHttpClientWrapper getClient() {
         if (this.client == null) {
             this.client = new OkHttpClientWrapper();
         }
