@@ -122,7 +122,7 @@ public class GooglePlayAPITest {
     }
 
     @Test
-    public void searchIterator() throws Exception {
+    public void searchIteratorType1() throws Exception {
         SearchIterator i = new SearchIterator(api, "cpu");
         Assert.assertEquals("cpu", i.getQuery());
         Assert.assertTrue(i.hasNext());
@@ -145,10 +145,12 @@ public class GooglePlayAPITest {
         Assert.assertEquals(20, response1.getDoc(0).getChildCount());
         DocV2 details1 = response1.getDoc(0).getChild(0);
         Assert.assertEquals("AnTuTu Benchmark", details1.getTitle());
+
+        Assert.assertTrue(i.hasNext());
     }
 
     @Test
-    public void searchIteratorAbnormal() throws Exception {
+    public void searchIteratorType2() throws Exception {
         SearchIterator i = new SearchIterator(api, "english");
         Assert.assertEquals("english", i.getQuery());
         Assert.assertTrue(i.hasNext());
@@ -182,6 +184,32 @@ public class GooglePlayAPITest {
         Assert.assertEquals(20, response1.getDoc(0).getChildCount());
         DocV2 details1 = response1.getDoc(0).getChild(0);
         Assert.assertEquals("Learn English - 5000 Phrases", details1.getTitle());
+
+        Assert.assertTrue(i.hasNext());
+    }
+
+    @Test
+    public void searchIteratorType3() throws Exception {
+        SearchIterator i = new SearchIterator(api, "protonmail");
+        Assert.assertEquals("protonmail", i.getQuery());
+        Assert.assertTrue(i.hasNext());
+
+        SearchResponse response = i.next();
+        Assert.assertTrue(response.getDocCount() > 0);
+        Assert.assertTrue(response.getDoc(0).hasContainerMetadata());
+        Assert.assertTrue(response.getDoc(0).getContainerMetadata().hasNextPageUrl());
+        Assert.assertEquals("clusterSearch?q=protonmail&n=20&o=38&ecp=ggEMCgpwcm90b25tYWls&ctntkn=-p6BnQMCCBQ%3D&fss=0&c=3&adsEnabled=1", response.getDoc(0).getContainerMetadata().getNextPageUrl());
+        Assert.assertEquals(19, response.getDoc(0).getChildCount());
+        DocV2 details = response.getDoc(0).getChild(0);
+        Assert.assertEquals("ProtonMail - Encrypted Email", details.getTitle());
+
+        Assert.assertTrue(i.hasNext());
+        SearchResponse response1 = i.next();
+        Assert.assertTrue(response1.getDocCount() > 0);
+        Assert.assertEquals(3, response1.getDoc(0).getChildCount());
+        DocV2 details1 = response1.getDoc(0).getChild(0);
+        Assert.assertEquals("All Emails Solution in One App", details1.getTitle());
+        Assert.assertFalse(i.hasNext());
     }
 
     @Test

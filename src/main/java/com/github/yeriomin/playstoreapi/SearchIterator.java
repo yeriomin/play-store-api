@@ -1,10 +1,11 @@
 package com.github.yeriomin.playstoreapi;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
-
 
 /**
  * Iterates through search result pages
@@ -39,30 +40,14 @@ public class SearchIterator extends AppListIterator {
         SearchResponse response;
         try {
             response = googlePlayApi.genericGet(url, params).getSearchResponse();
-            if (notOnlyApps(response)) {
-                String abnormalNextPageUrl = getAbnormalNextPageUrl(response);
-                if (null != abnormalNextPageUrl) {
-                    response = googlePlayApi.genericGet(abnormalNextPageUrl, params).getSearchResponse();
-                }
-            }
+            response = SearchResponse.newBuilder(response).setDoc(0, findApps(response.getDoc(0))).build();
             this.firstQuery = false;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        this.nextPageUrl = getNextPageUrl(response);
-        return response;
-    }
-
-    private String getNextPageUrl(SearchResponse response) {
-        if (null == response || response.getDocCount() == 0) {
-            return null;
-        }
-        DocV2 doc = response.getDoc(0);
-        if (doc.hasContainerMetadata() && doc.getContainerMetadata().hasNextPageUrl()) {
-            return GooglePlayAPI.FDFE_URL + doc.getContainerMetadata().getNextPageUrl();
-        }
-        return null;
+        nextPageUrl = findNextPageUrl(response.getDoc(0));
+        return nextPageStartsFromZero(nextPageUrl) ? next() : response;
     }
 
     /**
@@ -70,26 +55,41 @@ public class SearchIterator extends AppListIterator {
      * each of them having a list of items
      * In this case we have to find the apps list and return it
      */
-    private boolean notOnlyApps(SearchResponse response) {
-        return response.getDocList().get(0).getDocType() != 45 || !response.getDocList().get(0).getTitle().equals("Apps");
-    }
-
-    private String getAbnormalNextPageUrl(SearchResponse response) {
-        if (null == response || response.getDocCount() == 0) {
-            return null;
+    private DocV2 findApps(DocV2 doc) {
+        if (doc.getChildCount() > 0 && doc.getChild(0).getBackendId() == 3 && doc.getChild(0).getDocType() == 1) {
+            return doc;
         }
-        DocV2 doc = response.getDoc(0);
         for (DocV2 child: doc.getChildList()) {
-            if (child.getDocType() == 45
-                && child.getTitle().equals("Apps")
-                && child.hasRelatedLinks()
-                && child.getRelatedLinks().hasUnknown1()
-                && child.getRelatedLinks().getUnknown1().hasUnknown2()
-                && child.getRelatedLinks().getUnknown1().getUnknown2().hasNextPageUrl()
-            ) {
-                return GooglePlayAPI.FDFE_URL + child.getRelatedLinks().getUnknown1().getUnknown2().getNextPageUrl();
+            DocV2 result = findApps(child);
+            if (null != result) {
+                return result;
             }
         }
         return null;
+    }
+
+    private String findNextPageUrl(DocV2 doc) {
+        if (doc.hasContainerMetadata() && doc.getContainerMetadata().hasNextPageUrl()) {
+            return GooglePlayAPI.FDFE_URL + doc.getContainerMetadata().getNextPageUrl();
+        }
+        if (doc.hasRelatedLinks()
+            && doc.getRelatedLinks().hasUnknown1()
+            && doc.getRelatedLinks().getUnknown1().hasUnknown2()
+            && doc.getRelatedLinks().getUnknown1().getUnknown2().hasNextPageUrl()
+        ) {
+            return GooglePlayAPI.FDFE_URL + doc.getRelatedLinks().getUnknown1().getUnknown2().getNextPageUrl();
+        }
+        return null;
+    }
+
+    private boolean nextPageStartsFromZero(String nextPageUrl) {
+        if (null == nextPageUrl) {
+            return false;
+        }
+        try {
+            return new URI(nextPageUrl).getQuery().contains("o=0");
+        } catch (URISyntaxException e) {
+            return false;
+        }
     }
 }
