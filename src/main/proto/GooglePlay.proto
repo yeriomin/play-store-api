@@ -461,6 +461,19 @@ message AppDetails {
   optional string uploadDate = 16;
   repeated FileMetadata file = 17;
   optional string appType = 18;
+  optional string containsAds = 30;
+  optional Dependencies dependencies = 34;
+}
+message Dependencies {
+  optional int32 unknown1 = 1;
+  optional int64 unknown2 = 2;
+  repeated Dependency dependency = 3;
+  optional int32 unknown3 = 4;
+}
+message Dependency {
+  optional string packageName = 1;
+  optional int32 version = 2;
+  optional int32 unknown4 = 4;
 }
 message ArtistDetails {
   optional string detailsUrl = 1;
@@ -626,6 +639,17 @@ message DocV2 {
   optional string purchaseDetailsUrl = 20;
   optional bool detailsReusable = 21;
   optional string subtitle = 22;
+  optional Unknown25 unknown25 = 25;
+}
+message Unknown25 {
+  repeated Unknown25Item item = 2;
+}
+message Unknown25Item {
+  optional string label = 1;
+  optional Unknown25Container container = 3;
+}
+message Unknown25Container {
+  optional string value = 2;
 }
 message RelatedLinks {
   optional RelatedLinksUnknown1 unknown1 = 10;
