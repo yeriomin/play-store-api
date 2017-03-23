@@ -291,10 +291,10 @@ public class GooglePlayAPI {
 
     public BrowseResponse browse(String categoryId, String subCategoryId) throws IOException {
         Map<String, String> params = getDefaultGetParams();
-        if (null != categoryId && !categoryId.isEmpty()) {
+        if (null != categoryId && categoryId.length() > 0) {
             params.put("cat", categoryId);
         }
-        if (null != subCategoryId && !subCategoryId.isEmpty()) {
+        if (null != subCategoryId && subCategoryId.length() > 0) {
             params.put("ctr", subCategoryId);
         }
         byte[] responseBytes = getClient().get(BROWSE_URL, params, getDefaultHeaders());
@@ -435,7 +435,7 @@ public class GooglePlayAPI {
      */
     public BrowseResponse categories(String category) throws IOException {
         Map<String, String> params = getDefaultGetParams();
-        if (null != category && !category.isEmpty()) {
+        if (null != category && category.length() > 0) {
             params.put("cat", category);
         }
         byte[] responseBytes = getClient().get(CATEGORIES_URL, params, getDefaultHeaders());
@@ -484,11 +484,11 @@ public class GooglePlayAPI {
      */
     private Map<String, String> getDefaultHeaders() {
         Map<String, String> headers = new HashMap<>();
-        if (this.token != null && !this.token.isEmpty()) {
+        if (this.token != null && this.token.length() > 0) {
             headers.put("Authorization", "GoogleLogin auth=" + this.token);
         }
         headers.put("User-Agent", this.deviceInfoProvider.getUserAgentString());
-        if (this.gsfId != null && !this.gsfId.isEmpty()) {
+        if (this.gsfId != null && this.gsfId.length() > 0) {
             headers.put("X-DFE-Device-Id", this.gsfId);
         }
         headers.put("Accept-Language", this.locale.toString().replace("_", "-"));

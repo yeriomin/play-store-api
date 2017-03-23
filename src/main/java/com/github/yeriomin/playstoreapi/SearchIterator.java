@@ -31,7 +31,7 @@ public class SearchIterator extends AppListIterator {
         if (this.firstQuery) {
             params.put("c", "3");
             params.put("q", query);
-        } else if (null != this.nextPageUrl && !this.nextPageUrl.isEmpty()) {
+        } else if (null != this.nextPageUrl && this.nextPageUrl.length() > 0) {
             url = this.nextPageUrl;
         } else {
             throw new NoSuchElementException();

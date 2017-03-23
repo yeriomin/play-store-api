@@ -27,7 +27,7 @@ public class CategoryAppsIterator extends AppListIterator {
         if (this.firstQuery) {
             params.put("cat", categoryId);
             params.put("ctr", subcategory.value);
-        } else if (null != this.nextPageUrl && !this.nextPageUrl.isEmpty()) {
+        } else if (null != this.nextPageUrl && this.nextPageUrl.length() > 0) {
             url = this.nextPageUrl;
         } else {
             throw new NoSuchElementException();

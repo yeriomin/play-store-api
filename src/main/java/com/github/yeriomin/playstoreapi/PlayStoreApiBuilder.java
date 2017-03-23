@@ -82,6 +82,6 @@ public class PlayStoreApiBuilder {
     }
 
     private boolean isEmpty(String value) {
-        return null == value || value.isEmpty();
+        return null == value || value.length() == 0;
     }
 }

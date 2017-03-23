@@ -14,7 +14,7 @@ abstract public class AppListIterator implements Iterator {
 
     @Override
     public boolean hasNext() {
-        return this.firstQuery || (null != this.nextPageUrl && !this.nextPageUrl.isEmpty());
+        return this.firstQuery || (null != this.nextPageUrl && this.nextPageUrl.length() > 0);
     }
 
     @Override
