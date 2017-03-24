@@ -18,7 +18,7 @@ import okhttp3.Headers;
 import okhttp3.Request;
 import okio.Buffer;
 
-class MockOkHttpClientWrapper extends OkHttpClientWrapper {
+class MockOkHttpClientAdapter extends OkHttpClientAdapter {
 
 	private List<Request> requests = new ArrayList<>();
 

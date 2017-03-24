@@ -87,7 +87,7 @@ public class GooglePlayAPI {
         }
     }
 
-    OkHttpClientWrapper client;
+    HttpClientAdapter client;
     private Locale locale;
     private DeviceInfoProvider deviceInfoProvider;
 
@@ -106,11 +106,12 @@ public class GooglePlayAPI {
      */
     private String gsfId;
 
-    public OkHttpClientWrapper getClient() {
-        if (this.client == null) {
-            this.client = new OkHttpClientWrapper();
-        }
-        return this.client;
+    public void setClient(HttpClientAdapter httpClient) {
+        this.client = httpClient;
+    }
+
+    public HttpClientAdapter getClient() {
+        return client;
     }
 
     public void setLocale(Locale locale) {
@@ -172,7 +173,7 @@ public class GooglePlayAPI {
     private AndroidCheckinResponse checkin(byte[] request) throws IOException {
         Map<String, String> headers = getDefaultHeaders();
         headers.put("Content-Type", "application/x-protobuffer");
-        byte[] content = getClient().post(CHECKIN_URL, request, headers);
+        byte[] content = client.post(CHECKIN_URL, request, headers);
         return AndroidCheckinResponse.parseFrom(content);
     }
 
@@ -185,7 +186,7 @@ public class GooglePlayAPI {
         Map<String, String> params = getDefaultLoginParams(email, password);
         params.put("service", "androidmarket");
         params.put("app", "com.android.vending");
-        byte[] responseBytes = getClient().post(URL_LOGIN, params, getDefaultHeaders());
+        byte[] responseBytes = client.post(URL_LOGIN, params, getDefaultHeaders());
         Map<String, String> response = parseResponse(new String(responseBytes));
         if (response.containsKey("Auth")) {
             return response.get("Auth");
@@ -206,7 +207,7 @@ public class GooglePlayAPI {
         params.put("service", "ac2dm");
         params.put("add_account", "1");
         params.put("app", "com.google.android.gsf");
-        byte[] responseBytes = getClient().post(URL_LOGIN, params, getDefaultHeaders());
+        byte[] responseBytes = client.post(URL_LOGIN, params, getDefaultHeaders());
         Map<String, String> response = parseResponse(new String(responseBytes));
         if (response.containsKey("Auth")) {
             return response.get("Auth");
@@ -222,7 +223,7 @@ public class GooglePlayAPI {
         params.put("device", new BigInteger(this.gsfId, 16).toString());
         Map<String, String> headers = getDefaultHeaders();
         headers.put("Authorization", "GoogleLogin auth=" + generateAC2DMToken(email, password));
-        byte[] responseBytes = getClient().post(C2DM_REGISTER_URL, params, headers);
+        byte[] responseBytes = client.post(C2DM_REGISTER_URL, params, headers);
         return parseResponse(new String(responseBytes));
     }
 
@@ -240,7 +241,7 @@ public class GooglePlayAPI {
         params.put("ssis", "120");
         params.put("sst", Integer.toString(type.value));
 
-        byte[] responseBytes = getClient().get(SEARCHSUGGEST_URL, params, getDefaultHeaders());
+        byte[] responseBytes = client.get(SEARCHSUGGEST_URL, params, getDefaultHeaders());
         return ResponseWrapper.parseFrom(responseBytes).getPayload().getSearchSuggestResponse();
     }
 
@@ -252,7 +253,7 @@ public class GooglePlayAPI {
         Map<String, String> params = new HashMap<>();
         params.put("doc", packageName);
 
-        byte[] responseBytes = getClient().get(DETAILS_URL, params, getDefaultHeaders());
+        byte[] responseBytes = client.get(DETAILS_URL, params, getDefaultHeaders());
         ResponseWrapper w = ResponseWrapper.parseFrom(responseBytes);
 
         DetailsResponse detailsResponse = w.getPayload().getDetailsResponse();
@@ -278,7 +279,7 @@ public class GooglePlayAPI {
         bulkDetailsRequestBuilder.addAllDocid(packageNames);
         byte[] request = bulkDetailsRequestBuilder.build().toByteArray();
 
-        byte[] responseBytes = getClient().post(BULKDETAILS_URL, request, getDefaultHeaders());
+        byte[] responseBytes = client.post(BULKDETAILS_URL, request, getDefaultHeaders());
         return ResponseWrapper.parseFrom(responseBytes).getPayload().getBulkDetailsResponse();
     }
 
@@ -297,7 +298,7 @@ public class GooglePlayAPI {
         if (null != subCategoryId && subCategoryId.length() > 0) {
             params.put("ctr", subCategoryId);
         }
-        byte[] responseBytes = getClient().get(BROWSE_URL, params, getDefaultHeaders());
+        byte[] responseBytes = client.get(BROWSE_URL, params, getDefaultHeaders());
         return ResponseWrapper.parseFrom(responseBytes).getPayload().getBrowseResponse();
     }
 
@@ -310,7 +311,7 @@ public class GooglePlayAPI {
         params.put("ot", String.valueOf(offerType));
         params.put("doc", packageName);
         params.put("vc", String.valueOf(versionCode));
-        byte[] responseBytes = getClient().post(PURCHASE_URL, params, getDefaultHeaders());
+        byte[] responseBytes = client.post(PURCHASE_URL, params, getDefaultHeaders());
         return ResponseWrapper.parseFrom(responseBytes).getPayload().getBuyResponse();
     }
 
@@ -328,7 +329,7 @@ public class GooglePlayAPI {
         params.put("ot", String.valueOf(offerType));
         params.put("doc", packageName);
         params.put("vc", String.valueOf(versionCode));
-        byte[] responseBytes = getClient().get(DELIVERY_URL, params, getDefaultHeaders());
+        byte[] responseBytes = client.get(DELIVERY_URL, params, getDefaultHeaders());
         return ResponseWrapper.parseFrom(responseBytes).getPayload().getDeliveryResponse();
     }
 
@@ -352,7 +353,7 @@ public class GooglePlayAPI {
         // params.put("dfil", "1");
         params.put("doc", packageName);
         params.put("sort", (sort == null) ? null : String.valueOf(sort.value));
-        byte[] responseBytes = getClient().get(REVIEWS_URL, params, getDefaultHeaders());
+        byte[] responseBytes = client.get(REVIEWS_URL, params, getDefaultHeaders());
         return ResponseWrapper.parseFrom(responseBytes).getPayload().getReviewResponse();
     }
 
@@ -378,7 +379,7 @@ public class GooglePlayAPI {
         // I don't know what these do, but Google Play Store sends these
         // params.put("ipr", "true");
         // params.put("itpr", "false");
-        byte[] responseBytes = getClient().post(ADD_REVIEW_URL, params, null, getDefaultHeaders());
+        byte[] responseBytes = client.postWithoutBody(ADD_REVIEW_URL, params, getDefaultHeaders());
         return ResponseWrapper.parseFrom(responseBytes).getPayload().getReviewResponse();
     }
 
@@ -387,7 +388,7 @@ public class GooglePlayAPI {
         params.put("doc", packageName);
         // Some unknown parameter Google Play Store sends
         // params.put("itpr", "false");
-        getClient().post(DELETE_REVIEW_URL, params, getDefaultHeaders());
+        client.post(DELETE_REVIEW_URL, params, getDefaultHeaders());
     }
 
     /**
@@ -405,7 +406,7 @@ public class GooglePlayAPI {
         headers.put("X-DFE-Client-Id", "am-android-google");
         headers.put("X-DFE-SmallestScreenWidthDp", "320");
         headers.put("X-DFE-Filter-Level", "3");
-        byte[] responseBytes = getClient().post(UPLOADDEVICECONFIG_URL, request.toByteArray(), headers);
+        byte[] responseBytes = client.post(UPLOADDEVICECONFIG_URL, request.toByteArray(), headers);
         return ResponseWrapper.parseFrom(responseBytes).getPayload().getUploadDeviceConfigResponse();
     }
 
@@ -419,7 +420,7 @@ public class GooglePlayAPI {
         Map<String, String> params = getDefaultGetParams(offset, numberOfResults);
         params.put("doc", packageName);
         params.put("rt", (type == null) ? null : String.valueOf(type.value));
-        byte[] responseBytes = getClient().get(RECOMMENDATIONS_URL, params, getDefaultHeaders());
+        byte[] responseBytes = client.get(RECOMMENDATIONS_URL, params, getDefaultHeaders());
         return ResponseWrapper.parseFrom(responseBytes).getPayload().getListResponse();
     }
 
@@ -438,7 +439,7 @@ public class GooglePlayAPI {
         if (null != category && category.length() > 0) {
             params.put("cat", category);
         }
-        byte[] responseBytes = getClient().get(CATEGORIES_URL, params, getDefaultHeaders());
+        byte[] responseBytes = client.get(CATEGORIES_URL, params, getDefaultHeaders());
         return ResponseWrapper.parseFrom(responseBytes).getPayload().getBrowseResponse();
     }
 
@@ -453,7 +454,7 @@ public class GooglePlayAPI {
         if (!params.containsKey("c")) {
             params.put("c", "3");
         }
-        byte[] responseBytes = getClient().get(url, params, getDefaultHeaders());
+        byte[] responseBytes = client.get(url, params, getDefaultHeaders());
         return ResponseWrapper.parseFrom(responseBytes).getPayload();
     }
 

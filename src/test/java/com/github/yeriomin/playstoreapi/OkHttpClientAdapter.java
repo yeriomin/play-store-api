@@ -1,7 +1,5 @@
 package com.github.yeriomin.playstoreapi;
 
-import okhttp3.*;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,11 +7,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-class OkHttpClientWrapper {
+import okhttp3.Cookie;
+import okhttp3.CookieJar;
+import okhttp3.FormBody;
+import okhttp3.Headers;
+import okhttp3.HttpUrl;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
+class OkHttpClientAdapter extends HttpClientAdapter {
 
     OkHttpClient client;
 
-    public OkHttpClientWrapper() {
+    public OkHttpClientAdapter() {
         setClient(new OkHttpClient.Builder()
             .connectTimeout(6, TimeUnit.SECONDS)
             .readTimeout(6, TimeUnit.SECONDS)
@@ -39,10 +48,7 @@ class OkHttpClientWrapper {
         this.client = client;
     }
 
-    public byte[] get(String url, Map<String, String> params) throws IOException {
-        return get(url, params, null);
-    }
-
+    @Override
     public byte[] get(String url, Map<String, String> params, Map<String, String> headers) throws IOException {
         Request.Builder requestBuilder = new Request.Builder()
             .url(buildUrl(url, params))
@@ -51,10 +57,12 @@ class OkHttpClientWrapper {
         return request(requestBuilder, headers);
     }
 
-    public byte[] post(String url, Map<String, String> urlParams, Map<String, String> bodyParams, Map<String, String> headers) throws IOException {
-        return post(buildUrl(url, urlParams).toString(), bodyParams, headers);
+    @Override
+    public byte[] postWithoutBody(String url, Map<String, String> urlParams, Map<String, String> headers) throws IOException {
+        return post(buildUrl(url, urlParams).toString(), new HashMap<String, String>(), headers);
     }
 
+    @Override
     public byte[] post(String url, Map<String, String> params, Map<String, String> headers) throws IOException {
         headers.put("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
 
@@ -72,6 +80,7 @@ class OkHttpClientWrapper {
         return post(url, requestBuilder, headers);
     }
 
+    @Override
     public byte[] post(String url, byte[] body, Map<String, String> headers) throws IOException {
         if (!headers.containsKey("Content-Type")) {
             headers.put("Content-Type", "application/x-protobuf");

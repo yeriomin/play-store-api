@@ -11,6 +11,7 @@ public class PlayStoreApiBuilder {
     private String token;
     private Locale locale;
     private DeviceInfoProvider deviceInfoProvider;
+    private HttpClientAdapter httpClient;
 
     public PlayStoreApiBuilder setEmail(String email) {
         this.email = email;
@@ -42,9 +43,15 @@ public class PlayStoreApiBuilder {
         return this;
     }
 
+    public PlayStoreApiBuilder setHttpClient(HttpClientAdapter httpClient) {
+        this.httpClient = httpClient;
+        return this;
+    }
+
     public GooglePlayAPI build() throws IOException, ApiBuilderException {
         GooglePlayAPI api = new GooglePlayAPI();
         api.setLocale(null == locale ? Locale.getDefault() : locale);
+        api.setClient(httpClient);
         if (null == deviceInfoProvider) {
             throw new ApiBuilderException("DeviceInfoProvider is required");
         } else {
@@ -70,7 +77,10 @@ public class PlayStoreApiBuilder {
         if (isEmpty(email)) {
             throw new ApiBuilderException("Email is required, unless you provide both token and gsfId");
         }
-        String tokenAc2dm = isEmpty(password) ? TokenDispenser.getTokenAc2dm(email) : api.generateAC2DMToken(email, password);
+        String tokenAc2dm = isEmpty(password)
+            ? TokenDispenser.getTokenAc2dm(api.getClient(), email)
+            : api.generateAC2DMToken(email, password)
+        ;
         return api.generateGsfId(email, tokenAc2dm);
     }
 
@@ -78,7 +88,10 @@ public class PlayStoreApiBuilder {
         if (isEmpty(email)) {
             throw new ApiBuilderException("Email is required, unless you provide both token and gsfId");
         }
-        return isEmpty(password) ? TokenDispenser.getToken(email) : api.generateToken(email, password);
+        return isEmpty(password)
+            ? TokenDispenser.getToken(api.getClient(), email)
+            : api.generateToken(email, password)
+        ;
     }
 
     private boolean isEmpty(String value) {

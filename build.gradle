@@ -34,8 +34,8 @@ sourceSets {
 
 dependencies {
     testCompile "junit:junit:4.12"
+    testCompile group: 'com.squareup.okhttp3', name: 'okhttp', version: '3.5.0'
     compile group: 'com.google.protobuf', name: 'protobuf-lite', version: '3.0.0'
-    compile group: 'com.squareup.okhttp3', name: 'okhttp', version: '3.5.0'
 }
 
 protobuf {

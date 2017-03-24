@@ -1,12 +1,17 @@
 package com.github.yeriomin.playstoreapi;
 
-import okhttp3.Request;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+
+import okhttp3.Request;
 
 public class GooglePlayAPITest {
 
@@ -15,7 +20,7 @@ public class GooglePlayAPITest {
     private static final String GSFID = "3f1abe856b0fa7fd";
     private static final String TOKEN = "IwSyrLX3vSyMI1wdSUEdZ08EVcbg---1Wto-Owy7FP-U9eeRcwASB4z7p-Ne8ECDNp3FNw.";
 
-    private MockGooglePlayAPI api;
+    private GooglePlayAPI api;
 
     @Before
     public void setUp() throws Exception {
@@ -24,7 +29,7 @@ public class GooglePlayAPITest {
 
     @Test
     public void getGsfId() throws Exception {
-        MockGooglePlayAPI api = initApi();
+        GooglePlayAPI api = initApi();
         api.setGsfId(null);
         api.setToken(null);
         String ac2dmToken = api.generateAC2DMToken(EMAIL, PASSWORD);
@@ -32,13 +37,13 @@ public class GooglePlayAPITest {
         String gsfId = api.generateGsfId(EMAIL, ac2dmToken);
         Assert.assertEquals("34a77e79566015bf", gsfId);
 
-        List<Request> requests = api.getRequests();
+        List<Request> requests = ((MockOkHttpClientAdapter) api.getClient()).getRequests();
         Assert.assertEquals(3, requests.size());
 
         Request requestAuthAc2dm = requests.get(0);
         Assert.assertEquals(1, requestAuthAc2dm.url().pathSegments().size());
         Assert.assertEquals("auth", requestAuthAc2dm.url().pathSegments().get(0));
-        Map<String, String> vars = MockOkHttpClientWrapper.parseQueryString(MockOkHttpClientWrapper.getBodyBytes(requestAuthAc2dm));
+        Map<String, String> vars = MockOkHttpClientAdapter.parseQueryString(MockOkHttpClientAdapter.getBodyBytes(requestAuthAc2dm));
         Assert.assertEquals(12, vars.size());
         Assert.assertEquals("konstantin.razdolbaev@gmail.com", vars.get("Email"));
         Assert.assertEquals("TemporaryPassword!", vars.get("Passwd"));
@@ -56,7 +61,7 @@ public class GooglePlayAPITest {
         Assert.assertNull(requestCheckin1.header("X-DFE-Device-Id"));
         Assert.assertEquals("Android-Finsky/7.1.15 (api=3,versionCode=80711500,sdk=22,device=C6902,hardware=qcom,product=C6902)", requestCheckin1.header("User-Agent"));
         Assert.assertEquals("en-US", requestCheckin1.header("Accept-Language"));
-        AndroidCheckinRequest requestCheckinProto1 = AndroidCheckinRequest.parseFrom(MockOkHttpClientWrapper.getBodyBytes(requestCheckin1));
+        AndroidCheckinRequest requestCheckinProto1 = AndroidCheckinRequest.parseFrom(MockOkHttpClientAdapter.getBodyBytes(requestCheckin1));
         Assert.assertEquals("C6902", requestCheckinProto1.getCheckin().getBuild().getDevice());
 
         Request requestCheckin2 = requests.get(2);
@@ -65,7 +70,7 @@ public class GooglePlayAPITest {
         Assert.assertNull(requestCheckin2.header("Authorization"));
         Assert.assertEquals("Android-Finsky/7.1.15 (api=3,versionCode=80711500,sdk=22,device=C6902,hardware=qcom,product=C6902)", requestCheckin2.header("User-Agent"));
         Assert.assertEquals("en-US", requestCheckin2.header("Accept-Language"));
-        AndroidCheckinRequest requestCheckinProto2 = AndroidCheckinRequest.parseFrom(MockOkHttpClientWrapper.getBodyBytes(requestCheckin2));
+        AndroidCheckinRequest requestCheckinProto2 = AndroidCheckinRequest.parseFrom(MockOkHttpClientAdapter.getBodyBytes(requestCheckin2));
         Assert.assertEquals("C6902", requestCheckinProto2.getCheckin().getBuild().getDevice());
         Assert.assertEquals(3794140270688212415L, requestCheckinProto2.getId());
         Assert.assertEquals(7183672034703030426L, requestCheckinProto2.getSecurityToken());
@@ -75,18 +80,18 @@ public class GooglePlayAPITest {
 
     @Test
     public void getToken() throws Exception {
-        MockGooglePlayAPI api = initApi();
+        GooglePlayAPI api = initApi();
         api.setToken(null);
         String token = api.generateToken(EMAIL, PASSWORD);
         Assert.assertEquals("TgSyrOQWSodzTLUtSuMebIW5k1XUvhsDE3gVcf-vnL8q9qT_oofA6ygYpE4m6sSi1UrCSQ.", token);
 
-        List<Request> requests = api.getRequests();
+        List<Request> requests = ((MockOkHttpClientAdapter) api.getClient()).getRequests();
         Assert.assertEquals(1, requests.size());
 
         Request request = requests.get(0);
         Assert.assertEquals(1, request.url().pathSegments().size());
         Assert.assertEquals("auth", request.url().pathSegments().get(0));
-        Map<String, String> vars = MockOkHttpClientWrapper.parseQueryString(MockOkHttpClientWrapper.getBodyBytes(request));
+        Map<String, String> vars = MockOkHttpClientAdapter.parseQueryString(MockOkHttpClientAdapter.getBodyBytes(request));
         Assert.assertEquals(11, vars.size());
         Assert.assertEquals("konstantin.razdolbaev@gmail.com", vars.get("Email"));
         Assert.assertEquals("TemporaryPassword!", vars.get("Passwd"));
@@ -101,7 +106,7 @@ public class GooglePlayAPITest {
     public void searchSuggest() throws Exception {
         SearchSuggestResponse response = api.searchSuggest("cp");
 
-        List<Request> requests = api.getRequests();
+        List<Request> requests = ((MockOkHttpClientAdapter) api.getClient()).getRequests();
         Assert.assertEquals(1, requests.size());
         Request request = requests.get(0);
         Assert.assertEquals(2, request.url().pathSegments().size());
@@ -157,7 +162,7 @@ public class GooglePlayAPITest {
 
         SearchResponse response = i.next();
 
-        List<Request> requests = api.getRequests();
+        List<Request> requests = ((MockOkHttpClientAdapter) api.getClient()).getRequests();
         Assert.assertEquals(2, requests.size());
         Request request = requests.get(0);
         Assert.assertEquals(2, request.url().pathSegments().size());
@@ -263,7 +268,7 @@ public class GooglePlayAPITest {
         Assert.assertTrue(details.getRelatedLinks().getCategoryInfo().hasAppCategory());
         Assert.assertEquals("TOOLS", details.getRelatedLinks().getCategoryInfo().getAppCategory());
 
-        List<Request> requests = api.getRequests();
+        List<Request> requests = ((MockOkHttpClientAdapter) api.getClient()).getRequests();
         Assert.assertEquals(1, requests.size());
         Request request = requests.get(0);
         Assert.assertEquals(2, request.url().pathSegments().size());
@@ -282,13 +287,13 @@ public class GooglePlayAPITest {
         DocV2 details2 = response.getEntryList().get(1).getDoc();
         Assert.assertEquals("Orbot: Proxy with Tor", details2.getTitle());
 
-        List<Request> requests = api.getRequests();
+        List<Request> requests = ((MockOkHttpClientAdapter) api.getClient()).getRequests();
         Assert.assertEquals(1, requests.size());
         Request request = requests.get(0);
         Assert.assertEquals(2, request.url().pathSegments().size());
         Assert.assertEquals("fdfe", request.url().pathSegments().get(0));
         Assert.assertEquals("bulkDetails", request.url().pathSegments().get(1));
-        BulkDetailsRequest protoRequest = BulkDetailsRequest.parseFrom(MockOkHttpClientWrapper.getBodyBytes(request));
+        BulkDetailsRequest protoRequest = BulkDetailsRequest.parseFrom(MockOkHttpClientAdapter.getBodyBytes(request));
         Assert.assertEquals("com.cpuid.cpu_z", protoRequest.getDocid(0));
         Assert.assertEquals("org.torproject.android", protoRequest.getDocid(1));
     }
@@ -300,7 +305,7 @@ public class GooglePlayAPITest {
         Assert.assertEquals("Android Wear", link.getName());
         Assert.assertEquals("homeV2?cat=ANDROID_WEAR&c=3", link.getDataUrl());
 
-        List<Request> requests = api.getRequests();
+        List<Request> requests = ((MockOkHttpClientAdapter) api.getClient()).getRequests();
         Assert.assertEquals(1, requests.size());
         Request request = requests.get(0);
         Assert.assertEquals(2, request.url().pathSegments().size());
@@ -318,7 +323,7 @@ public class GooglePlayAPITest {
         Assert.assertEquals("08242190784708202273", response.getPurchaseStatusResponse().getAppDeliveryData().getDownloadAuthCookie(0).getValue());
         Assert.assertEquals("https://android.clients.google.com/market/download/Download?packageName=com.cpuid.cpu_z&versionCode=21&ssl=1&token=AOTCm0Qk6Xp0vLAIMTlHfvRcskbmSGugu7zaMbPzul5Ieu2bHAxD5QqKW6whNXp6dO9cid8x171TOLlpMXxAuJZYKl6JbeMUCphFLIBprvX4MX8CV79EOzVAeNiyT0qUOOKulE-5O-YFOM4jd8qkAR5ratStfwTar_eDlbyLQRZObbxVVGUdICUBftnAk-E-gj-mfuClbF-i5dkO_H22KvMrzOLkbsGlCjkmfOxWZvzvtw_LTW-pxD4WWE5_UxrxD6ktnnYnppzWmri687Ju3zkNXLpljvE7Nvr3KQuoW9eye93Wl2hSJSHIghoHQI7H3ImrCk8-gA2Cb-MGGapRne35_SZmjwAS&cpn=tQUzGf5FX6Y4LL14", response.getPurchaseStatusResponse().getAppDeliveryData().getDownloadUrl());
 
-        List<Request> requests = api.getRequests();
+        List<Request> requests = ((MockOkHttpClientAdapter) api.getClient()).getRequests();
         Assert.assertEquals(1, requests.size());
         Request request = requests.get(0);
         Assert.assertEquals(2, request.url().pathSegments().size());
@@ -326,7 +331,7 @@ public class GooglePlayAPITest {
         Assert.assertEquals("purchase", request.url().pathSegments().get(1));
         Assert.assertEquals(0, request.url().queryParameterNames().size());
 
-        Map<String, String> vars = MockOkHttpClientWrapper.parseQueryString(MockOkHttpClientWrapper.getBodyBytes(request));
+        Map<String, String> vars = MockOkHttpClientAdapter.parseQueryString(MockOkHttpClientAdapter.getBodyBytes(request));
         Assert.assertEquals(3, vars.size());
         Assert.assertEquals("com.cpuid.cpu_z", vars.get("doc"));
         Assert.assertEquals("1", vars.get("ot"));
@@ -344,7 +349,7 @@ public class GooglePlayAPITest {
         Assert.assertEquals("08242190784708202273", response.getAppDeliveryData().getDownloadAuthCookie(0).getValue());
         Assert.assertEquals("https://android.clients.google.com/market/download/Download?packageName=com.cpuid.cpu_z&versionCode=21&ssl=1&token=AOTCm0RyRkIlbN-jMwP_CI5aTdDMK3wRaOXhz21bIvkVFDm90TyXrbt1YatiLK2LY1zoEU5iJ_u-AYBLnuAr69TiPAbBDfB6JtJGOVhrc1E2r9UDf70WnmKA_8s024v6g2ZJHCDi485u00NyosPHnCsnIfLI1hZSwqoAQ05bURLy72vFLBznWk_mTnjTy1HybRbxvWV_F4_Lw89Jmdr_RGKISl4bGpE943hE23T3Dy_unQKlZ81Q4i8CIfLEg0Dpl0T4KPXg0t8fiA1k4d0Xo3Mqudcyi3BeBBHS-lq4lS-Nx8RF09O92YsOuuFAHhSrGG0_NWNjd9N-4XuzRRJWjVvL1RtjyxUZ&cpn=wiHoRz1NXwwvhNPR", response.getAppDeliveryData().getDownloadUrl());
 
-        List<Request> requests = api.getRequests();
+        List<Request> requests = ((MockOkHttpClientAdapter) api.getClient()).getRequests();
         Assert.assertEquals(2, requests.size());
         Request request = requests.get(0);
         Assert.assertEquals(2, request.url().pathSegments().size());
@@ -369,7 +374,7 @@ public class GooglePlayAPITest {
         Assert.assertEquals("104245217570938637686", response.getGetResponse().getReview(0).getAuthor2().getPersonId());
         Assert.assertEquals("person-104245217570938637686", response.getGetResponse().getReview(0).getAuthor2().getPersonIdString());
 
-        List<Request> requests = api.getRequests();
+        List<Request> requests = ((MockOkHttpClientAdapter) api.getClient()).getRequests();
         Assert.assertEquals(1, requests.size());
         Request request = requests.get(0);
         Assert.assertEquals(2, request.url().pathSegments().size());
@@ -396,7 +401,7 @@ public class GooglePlayAPITest {
         Assert.assertEquals("100687909122075437983", response.getUserReview().getAuthor2().getPersonId());
         Assert.assertEquals("person-100687909122075437983", response.getUserReview().getAuthor2().getPersonIdString());
 
-        List<Request> requests = api.getRequests();
+        List<Request> requests = ((MockOkHttpClientAdapter) api.getClient()).getRequests();
         Assert.assertEquals(1, requests.size());
         Request request = requests.get(0);
         Assert.assertEquals(2, request.url().pathSegments().size());
@@ -417,7 +422,7 @@ public class GooglePlayAPITest {
         Assert.assertEquals(20, response.getDoc(0).getChildCount());
         Assert.assertEquals("com.abs.cpu_z_advance", response.getDoc(0).getChild(0).getDetails().getAppDetails().getPackageName());
 
-        List<Request> requests = api.getRequests();
+        List<Request> requests = ((MockOkHttpClientAdapter) api.getClient()).getRequests();
         Assert.assertEquals(1, requests.size());
         Request request = requests.get(0);
         Assert.assertEquals(2, request.url().pathSegments().size());
@@ -448,7 +453,7 @@ public class GooglePlayAPITest {
         Assert.assertEquals("http://lh3.ggpht.com/9B4h3oV3V976QI22pHX5CAZmpOjhtjxmJ85x234iVasadqm_lQjL4rebkIoHpDvv_qM09sXlH9UVyHvhmQ", response.getCategoryContainer().getCategory(14).getIcon().getImageUrl());
         Assert.assertEquals("#FF0F9D58", response.getCategoryContainer().getCategory(14).getIcon().getColor());
 
-        List<Request> requests = api.getRequests();
+        List<Request> requests = ((MockOkHttpClientAdapter) api.getClient()).getRequests();
         Assert.assertEquals(1, requests.size());
         Request request = requests.get(0);
         Assert.assertEquals(2, request.url().pathSegments().size());
@@ -475,7 +480,7 @@ public class GooglePlayAPITest {
         Assert.assertEquals("http://lh3.ggpht.com/k4nI1STlxTBgEuwyMNapY9U_vBh38h_nIvYtLVVIaT9PtgOIXfRZKccsGa2wK8gVebKX8S7xG72Bu-8kmmY", response.getCategoryContainer().getCategory(14).getIcon().getImageUrl());
         Assert.assertEquals("#FF0F9D58", response.getCategoryContainer().getCategory(14).getIcon().getColor());
 
-        List<Request> requests = api.getRequests();
+        List<Request> requests = ((MockOkHttpClientAdapter) api.getClient()).getRequests();
         Assert.assertEquals(1, requests.size());
         Request request = requests.get(0);
         Assert.assertEquals(2, request.url().pathSegments().size());
@@ -486,7 +491,7 @@ public class GooglePlayAPITest {
         Assert.assertEquals("GAME", request.url().queryParameter("cat"));
     }
 
-    private MockGooglePlayAPI initApi() {
+    private GooglePlayAPI initApi() {
         Properties properties = new Properties();
         try {
             properties.load(getClass().getClassLoader().getSystemResourceAsStream("device-honami.properties"));
@@ -500,7 +505,8 @@ public class GooglePlayAPITest {
         deviceInfoProvider.setLocaleString(Locale.ENGLISH.toString());
         deviceInfoProvider.setTimeToReport(1482626488L);
 
-        MockGooglePlayAPI api = new MockGooglePlayAPI();
+        GooglePlayAPI api = new GooglePlayAPI();
+        api.setClient(new MockOkHttpClientAdapter());
         api.setLocale(Locale.US);
         api.setDeviceInfoProvider(deviceInfoProvider);
         api.setGsfId(GSFID);
