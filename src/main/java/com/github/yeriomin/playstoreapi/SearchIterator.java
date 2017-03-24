@@ -27,7 +27,7 @@ public class SearchIterator extends AppListIterator {
     @Override
     public SearchResponse next() {
         String url = GooglePlayAPI.SEARCH_URL;
-        Map<String, String> params = new HashMap<>();
+        Map<String, String> params = new HashMap<String, String>();
         if (this.firstQuery) {
             params.put("c", "3");
             params.put("q", query);

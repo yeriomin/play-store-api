@@ -23,7 +23,7 @@ public class CategoryAppsIterator extends AppListIterator {
     @Override
     public ListResponse next() {
         String url = GooglePlayAPI.LIST_URL;
-        Map<String, String> params = new HashMap<>();
+        Map<String, String> params = new HashMap<String, String>();
         if (this.firstQuery) {
             params.put("cat", categoryId);
             params.put("ctr", subcategory.value);

@@ -27,7 +27,7 @@ class OkHttpClientAdapter extends HttpClientAdapter {
             .connectTimeout(6, TimeUnit.SECONDS)
             .readTimeout(6, TimeUnit.SECONDS)
             .cookieJar(new CookieJar() {
-                private final HashMap<HttpUrl, List<Cookie>> cookieStore = new HashMap<>();
+                private final HashMap<HttpUrl, List<Cookie>> cookieStore = new HashMap<HttpUrl, List<Cookie>>();
 
                 @Override
                 public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {

@@ -217,7 +217,7 @@ public class GooglePlayAPI {
     }
 
     public Map<String, String> c2dmRegister(String application, String sender, String email, String password) throws IOException {
-        Map<String, String> params = new HashMap<>();
+        Map<String, String> params = new HashMap<String, String>();
         params.put("app", application);
         params.put("sender", sender);
         params.put("device", new BigInteger(this.gsfId, 16).toString());
@@ -250,7 +250,7 @@ public class GooglePlayAPI {
      * If you need to fetch information about more than one application, consider using bulkDetails.
      */
     public DetailsResponse details(String packageName) throws IOException {
-        Map<String, String> params = new HashMap<>();
+        Map<String, String> params = new HashMap<String, String>();
         params.put("doc", packageName);
 
         byte[] responseBytes = client.get(DETAILS_URL, params, getDefaultHeaders());
@@ -307,7 +307,7 @@ public class GooglePlayAPI {
      * rather than actual purchasing.
      */
     public BuyResponse purchase(String packageName, int versionCode, int offerType) throws IOException {
-        Map<String, String> params = new HashMap<>();
+        Map<String, String> params = new HashMap<String, String>();
         params.put("ot", String.valueOf(offerType));
         params.put("doc", packageName);
         params.put("vc", String.valueOf(versionCode));
@@ -325,7 +325,7 @@ public class GooglePlayAPI {
      * @param offerType
      */
     public DeliveryResponse delivery(String packageName, int versionCode, int offerType) throws IOException {
-        Map<String, String> params = new HashMap<>();
+        Map<String, String> params = new HashMap<String, String>();
         params.put("ot", String.valueOf(offerType));
         params.put("doc", packageName);
         params.put("vc", String.valueOf(versionCode));
@@ -371,7 +371,7 @@ public class GooglePlayAPI {
      * @param stars
      */
     public ReviewResponse addOrEditReview(String packageName, String comment, String title, int stars) throws IOException {
-        Map<String, String> params = new HashMap<>();
+        Map<String, String> params = new HashMap<String, String>();
         params.put("doc", packageName);
         params.put("title", title);
         params.put("content", comment);
@@ -384,7 +384,7 @@ public class GooglePlayAPI {
     }
 
     public void deleteReview(String packageName) throws IOException {
-        Map<String, String> params = new HashMap<>();
+        Map<String, String> params = new HashMap<String, String>();
         params.put("doc", packageName);
         // Some unknown parameter Google Play Store sends
         // params.put("itpr", "false");
@@ -449,7 +449,7 @@ public class GooglePlayAPI {
      */
     public Payload genericGet(String url, Map<String, String> params) throws IOException {
         if (null == params) {
-            params = new HashMap<>();
+            params = new HashMap<String, String>();
         }
         if (!params.containsKey("c")) {
             params.put("c", "3");
@@ -464,7 +464,7 @@ public class GooglePlayAPI {
      *
      */
     private Map<String, String> getDefaultLoginParams(String email, String password) {
-        Map<String, String> params = new HashMap<>();
+        Map<String, String> params = new HashMap<String, String>();
         params.put("Email", email);
         params.put("Passwd", password);
         params.put("accountType", ACCOUNT_TYPE_HOSTED_OR_GOOGLE);
@@ -484,7 +484,7 @@ public class GooglePlayAPI {
      *
      */
     private Map<String, String> getDefaultHeaders() {
-        Map<String, String> headers = new HashMap<>();
+        Map<String, String> headers = new HashMap<String, String>();
         if (this.token != null && this.token.length() > 0) {
             headers.put("Authorization", "GoogleLogin auth=" + this.token);
         }
@@ -511,7 +511,7 @@ public class GooglePlayAPI {
      * @param numberOfResults
      */
     private Map<String, String> getDefaultGetParams(Integer offset, Integer numberOfResults) {
-        Map<String, String> params = new HashMap<>();
+        Map<String, String> params = new HashMap<String, String>();
         // "c=3" is to get apps only, not books, music, or movies
         params.put("c", "3");
         if (offset != null) {
@@ -529,7 +529,7 @@ public class GooglePlayAPI {
      * @param response
      */
     public static Map<String, String> parseResponse(String response) {
-        Map<String, String> keyValueMap = new HashMap<>();
+        Map<String, String> keyValueMap = new HashMap<String, String>();
         StringTokenizer st = new StringTokenizer(response, "\n\r");
         while (st.hasMoreTokens()) {
             String[] keyValue = st.nextToken().split("=", 2);

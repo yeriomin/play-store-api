@@ -20,7 +20,7 @@ import okio.Buffer;
 
 class MockOkHttpClientAdapter extends OkHttpClientAdapter {
 
-	private List<Request> requests = new ArrayList<>();
+	private List<Request> requests = new ArrayList<Request>();
 
     @Override
     byte[] request(Request.Builder requestBuilder, Map<String, String> headers) throws IOException {
@@ -76,7 +76,7 @@ class MockOkHttpClientAdapter extends OkHttpClientAdapter {
     }
 
     static Map<String, String> parseQueryString(byte[] query) {
-        Map<String, String> vars = new HashMap<>();
+        Map<String, String> vars = new HashMap<String, String>();
         String[] pairs = new String(query).split("\\&");
         for (String pair: pairs) {
             String[] fields = pair.split("=");

@@ -2,8 +2,8 @@ apply plugin: 'java'
 
 group = 'com.github.yeriomin'
 version = '0.12'
-sourceCompatibility = JavaVersion.VERSION_1_7
-targetCompatibility = JavaVersion.VERSION_1_7
+sourceCompatibility = JavaVersion.VERSION_1_5
+targetCompatibility = JavaVersion.VERSION_1_5
 
 buildscript {
     repositories {
@@ -35,7 +35,6 @@ sourceSets {
 dependencies {
     testCompile "junit:junit:4.12"
     testCompile group: 'com.squareup.okhttp3', name: 'okhttp', version: '3.5.0'
-    compile group: 'com.google.protobuf', name: 'protobuf-lite', version: '3.0.0'
 }
 
 protobuf {
