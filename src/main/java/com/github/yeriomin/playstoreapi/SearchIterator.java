@@ -3,7 +3,9 @@ package com.github.yeriomin.playstoreapi;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -12,6 +14,8 @@ import java.util.NoSuchElementException;
  * Each next() call gets you a next page of search results for the provided query
  */
 public class SearchIterator extends AppListIterator {
+
+    static private final String DOCID_FRAGMENT_MORE_RESULTS = "more_results";
 
     private final String query;
 
@@ -47,7 +51,14 @@ public class SearchIterator extends AppListIterator {
         }
 
         nextPageUrl = findNextPageUrl(response.getDoc(0));
-        return nextPageStartsFromZero(nextPageUrl) ? next() : response;
+        if (nextPageStartsFromZero()) {
+            SearchResponse next = next();
+            if (response.getDoc(0).getDocid().contains(DOCID_FRAGMENT_MORE_RESULTS)) {
+                return addToStart(next, response.getDoc(0).getChild(0));
+            }
+            return next;
+        }
+        return response;
     }
 
     /**
@@ -59,6 +70,12 @@ public class SearchIterator extends AppListIterator {
         if (doc.getChildCount() > 0 && doc.getChild(0).getBackendId() == 3 && doc.getChild(0).getDocType() == 1) {
             return doc;
         }
+        if (doc.getChild(0).getChildCount() == 1) {
+            DocV2 moreResults = findMoreResults(doc);
+            if (null != moreResults) {
+                return DocV2.newBuilder(moreResults).addChild(0, doc.getChild(0).getChild(0)).build();
+            }
+        }
         for (DocV2 child: doc.getChildList()) {
             DocV2 result = findApps(child);
             if (null != result) {
@@ -66,6 +83,26 @@ public class SearchIterator extends AppListIterator {
             }
         }
         return null;
+    }
+
+    private DocV2 findMoreResults(DocV2 doc) {
+        for (DocV2 child: doc.getChildList()) {
+            if (child.getDocid().contains(DOCID_FRAGMENT_MORE_RESULTS)) {
+                return child;
+            }
+        }
+        return null;
+    }
+
+    private SearchResponse addToStart(SearchResponse old, DocV2 firstDoc) {
+        DocV2 newDoc = DocV2.newBuilder(old.getDoc(0))
+            .addChild(0, firstDoc)
+            .build()
+        ;
+        return SearchResponse.newBuilder(old)
+            .setDoc(0, newDoc)
+            .build()
+        ;
     }
 
     private String findNextPageUrl(DocV2 doc) {
@@ -82,7 +119,7 @@ public class SearchIterator extends AppListIterator {
         return null;
     }
 
-    private boolean nextPageStartsFromZero(String nextPageUrl) {
+    private boolean nextPageStartsFromZero() {
         if (null == nextPageUrl) {
             return false;
         }

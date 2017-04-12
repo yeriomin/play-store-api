@@ -18,7 +18,7 @@ public class GooglePlayAPITest {
     private static final String EMAIL = "konstantin.razdolbaev@gmail.com";
     private static final String PASSWORD = "TemporaryPassword!";
     private static final String GSFID = "3f1abe856b0fa7fd";
-    private static final String TOKEN = "IwSyrLX3vSyMI1wdSUEdZ08EVcbg---1Wto-Owy7FP-U9eeRcwASB4z7p-Ne8ECDNp3FNw.";
+    private static final String TOKEN = "jwSyrOU2RHDv2d82095MoHKOUHhO9KxBbkAoLCMkCKWqB9RUHbvq8VIWufBJcxwRn3_DGQ.";
 
     private GooglePlayAPI api;
 
@@ -215,6 +215,33 @@ public class GooglePlayAPITest {
         DocV2 details1 = response1.getDoc(0).getChild(0);
         Assert.assertEquals("All Emails Solution in One App", details1.getTitle());
         Assert.assertFalse(i.hasNext());
+    }
+
+    @Test
+    public void searchIteratorType4() throws Exception {
+        SearchIterator i = new SearchIterator(api, "firefox");
+        Assert.assertEquals("firefox", i.getQuery());
+        Assert.assertTrue(i.hasNext());
+
+        SearchResponse response = i.next();
+        Assert.assertTrue(response.getDocCount() > 0);
+        Assert.assertTrue(response.getDoc(0).hasContainerMetadata());
+        Assert.assertTrue(response.getDoc(0).getContainerMetadata().hasNextPageUrl());
+        Assert.assertEquals("clusterSearch?q=firefox&n=20&o=10&ecp=ggELCgdmaXJlZm94EAE%3D&ctntkn=-p6BnQMCCAo%3D&fss=0&c=3&adsEnabled=1", response.getDoc(0).getContainerMetadata().getNextPageUrl());
+        Assert.assertEquals(11, response.getDoc(0).getChildCount());
+        for (DocV2 ch: response.getDoc(0).getChildList()) {
+            System.out.println(ch.getTitle());
+        }
+        DocV2 details = response.getDoc(0).getChild(0);
+        Assert.assertEquals("Firefox Browser fast & private", details.getTitle());
+
+        Assert.assertTrue(i.hasNext());
+        SearchResponse response1 = i.next();
+        Assert.assertTrue(response1.getDocCount() > 0);
+        Assert.assertEquals(20, response1.getDoc(0).getChildCount());
+        DocV2 details1 = response1.getDoc(0).getChild(0);
+        Assert.assertEquals("Ghostery Privacy Browser", details1.getTitle());
+        Assert.assertTrue(i.hasNext());
     }
 
     @Test
