@@ -70,7 +70,7 @@ public class SearchIterator extends AppListIterator {
         if (doc.getChildCount() > 0 && doc.getChild(0).getBackendId() == 3 && doc.getChild(0).getDocType() == 1) {
             return doc;
         }
-        if (doc.getChild(0).getChildCount() == 1) {
+        if (doc.getChildCount() > 0 && doc.getChild(0).getChildCount() == 1) {
             DocV2 moreResults = findMoreResults(doc);
             if (null != moreResults) {
                 return DocV2.newBuilder(moreResults).addChild(0, doc.getChild(0).getChild(0)).build();
