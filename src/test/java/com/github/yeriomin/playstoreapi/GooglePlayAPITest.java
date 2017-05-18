@@ -229,9 +229,6 @@ public class GooglePlayAPITest {
         Assert.assertTrue(response.getDoc(0).getContainerMetadata().hasNextPageUrl());
         Assert.assertEquals("clusterSearch?q=firefox&n=20&o=10&ecp=ggELCgdmaXJlZm94EAE%3D&ctntkn=-p6BnQMCCAo%3D&fss=0&c=3&adsEnabled=1", response.getDoc(0).getContainerMetadata().getNextPageUrl());
         Assert.assertEquals(11, response.getDoc(0).getChildCount());
-        for (DocV2 ch: response.getDoc(0).getChildList()) {
-            System.out.println(ch.getTitle());
-        }
         DocV2 details = response.getDoc(0).getChild(0);
         Assert.assertEquals("Firefox Browser fast & private", details.getTitle());
 
