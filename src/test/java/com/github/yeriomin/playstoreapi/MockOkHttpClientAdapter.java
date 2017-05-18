@@ -38,10 +38,9 @@ class MockOkHttpClientAdapter extends OkHttpClientAdapter {
             System.out.println("Body NOT found. Making a live request.");
             try {
                 body = super.request(requestBuilder, headers);
+                write(fileName, body);
             } catch (GooglePlayException e) {
                 System.out.println("Error making a live request: " + e.getMessage());
-            } finally {
-                write(fileName, body);
             }
         }
         return body;
