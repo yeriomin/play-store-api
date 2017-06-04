@@ -35,7 +35,7 @@ public class GooglePlayAPITest {
         String ac2dmToken = api.generateAC2DMToken(EMAIL, PASSWORD);
         Assert.assertEquals("TgSyrINgeerWByF9lukvliiumvlSapg-Gl2d7KbpL7esPQzdbcZ0BK2ktdohPRc2RZHRXw.", ac2dmToken);
         String gsfId = api.generateGsfId(EMAIL, ac2dmToken);
-        Assert.assertEquals("34a77e79566015bf", gsfId);
+        Assert.assertEquals("307edaee584cc716", gsfId);
 
         List<Request> requests = ((MockOkHttpClientAdapter) api.getClient()).getRequests();
         Assert.assertEquals(3, requests.size());
@@ -72,8 +72,8 @@ public class GooglePlayAPITest {
         Assert.assertEquals("en-US", requestCheckin2.header("Accept-Language"));
         AndroidCheckinRequest requestCheckinProto2 = AndroidCheckinRequest.parseFrom(MockOkHttpClientAdapter.getBodyBytes(requestCheckin2));
         Assert.assertEquals("C6902", requestCheckinProto2.getCheckin().getBuild().getDevice());
-        Assert.assertEquals(3794140270688212415L, requestCheckinProto2.getId());
-        Assert.assertEquals(7183672034703030426L, requestCheckinProto2.getSecurityToken());
+        Assert.assertEquals(3494471078104581910L, requestCheckinProto2.getId());
+        Assert.assertEquals(6680108819399858497L, requestCheckinProto2.getSecurityToken());
         Assert.assertEquals("[konstantin.razdolbaev@gmail.com]", requestCheckinProto2.getAccountCookie(0));
         Assert.assertEquals("TgSyrINgeerWByF9lukvliiumvlSapg-Gl2d7KbpL7esPQzdbcZ0BK2ktdohPRc2RZHRXw.", requestCheckinProto2.getAccountCookie(1));
     }

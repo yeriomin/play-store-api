@@ -24,7 +24,7 @@ class MockOkHttpClientAdapter extends OkHttpClientAdapter {
 
     @Override
     byte[] request(Request.Builder requestBuilder, Map<String, String> headers) throws IOException {
-        byte[] body = null;
+        byte[] body = new byte[0];
 		Request request = requestBuilder.headers(Headers.of(headers)).build();
 		this.requests.add(request);
         String fileName = getBodyFileName(request);

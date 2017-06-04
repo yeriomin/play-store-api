@@ -191,7 +191,7 @@ public class GooglePlayAPI {
         if (response.containsKey("Auth")) {
             return response.get("Auth");
         } else {
-            throw new GooglePlayException("Authentication failed! (login)");
+            throw new AuthException("Authentication failed! (login)");
         }
     }
 
@@ -212,7 +212,7 @@ public class GooglePlayAPI {
         if (response.containsKey("Auth")) {
             return response.get("Auth");
         } else {
-            throw new GooglePlayException("Authentication failed! (loginAC2DM)");
+            throw new AuthException("Authentication failed! (loginAC2DM)");
         }
     }
 

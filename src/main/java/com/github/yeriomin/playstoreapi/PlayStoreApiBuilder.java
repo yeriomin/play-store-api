@@ -73,25 +73,35 @@ public class PlayStoreApiBuilder {
         return api;
     }
 
-    private String generateGsfId(GooglePlayAPI api) throws IOException, ApiBuilderException {
+    private String generateGsfId(final GooglePlayAPI api) throws IOException, ApiBuilderException {
         if (isEmpty(email)) {
             throw new ApiBuilderException("Email is required, unless you provide both token and gsfId");
         }
-        String tokenAc2dm = isEmpty(password)
-            ? TokenDispenser.getTokenAc2dm(api.getClient(), email)
-            : api.generateAC2DMToken(email, password)
-        ;
+        String tokenAc2dm = new AuthRepeater(httpClient) {
+            @Override
+            protected String request() throws IOException {
+                return isEmpty(password)
+                    ? TokenDispenser.getTokenAc2dm(api.getClient(), email)
+                    : api.generateAC2DMToken(email, password)
+                ;
+            }
+        }.getToken();
         return api.generateGsfId(email, tokenAc2dm);
     }
 
-    private String generateToken(GooglePlayAPI api) throws IOException, ApiBuilderException {
+    private String generateToken(final GooglePlayAPI api) throws IOException, ApiBuilderException {
         if (isEmpty(email)) {
             throw new ApiBuilderException("Email is required, unless you provide both token and gsfId");
         }
-        return isEmpty(password)
-            ? TokenDispenser.getToken(api.getClient(), email)
-            : api.generateToken(email, password)
-        ;
+        return new AuthRepeater(httpClient) {
+            @Override
+            protected String request() throws IOException {
+                return isEmpty(password)
+                    ? TokenDispenser.getToken(api.getClient(), email)
+                    : api.generateToken(email, password)
+                ;
+            }
+        }.getToken();
     }
 
     private boolean isEmpty(String value) {
