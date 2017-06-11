@@ -1,12 +1,16 @@
 package com.github.yeriomin.playstoreapi;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
+
+import javax.crypto.NoSuchPaddingException;
 
 /**
  * This class provides
@@ -463,10 +467,16 @@ public class GooglePlayAPI {
      * Most likely not all of these are required, but the Market app sends them, so we will too
      *
      */
-    private Map<String, String> getDefaultLoginParams(String email, String password) {
+    private Map<String, String> getDefaultLoginParams(String email, String password) throws GooglePlayException {
         Map<String, String> params = new HashMap<String, String>();
         params.put("Email", email);
-        params.put("Passwd", password);
+        try {
+            params.put("EncryptedPasswd", PasswordEncrypter.encrypt(email, password));
+        } catch (GeneralSecurityException e1) {
+            throw new GooglePlayException("Could not encrypt password", e1);
+        } catch (UnsupportedEncodingException e2) {
+            throw new GooglePlayException("Could not encrypt password", e2);
+        }
         params.put("accountType", ACCOUNT_TYPE_HOSTED_OR_GOOGLE);
         params.put("has_permission", "1");
         params.put("source", "android");
