@@ -10,8 +10,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import javax.crypto.NoSuchPaddingException;
-
 /**
  * This class provides
  * <code>checkin, search, details, bulkDetails, browse, list and download</code>

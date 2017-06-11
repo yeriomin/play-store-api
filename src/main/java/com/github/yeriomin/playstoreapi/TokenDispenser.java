@@ -3,7 +3,6 @@ package com.github.yeriomin.playstoreapi;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.concurrent.TimeUnit;
 
 public class TokenDispenser {
 

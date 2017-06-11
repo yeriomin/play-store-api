@@ -30,14 +30,14 @@
 
 package com.google.protobuf;
 
-import static java.lang.Math.max;
-import static java.lang.Math.min;
-
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.ref.SoftReference;
 import java.nio.ByteBuffer;
+
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 /**
  * Utility class to provide efficient writing of {@link ByteBuffer}s to {@link OutputStream}s.

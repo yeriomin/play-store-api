@@ -32,7 +32,6 @@ package com.google.protobuf;
 
 import com.google.protobuf.Internal.IntList;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.RandomAccess;
 

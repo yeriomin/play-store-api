@@ -30,8 +30,6 @@
 
 package com.google.protobuf;
 
-import static java.lang.Math.max;
-
 import com.google.protobuf.Utf8.UnpairedSurrogateException;
 
 import java.io.IOException;
@@ -41,6 +39,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static java.lang.Math.max;
 
 /**
  * Encodes and writes protocol message fields.

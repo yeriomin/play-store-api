@@ -30,13 +30,13 @@
 
 package com.google.protobuf;
 
-import sun.misc.Unsafe;
-
 import java.lang.reflect.Field;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
+
+import sun.misc.Unsafe;
 
 /**
  * Utility class for working with unsafe operations.

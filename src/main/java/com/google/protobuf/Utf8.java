@@ -30,6 +30,8 @@
 
 package com.google.protobuf;
 
+import java.nio.ByteBuffer;
+
 import static com.google.protobuf.UnsafeUtil.addressOffset;
 import static com.google.protobuf.UnsafeUtil.getArrayBaseOffset;
 import static com.google.protobuf.UnsafeUtil.hasUnsafeArrayOperations;
@@ -38,8 +40,6 @@ import static java.lang.Character.MAX_SURROGATE;
 import static java.lang.Character.MIN_SURROGATE;
 import static java.lang.Character.isSurrogatePair;
 import static java.lang.Character.toCodePoint;
-
-import java.nio.ByteBuffer;
 
 /**
  * A set of low-level, high-performance static utility methods related
