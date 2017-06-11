@@ -467,7 +467,7 @@ public class GooglePlayAPI {
      * Most likely not all of these are required, but the Market app sends them, so we will too
      *
      */
-    private Map<String, String> getDefaultLoginParams(String email, String password) throws GooglePlayException {
+    protected Map<String, String> getDefaultLoginParams(String email, String password) throws GooglePlayException {
         Map<String, String> params = new HashMap<String, String>();
         params.put("Email", email);
         try {
