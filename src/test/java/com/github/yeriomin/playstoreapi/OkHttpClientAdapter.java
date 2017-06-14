@@ -29,12 +29,10 @@ class OkHttpClientAdapter extends HttpClientAdapter {
             .cookieJar(new CookieJar() {
                 private final HashMap<HttpUrl, List<Cookie>> cookieStore = new HashMap<HttpUrl, List<Cookie>>();
 
-                @Override
                 public void saveFromResponse(HttpUrl url, List<Cookie> cookies) {
                     cookieStore.put(url, cookies);
                 }
 
-                @Override
                 public List<Cookie> loadForRequest(HttpUrl url) {
                     List<Cookie> cookies = cookieStore.get(url);
                     return cookies != null ? cookies : new ArrayList<Cookie>();
@@ -50,16 +48,12 @@ class OkHttpClientAdapter extends HttpClientAdapter {
 
     @Override
     public byte[] get(String url, Map<String, String> params, Map<String, String> headers) throws IOException {
-        Request.Builder requestBuilder = new Request.Builder()
-            .url(buildUrl(url, params))
-            .get();
-
-        return request(requestBuilder, headers);
+        return request(new Request.Builder().url(buildUrl(url, params)).get(), headers);
     }
 
     @Override
     public byte[] postWithoutBody(String url, Map<String, String> urlParams, Map<String, String> headers) throws IOException {
-        return post(buildUrl(url, urlParams).toString(), new HashMap<String, String>(), headers);
+        return post(buildUrl(url, urlParams), new HashMap<String, String>(), headers);
     }
 
     @Override
@@ -126,13 +120,13 @@ class OkHttpClientAdapter extends HttpClientAdapter {
         return content;
     }
 
-    static private HttpUrl buildUrl(String url, Map<String, String> params) {
+    public String buildUrl(String url, Map<String, String> params) {
         HttpUrl.Builder urlBuilder = HttpUrl.parse(url).newBuilder();
         if (null != params && !params.isEmpty()) {
             for (String name: params.keySet()) {
                 urlBuilder.addQueryParameter(name, params.get(name));
             }
         }
-        return urlBuilder.build();
+        return urlBuilder.build().toString();
     }
 }

@@ -1,25 +1,27 @@
 package com.github.yeriomin.playstoreapi;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
 /**
  * Iterates through search result pages
  * Each next() call gets you a next page of search results for the provided query
  */
-public class SearchIterator extends AppListIterator {
+public class SearchIterator extends AppListIterator<SearchResponse> {
 
     static private final String DOCID_FRAGMENT_MORE_RESULTS = "more_results";
 
-    private final String query;
+    private String query;
 
     public SearchIterator(GooglePlayAPI googlePlayApi, String query) {
         super(googlePlayApi);
         this.query = query;
+        String url = GooglePlayAPI.SEARCH_URL;
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("q", query);
+        firstPageUrl = googlePlayApi.getClient().buildUrl(url, params);
     }
 
     public String getQuery() {
@@ -27,28 +29,36 @@ public class SearchIterator extends AppListIterator {
     }
 
     @Override
+    protected SearchResponse getAppListResponse(Payload payload) {
+        SearchResponse response = payload.getSearchResponse();
+        if (response.getDocCount() > 0) {
+            return SearchResponse.newBuilder(response).setDoc(0, findApps(response.getDoc(0))).build();
+        }
+        return response;
+    }
+
+    @Override
+    protected String findNextPageUrl(SearchResponse searchResponse) {
+        if (searchResponse.getDocCount() == 0) {
+            return null;
+        }
+        DocV2 doc = searchResponse.getDoc(0);
+        if (doc.hasContainerMetadata() && doc.getContainerMetadata().hasNextPageUrl()) {
+            return GooglePlayAPI.FDFE_URL + doc.getContainerMetadata().getNextPageUrl();
+        }
+        if (doc.hasRelatedLinks()
+            && doc.getRelatedLinks().hasUnknown1()
+            && doc.getRelatedLinks().getUnknown1().hasUnknown2()
+            && doc.getRelatedLinks().getUnknown1().getUnknown2().hasNextPageUrl()
+            ) {
+            return GooglePlayAPI.FDFE_URL + doc.getRelatedLinks().getUnknown1().getUnknown2().getNextPageUrl();
+        }
+        return null;
+    }
+
+    @Override
     public SearchResponse next() {
-        String url = GooglePlayAPI.SEARCH_URL;
-        Map<String, String> params = new HashMap<String, String>();
-        if (this.firstQuery) {
-            params.put("c", "3");
-            params.put("q", query);
-        } else if (null != this.nextPageUrl && this.nextPageUrl.length() > 0) {
-            url = this.nextPageUrl;
-        } else {
-            throw new NoSuchElementException();
-        }
-
-        SearchResponse response;
-        try {
-            response = googlePlayApi.genericGet(url, params).getSearchResponse();
-            response = SearchResponse.newBuilder(response).setDoc(0, findApps(response.getDoc(0))).build();
-            this.firstQuery = false;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        nextPageUrl = findNextPageUrl(response.getDoc(0));
+        SearchResponse response = super.next();
         if (nextPageStartsFromZero()) {
             SearchResponse next = next();
             if (response.getDoc(0).getDocid().contains(DOCID_FRAGMENT_MORE_RESULTS)) {
@@ -101,20 +111,6 @@ public class SearchIterator extends AppListIterator {
             .setDoc(0, newDoc)
             .build()
         ;
-    }
-
-    private String findNextPageUrl(DocV2 doc) {
-        if (doc.hasContainerMetadata() && doc.getContainerMetadata().hasNextPageUrl()) {
-            return GooglePlayAPI.FDFE_URL + doc.getContainerMetadata().getNextPageUrl();
-        }
-        if (doc.hasRelatedLinks()
-            && doc.getRelatedLinks().hasUnknown1()
-            && doc.getRelatedLinks().getUnknown1().hasUnknown2()
-            && doc.getRelatedLinks().getUnknown1().getUnknown2().hasNextPageUrl()
-        ) {
-            return GooglePlayAPI.FDFE_URL + doc.getRelatedLinks().getUnknown1().getUnknown2().getNextPageUrl();
-        }
-        return null;
     }
 
     private boolean nextPageStartsFromZero() {

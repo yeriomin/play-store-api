@@ -10,6 +10,7 @@ public abstract class HttpClientAdapter {
     abstract public byte[] postWithoutBody(String url, Map<String, String> urlParams, Map<String, String> headers) throws IOException;
     abstract public byte[] post(String url, Map<String, String> params, Map<String, String> headers) throws IOException;
     abstract public byte[] post(String url, byte[] body, Map<String, String> headers) throws IOException;
+    abstract public String buildUrl(String url, Map<String, String> params);
 
     public byte[] get(String url, Map<String, String> params) throws IOException {
         return get(url, params, new HashMap<String, String>());

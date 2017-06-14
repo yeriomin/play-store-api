@@ -242,6 +242,21 @@ public class GooglePlayAPITest {
     }
 
     @Test
+    public void similarAppsIterator() throws Exception {
+        UrlIterator i = new UrlIterator(api, "cluster?ecp=qgEYChYKEG9yZy5xcHl0aG9uLnFweTMQARgD&ds=1&n=21&c=3");
+        Assert.assertTrue(i.hasNext());
+        ListResponse response = i.next();
+        Assert.assertTrue(response.getDocCount() > 0);
+        Assert.assertTrue(response.getDoc(0).hasContainerMetadata());
+        Assert.assertTrue(response.getDoc(0).getContainerMetadata().hasNextPageUrl());
+        Assert.assertEquals(21, response.getDoc(0).getChildCount());
+        DocV2 details = response.getDoc(0).getChild(0);
+        Assert.assertEquals("QPython - Python for Android", details.getTitle());
+
+        Assert.assertTrue(i.hasNext());
+    }
+
+    @Test
     public void categoryAppIterator() throws Exception {
         CategoryAppsIterator i = new CategoryAppsIterator(api, "FINANCE", GooglePlayAPI.SUBCATEGORY.TOP_FREE);
         Assert.assertEquals("FINANCE", i.getCategoryId());

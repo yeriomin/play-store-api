@@ -106,7 +106,7 @@ class MockOkHttpClientAdapter extends OkHttpClientAdapter {
         fileName.append("request");
         fileName.append(request.url().encodedPath().replace("/", "."));
         for (String key: request.url().queryParameterNames()) {
-            fileName.append(".").append(key).append(".").append(request.url().queryParameter(key));
+            fileName.append(".").append(key).append(".").append(request.url().queryParameter(key).replace(":", "."));
         }
         byte[] body = getBodyBytes(request);
         if (null != body) {
