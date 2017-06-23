@@ -327,10 +327,28 @@ public class GooglePlayAPI {
      * @param offerType
      */
     public DeliveryResponse delivery(String packageName, int versionCode, int offerType) throws IOException {
+        return delivery(packageName, 0, versionCode, offerType, 3);
+    }
+
+    /**
+     * Supplying a version code of an installed package and a patch format adds delta patch download
+     * links to DeliveryResponse. Known patch formats are: 1,2,3,4,5
+     *
+     * @param packageName
+     * @param installedVersionCode
+     * @param updateVersionCode
+     * @param offerType
+     * @param patchFormat
+     */
+    public DeliveryResponse delivery(String packageName, int installedVersionCode, int updateVersionCode, int offerType, int patchFormat) throws IOException {
         Map<String, String> params = new HashMap<String, String>();
         params.put("ot", String.valueOf(offerType));
         params.put("doc", packageName);
-        params.put("vc", String.valueOf(versionCode));
+        params.put("vc", String.valueOf(updateVersionCode));
+        if (installedVersionCode > 0) {
+            params.put("bvc", String.valueOf(installedVersionCode));
+            params.put("pf", String.valueOf(patchFormat));
+        }
         byte[] responseBytes = client.get(DELIVERY_URL, params, getDefaultHeaders());
         return ResponseWrapper.parseFrom(responseBytes).getPayload().getDeliveryResponse();
     }
