@@ -50,6 +50,10 @@ public class PlayStoreApiBuilder {
         return this;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
     public PlayStoreApiBuilder setTokenDispenserUrl(String tokenDispenserUrl) {
         this.tokenDispenserUrl = tokenDispenserUrl;
         return this;

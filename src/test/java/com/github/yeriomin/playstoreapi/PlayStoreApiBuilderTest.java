@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 public class PlayStoreApiBuilderTest {
 
