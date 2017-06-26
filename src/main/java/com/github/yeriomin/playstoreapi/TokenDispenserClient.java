@@ -4,30 +4,41 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-public class TokenDispenser {
+public class TokenDispenserClient {
 
-    static public final String DISPENSER_URL = "http://tokendispenser-yeriomin.rhcloud.com";
-
+    static private final String RESOURCE_EMAIL = "email";
     static private final String RESOURCE_TOKEN = "token";
     static private final String RESOURCE_TOKEN_AC2DM = "token-ac2dm";
 
     static private final String PARAMETER_EMAIL = "email";
 
-    static public String getToken(HttpClientAdapter httpClient, String email) throws IOException {
-        return request(httpClient, getUrl(RESOURCE_TOKEN, email));
+    private String url;
+    private HttpClientAdapter httpClient;
+
+    public TokenDispenserClient(String url, HttpClientAdapter httpClient) {
+        this.url = url;
+        this.httpClient = httpClient;
     }
 
-    static public String getTokenAc2dm(HttpClientAdapter httpClient, String email) throws IOException {
-        return request(httpClient, getUrl(RESOURCE_TOKEN_AC2DM, email));
+    public String getRandomEmail() throws IOException {
+        return request(httpClient, url + "/" + RESOURCE_EMAIL);
     }
 
-    static private String getUrl(String resource, String email) {
+    public String getToken(String email) throws IOException {
+        return request(httpClient, getUrl(url, RESOURCE_TOKEN, email));
+    }
+
+    public String getTokenAc2dm(String email) throws IOException {
+        return request(httpClient, getUrl(url, RESOURCE_TOKEN_AC2DM, email));
+    }
+
+    static private String getUrl(String url, String resource, String email) {
         try {
             email = URLEncoder.encode(email, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             // Unlikely
         }
-        return DISPENSER_URL + "/" + resource + "/" + PARAMETER_EMAIL + "/" + email;
+        return url + "/" + resource + "/" + PARAMETER_EMAIL + "/" + email;
     }
 
     static private String request(HttpClientAdapter httpClient, String url) throws IOException {

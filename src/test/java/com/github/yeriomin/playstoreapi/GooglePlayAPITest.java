@@ -544,15 +544,7 @@ public class GooglePlayAPITest {
         deviceInfoProvider.setLocaleString(Locale.ENGLISH.toString());
         deviceInfoProvider.setTimeToReport(1482626488L);
 
-        GooglePlayAPI api = new GooglePlayAPI() {
-            @Override
-            protected Map<String, String> getDefaultLoginParams(String email, String password) throws GooglePlayException {
-                Map<String, String> params = super.getDefaultLoginParams(email, password);
-                params.remove("EncryptedPasswd");
-                params.put("Passwd", password);
-                return params;
-            }
-        };
+        GooglePlayAPI api = new MockGooglePlayAPI();
         api.setClient(new MockOkHttpClientAdapter());
         api.setLocale(Locale.US);
         api.setDeviceInfoProvider(deviceInfoProvider);
