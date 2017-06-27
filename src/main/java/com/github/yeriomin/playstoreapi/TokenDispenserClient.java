@@ -42,7 +42,6 @@ public class TokenDispenserClient {
     }
 
     static private String request(HttpClientAdapter httpClient, String url) throws IOException {
-        System.out.println("Requesting " + url);
         try {
             return new String(httpClient.get(url));
         } catch (GooglePlayException e) {
