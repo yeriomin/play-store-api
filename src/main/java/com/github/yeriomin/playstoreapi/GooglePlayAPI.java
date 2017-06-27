@@ -49,6 +49,20 @@ public class GooglePlayAPI {
 
     private static final String ACCOUNT_TYPE_HOSTED_OR_GOOGLE = "HOSTED_OR_GOOGLE";
 
+    public enum PATCH_FORMAT {
+        GDIFF(1),
+        GZIPPED_GDIFF(2),
+        UNKNOWN_3(3),
+        UNKNOWN_4(4),
+        UNKNOWN_5(5);
+
+        public int value;
+
+        PATCH_FORMAT(int value) {
+            this.value = value;
+        }
+    }
+
     public enum REVIEW_SORT {
         NEWEST(0), HIGHRATING(1), HELPFUL(4);
 
@@ -327,7 +341,7 @@ public class GooglePlayAPI {
      * @param offerType
      */
     public DeliveryResponse delivery(String packageName, int versionCode, int offerType) throws IOException {
-        return delivery(packageName, 0, versionCode, offerType, 3);
+        return delivery(packageName, 0, versionCode, offerType, PATCH_FORMAT.GZIPPED_GDIFF);
     }
 
     /**
@@ -340,7 +354,7 @@ public class GooglePlayAPI {
      * @param offerType
      * @param patchFormat
      */
-    public DeliveryResponse delivery(String packageName, int installedVersionCode, int updateVersionCode, int offerType, int patchFormat) throws IOException {
+    public DeliveryResponse delivery(String packageName, int installedVersionCode, int updateVersionCode, int offerType, PATCH_FORMAT patchFormat) throws IOException {
         Map<String, String> params = new HashMap<String, String>();
         params.put("ot", String.valueOf(offerType));
         params.put("doc", packageName);
