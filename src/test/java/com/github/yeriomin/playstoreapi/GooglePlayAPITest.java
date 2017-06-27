@@ -401,6 +401,28 @@ public class GooglePlayAPITest {
     }
 
     @Test
+    public void deliveryWithPatchInfo() throws Exception {
+        DeliveryResponse response = api.delivery("com.dukei.android.apps.anybalance", 804, 805, 1, GooglePlayAPI.PATCH_FORMAT.GZIPPED_GDIFF);
+
+        Assert.assertTrue(response.hasAppDeliveryData());
+        Assert.assertEquals("42", response.getAppDeliveryData().getDownloadAuthCookie(0).getValue());
+        Assert.assertEquals("https://android.clients.google.com/market/download/Download?packageName=com.dukei.android.apps.anybalance&versionCode=805&ssl=1&token=AOTCm0QUVF4TgFWbAaUj9aO2fERzAnyoM4wPM4a_zeRi5TLZ2Ysn0fCSAcp-zKLm_GcGL-E4ETR0XY0-68EtprtPgGbbE-x6kQpP-ZiGU0bkLx9MPF02DvieK9sKWW69Ng-iQRB-aBN_Rtd4k3Y2BP9wEn5gXecEWceT-yr947Mpjk_tmuAym7Gxi_JfNbRp2ZbjdWXd8zPnn_repPTbSbrkhLXjeby4AQ5HRpY3Nw3UYIcnEt_dyanunKxAT5dmRhI0J6ROrdzKIO78hLBg12UvS8RpAi3I8PcLwHz2ntAbEq5vp5K1DtiBUospxuAR8GMz9I-OIV-IcQFLj9n-KdqsmRh7lHqB6Tl8Y8UmGSvuTGf9OD18ao9PrJOJIHM&cpn=0U70ZSphBpghV6t_", response.getAppDeliveryData().getDownloadUrl());
+
+        List<Request> requests = ((MockOkHttpClientAdapter) api.getClient()).getRequests();
+        Assert.assertEquals(1, requests.size());
+        Request request = requests.get(0);
+        Assert.assertEquals(2, request.url().pathSegments().size());
+        Assert.assertEquals("fdfe", request.url().pathSegments().get(0));
+        Assert.assertEquals("delivery", request.url().pathSegments().get(1));
+        Assert.assertEquals(5, request.url().queryParameterNames().size());
+        Assert.assertEquals("com.dukei.android.apps.anybalance", request.url().queryParameterValues("doc").get(0));
+        Assert.assertEquals("1", request.url().queryParameterValues("ot").get(0));
+        Assert.assertEquals("805", request.url().queryParameterValues("vc").get(0));
+        Assert.assertEquals("804", request.url().queryParameterValues("bvc").get(0));
+        Assert.assertEquals("2", request.url().queryParameterValues("pf").get(0));
+    }
+
+    @Test
     public void reviews() throws Exception {
         ReviewResponse response = api.reviews("com.cpuid.cpu_z", GooglePlayAPI.REVIEW_SORT.HIGHRATING, 0, 20);
 

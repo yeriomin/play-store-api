@@ -361,7 +361,7 @@ public class GooglePlayAPI {
         params.put("vc", String.valueOf(updateVersionCode));
         if (installedVersionCode > 0) {
             params.put("bvc", String.valueOf(installedVersionCode));
-            params.put("pf", String.valueOf(patchFormat));
+            params.put("pf", String.valueOf(patchFormat.value));
         }
         byte[] responseBytes = client.get(DELIVERY_URL, params, getDefaultHeaders());
         return ResponseWrapper.parseFrom(responseBytes).getPayload().getDeliveryResponse();
