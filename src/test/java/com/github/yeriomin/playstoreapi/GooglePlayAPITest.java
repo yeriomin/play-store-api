@@ -407,6 +407,8 @@ public class GooglePlayAPITest {
         Assert.assertTrue(response.hasAppDeliveryData());
         Assert.assertEquals("42", response.getAppDeliveryData().getDownloadAuthCookie(0).getValue());
         Assert.assertEquals("https://android.clients.google.com/market/download/Download?packageName=com.dukei.android.apps.anybalance&versionCode=805&ssl=1&token=AOTCm0QUVF4TgFWbAaUj9aO2fERzAnyoM4wPM4a_zeRi5TLZ2Ysn0fCSAcp-zKLm_GcGL-E4ETR0XY0-68EtprtPgGbbE-x6kQpP-ZiGU0bkLx9MPF02DvieK9sKWW69Ng-iQRB-aBN_Rtd4k3Y2BP9wEn5gXecEWceT-yr947Mpjk_tmuAym7Gxi_JfNbRp2ZbjdWXd8zPnn_repPTbSbrkhLXjeby4AQ5HRpY3Nw3UYIcnEt_dyanunKxAT5dmRhI0J6ROrdzKIO78hLBg12UvS8RpAi3I8PcLwHz2ntAbEq5vp5K1DtiBUospxuAR8GMz9I-OIV-IcQFLj9n-KdqsmRh7lHqB6Tl8Y8UmGSvuTGf9OD18ao9PrJOJIHM&cpn=0U70ZSphBpghV6t_", response.getAppDeliveryData().getDownloadUrl());
+        Assert.assertTrue(response.getAppDeliveryData().hasPatchData());
+        Assert.assertEquals("https://android.clients.google.com/market/download/Download?packageName=com.dukei.android.apps.anybalance&versionCode=805&ssl=1&token=AOTCm0RIVVa_w16cspCodcRpxEK-UuwlLmYRILrc-R86Xsmr_T7YkDdavGBV29qYY-kq6BRS8Vx9LT7HmpDJbIu2P4DtIBwF4cI_6R-Cj2_g3oxP8QtmpeJZhu3-FbZohrOsHExwM8aGHpdK7OCyA67njkiFGOm_l06vmcOrIlb6PdzVjTa2tzZS4wWMlWS6LBXThNl4hcgmr8wZPjBHNVaQ1M6SXERrXHPUPAyrkScW0UWvf66_E--sA_cedXAfyDZlDS3uW85wHiFpCcM3rmyUHlpCvr39kd5kGTNNmk5OmTdiKQkY9xSQu3Qo8FEhi-y02nXCwZeG_Vu3MsaBbyiR7NHNv-2-5NEQJ4pHuZNfv4BdoCfY2pOIV1m4Vi2fH9v4&baseVersion=804&pf=2&cpn=oT-7iAHlEqbxJzyk", response.getAppDeliveryData().getPatchData().getDownloadUrl());
 
         List<Request> requests = ((MockOkHttpClientAdapter) api.getClient()).getRequests();
         Assert.assertEquals(1, requests.size());
