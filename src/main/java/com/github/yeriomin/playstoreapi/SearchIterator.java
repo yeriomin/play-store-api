@@ -30,7 +30,12 @@ public class SearchIterator extends AppListIterator<SearchResponse> {
 
     @Override
     protected SearchResponse getAppListResponse(Payload payload) {
-        SearchResponse response = payload.getSearchResponse();
+        SearchResponse response;
+        if (!payload.hasSearchResponse() && payload.hasListResponse() && payload.getListResponse().getDocCount() > 0) {
+            response = SearchResponse.newBuilder().addDoc(payload.getListResponse().getDoc(0)).build();
+        } else {
+            response = payload.getSearchResponse();
+        }
         if (response.getDocCount() > 0) {
             return SearchResponse.newBuilder(response).setDoc(0, findApps(response.getDoc(0))).build();
         }
@@ -59,6 +64,10 @@ public class SearchIterator extends AppListIterator<SearchResponse> {
     @Override
     public SearchResponse next() {
         SearchResponse response = super.next();
+        if (response.getDocCount() == 0 && response.hasNextPageUrl()) {
+            nextPageUrl = GooglePlayAPI.FDFE_URL + response.getNextPageUrl();
+            response = next();
+        }
         if (nextPageStartsFromZero()) {
             SearchResponse next = next();
             if (response.getDoc(0).getDocid().contains(DOCID_FRAGMENT_MORE_RESULTS)) {

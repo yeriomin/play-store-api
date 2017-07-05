@@ -59,7 +59,7 @@ public class GooglePlayAPITest {
         Assert.assertEquals("checkin", requestCheckin1.url().pathSegments().get(0));
         Assert.assertNull(requestCheckin1.header("Authorization"));
         Assert.assertNull(requestCheckin1.header("X-DFE-Device-Id"));
-        Assert.assertEquals("Android-Finsky/7.1.15 (api=3,versionCode=80711500,sdk=22,device=C6902,hardware=qcom,product=C6902)", requestCheckin1.header("User-Agent"));
+        Assert.assertEquals("Android-Finsky/7.1.15 (api=3,versionCode=80798000,sdk=22,device=C6902,hardware=qcom,product=C6902)", requestCheckin1.header("User-Agent"));
         Assert.assertEquals("en-US", requestCheckin1.header("Accept-Language"));
         AndroidCheckinRequest requestCheckinProto1 = AndroidCheckinRequest.parseFrom(MockOkHttpClientAdapter.getBodyBytes(requestCheckin1));
         Assert.assertEquals("C6902", requestCheckinProto1.getCheckin().getBuild().getDevice());
@@ -68,7 +68,7 @@ public class GooglePlayAPITest {
         Assert.assertEquals(1, requestCheckin2.url().pathSegments().size());
         Assert.assertEquals("checkin", requestCheckin2.url().pathSegments().get(0));
         Assert.assertNull(requestCheckin2.header("Authorization"));
-        Assert.assertEquals("Android-Finsky/7.1.15 (api=3,versionCode=80711500,sdk=22,device=C6902,hardware=qcom,product=C6902)", requestCheckin2.header("User-Agent"));
+        Assert.assertEquals("Android-Finsky/7.1.15 (api=3,versionCode=80798000,sdk=22,device=C6902,hardware=qcom,product=C6902)", requestCheckin2.header("User-Agent"));
         Assert.assertEquals("en-US", requestCheckin2.header("Accept-Language"));
         AndroidCheckinRequest requestCheckinProto2 = AndroidCheckinRequest.parseFrom(MockOkHttpClientAdapter.getBodyBytes(requestCheckin2));
         Assert.assertEquals("C6902", requestCheckinProto2.getCheckin().getBuild().getDevice());
@@ -238,6 +238,30 @@ public class GooglePlayAPITest {
         Assert.assertEquals(20, response1.getDoc(0).getChildCount());
         DocV2 details1 = response1.getDoc(0).getChild(0);
         Assert.assertEquals("Ghostery Privacy Browser", details1.getTitle());
+        Assert.assertTrue(i.hasNext());
+    }
+
+    @Test
+    public void searchIteratorType5() throws Exception {
+        SearchIterator i = new SearchIterator(api, "tiny archers");
+        Assert.assertEquals("tiny archers", i.getQuery());
+        Assert.assertTrue(i.hasNext());
+
+        SearchResponse response = i.next();
+        Assert.assertTrue(response.getDocCount() > 0);
+        Assert.assertTrue(response.getDoc(0).hasContainerMetadata());
+        Assert.assertTrue(response.getDoc(0).getContainerMetadata().hasNextPageUrl());
+        Assert.assertEquals("clusterSearchList?q=tiny+archers&n=20&o=14&ecp=ggEQCgx0aW55IGFyY2hlcnMQAQ%3D%3D&ctntkn=-p6BnQMCCAc%3D&fss=0&c=3", response.getDoc(0).getContainerMetadata().getNextPageUrl());
+        Assert.assertEquals(8, response.getDoc(0).getChildCount());
+        DocV2 details = response.getDoc(0).getChild(0);
+        Assert.assertEquals("Tiny Archers", details.getTitle());
+
+        Assert.assertTrue(i.hasNext());
+        SearchResponse response1 = i.next();
+        Assert.assertTrue(response1.getDocCount() > 0);
+        Assert.assertEquals(20, response1.getDoc(0).getChildCount());
+        DocV2 details1 = response1.getDoc(0).getChild(0);
+        Assert.assertEquals("Tiny Troopers 2: Special Ops", details1.getTitle());
         Assert.assertTrue(i.hasNext());
     }
 

@@ -907,6 +907,7 @@ message SearchResponse {
   repeated Bucket bucket = 4;
   repeated DocV2 doc = 5;
   repeated RelatedSearch relatedSearch = 6;
+  optional string nextPageUrl = 10;
 }
 message SearchSuggestResponse {
   repeated SearchSuggestEntry entry = 1;
