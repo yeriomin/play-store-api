@@ -33,7 +33,7 @@ public class PropertiesDeviceInfoProvider implements DeviceInfoProvider {
     public String getUserAgentString() {
         return "Android-Finsky/7.1.15 ("
             + "api=3"
-            + ",versionCode=80711500"
+            + ",versionCode=" + this.properties.getProperty("Vending.version")
             + ",sdk=" + this.properties.getProperty("Build.VERSION.SDK_INT")
             + ",device=" + this.properties.getProperty("Build.DEVICE")
             + ",hardware=" + this.properties.getProperty("Build.HARDWARE")
