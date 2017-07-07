@@ -19,11 +19,6 @@ public class GooglePlayAPITest {
     private static final String PASSWORD = "TemporaryPassword!";
     private static final String GSFID = "3f1abe856b0fa7fd";
     private static final String TOKEN = "jwSyrOU2RHDv2d82095MoHKOUHhO9KxBbkAoLCMkCKWqB9RUHbvq8VIWufBJcxwRn3_DGQ.";
-//    private static final String EMAIL = "yalp.store.user.two@gmail.com";
-//    private static final String PASSWORD = "TemporaryPassword!";
-//    private static final String GSFID = "34f5489591fdd998";
-////    private static final String GSFID = "3c04d1ba128c9d9e";
-//    private static final String TOKEN = "4ATvsDrwC0QY_gCKYXwNEld5U_q5CDI6Y7YcyR0YyQSbP_teeVukXd9Sw36oudPGohSUcA.";
 
     private GooglePlayAPI api;
 
@@ -258,6 +253,15 @@ public class GooglePlayAPITest {
         Assert.assertEquals(20, response1.size());
         DocV2 details1 = response1.get(0);
         Assert.assertEquals("Денежные Переводы", details1.getTitle());
+    }
+
+    @Test
+    public void emptyList() {
+        UrlIterator i = new UrlIterator(api, "cluster?ecp=igMzChkKEzUzODM5MTMwMDQzMDM5MzUxNjIQCBgDEhQKDmNvbS50cnVlY2FsbGVyEAEYAxgB&ds=1");
+        Assert.assertTrue(i.hasNext());
+        List<DocV2> docs = i.next();
+        Assert.assertTrue(docs.isEmpty());
+        Assert.assertFalse(i.hasNext());
     }
 
     @Test

@@ -30,13 +30,17 @@ abstract public class AppListIterator implements Iterator {
             throw new IteratorGooglePlayException(e);
         }
         nextPageUrl = findNextPageUrl(payload);
-        if (null == nextPageUrl) {
+        if (null == nextPageUrl && null != rootDoc) {
             nextPageUrl = findNextPageUrl(rootDoc);
         }
         if (nextPageStartsFromZero()) {
             return next();
         }
-        return rootDoc.getChildList();
+        if (null != rootDoc) {
+            return rootDoc.getChildList();
+        } else {
+            return new ArrayList<DocV2>();
+        }
     }
 
     public boolean hasNext() {
