@@ -489,7 +489,16 @@ public class GooglePlayAPI {
             params.put("c", "3");
         }
         byte[] responseBytes = client.get(url, params, getDefaultHeaders());
-        return ResponseWrapper.parseFrom(responseBytes).getPayload();
+        ResponseWrapper wrapper = ResponseWrapper.parseFrom(responseBytes);
+        Payload payload = wrapper.getPayload();
+        if (wrapper.getPreFetchCount() > 0
+            && ((payload.hasSearchResponse() && payload.getSearchResponse().getDocCount() == 0)
+                || (payload.hasListResponse() && payload.getListResponse().getDocCount() == 0)
+            )
+        ) {
+            return wrapper.getPreFetch(0).getResponse().getPayload();
+        }
+        return payload;
     }
 
     /**

@@ -3,7 +3,7 @@ package com.github.yeriomin.playstoreapi;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CategoryAppsIterator extends UrlIterator {
+public class CategoryAppsIterator extends AppListIterator {
 
     private String categoryId;
 
