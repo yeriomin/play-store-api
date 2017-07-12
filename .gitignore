@@ -4,3 +4,4 @@ out/
 build/
 gradle-app.setting
 /request.*
+/local.properties
