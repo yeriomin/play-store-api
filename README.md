@@ -18,6 +18,7 @@ Protobuf classes generation happens on `assemble` step, tests a ran on `build` s
 
 ### First login
 
+```java
         // A device definition is required to log in
         // See resources for a list of available devices
         Properties properties = new Properties();
@@ -50,9 +51,11 @@ Protobuf classes generation happens on `assemble` step, tests a ran on `build` s
         
         // API wrapper instance is ready
         DetailsResponse response = api.details("com.cpuid.cpu_z");
+```
         
 ### Further logins
 
+```java
         // A device definition is required for routine requests too
         // See resources for a list of available devices
         Properties properties = new Properties();
@@ -78,6 +81,7 @@ Protobuf classes generation happens on `assemble` step, tests a ran on `build` s
         
         // API wrapper instance is ready
         DetailsResponse response = api.details("com.cpuid.cpu_z");
+```
         
 ### Examples
 
