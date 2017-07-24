@@ -33,6 +33,8 @@ Protobuf classes generation happens on `assemble` step, tests a ran on `build` s
         
         // Provide valid google account info
         PlayStoreApiBuilder builder = new PlayStoreApiBuilder()
+            // Extend HttpClientAdapter using a http library of your choice
+            .setHttpClient(new HttpClientAdapterImplementation())
             .setDeviceInfoProvider(deviceInfoProvider)
             .setEmail(email)
             .setPassword(password)
@@ -42,6 +44,7 @@ Protobuf classes generation happens on `assemble` step, tests a ran on `build` s
         // We are logged in now
         // Save and reuse the generated auth token and gsf id,
         // unless you want to get banned for frequent relogins
+        // The token has a very long validity time. Months.
         api.getToken();
         api.getGsfId();
         
@@ -65,6 +68,8 @@ Protobuf classes generation happens on `assemble` step, tests a ran on `build` s
         
         // Provide auth token and gsf id you previously saved
         PlayStoreApiBuilder builder = new PlayStoreApiBuilder()
+            // Extend HttpClientAdapter using a http library of your choice
+            .setHttpClient(new HttpClientAdapterImplementation())
             .setDeviceInfoProvider(deviceInfoProvider)
             .setToken(token)
             .setGsfId(gsfId)
