@@ -1,9 +1,46 @@
 package com.github.yeriomin.playstoreapi;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 public class PropertiesDeviceInfoProvider implements DeviceInfoProvider {
+
+    static private String[] requiredFields = new String[] {
+        "UserReadableName",
+        "Build.HARDWARE",
+        "Build.RADIO",
+        "Build.BOOTLOADER",
+        "Build.FINGERPRINT",
+        "Build.BRAND",
+        "Build.DEVICE",
+        "Build.VERSION.SDK_INT",
+        "Build.MODEL",
+        "Build.MANUFACTURER",
+        "Build.PRODUCT",
+        "TouchScreen",
+        "Keyboard",
+        "Navigation",
+        "ScreenLayout",
+        "HasHardKeyboard",
+        "HasFiveWayNavigation",
+        "GL.Version",
+        "GSF.version",
+        "Vending.version",
+        "Screen.Density",
+        "Screen.Width",
+        "Screen.Height",
+        "Platforms",
+        "SharedLibraries",
+        "Features",
+        "Locales",
+        "CellOperator",
+        "SimOperator",
+        "Roaming",
+        "Client",
+        "TimeZone",
+        "GL.Extensions"
+    };
 
     private Properties properties;
     private String localeString;
@@ -24,6 +61,10 @@ public class PropertiesDeviceInfoProvider implements DeviceInfoProvider {
 
     void setTimeToReport(long timeToReport) {
         this.timeToReport = timeToReport;
+    }
+
+    public boolean isValid() {
+        return properties.keySet().containsAll(Arrays.asList(requiredFields));
     }
 
     public int getSdkVersion() {
@@ -54,14 +95,14 @@ public class PropertiesDeviceInfoProvider implements DeviceInfoProvider {
                             .setRadio(this.properties.getProperty("Build.RADIO"))
                             .setBootloader(this.properties.getProperty("Build.BOOTLOADER"))
                             .setDevice(this.properties.getProperty("Build.DEVICE"))
-                            .setSdkVersion(Integer.parseInt(this.properties.getProperty("Build.VERSION.SDK_INT")))
+                            .setSdkVersion(getInt("Build.VERSION.SDK_INT"))
                             .setModel(this.properties.getProperty("Build.MODEL"))
                             .setManufacturer(this.properties.getProperty("Build.MANUFACTURER"))
                             .setBuildProduct(this.properties.getProperty("Build.PRODUCT"))
                             .setClient(this.properties.getProperty("Client"))
                             .setOtaInstalled(Boolean.getBoolean(this.properties.getProperty("OtaInstalled")))
                             .setTimestamp(this.timeToReport)
-                            .setGoogleServices(Integer.parseInt(this.properties.getProperty("GSF.version")))
+                            .setGoogleServices(getInt("GSF.version"))
                     )
                     .setLastCheckinMsec(0)
                     .setCellOperator(this.properties.getProperty("CellOperator"))
@@ -79,22 +120,33 @@ public class PropertiesDeviceInfoProvider implements DeviceInfoProvider {
 
     public DeviceConfigurationProto getDeviceConfigurationProto() {
         return DeviceConfigurationProto.newBuilder()
-            .setTouchScreen(Integer.parseInt(this.properties.getProperty("TouchScreen")))
-            .setKeyboard(Integer.parseInt(this.properties.getProperty("Keyboard")))
-            .setNavigation(Integer.parseInt(this.properties.getProperty("Navigation")))
-            .setScreenLayout(Integer.parseInt(this.properties.getProperty("ScreenLayout")))
+            .setTouchScreen(getInt("TouchScreen"))
+            .setKeyboard(getInt("Keyboard"))
+            .setNavigation(getInt("Navigation"))
+            .setScreenLayout(getInt("ScreenLayout"))
             .setHasHardKeyboard(Boolean.getBoolean(this.properties.getProperty("HasHardKeyboard")))
             .setHasFiveWayNavigation(Boolean.getBoolean(this.properties.getProperty("HasFiveWayNavigation")))
-            .setScreenDensity(Integer.parseInt(this.properties.getProperty("Screen.Density")))
-            .setScreenWidth(Integer.parseInt(this.properties.getProperty("Screen.Width")))
-            .setScreenHeight(Integer.parseInt(this.properties.getProperty("Screen.Height")))
-            .addAllNativePlatform(Arrays.asList(this.properties.getProperty("Platforms").split(",")))
-            .addAllSystemSharedLibrary(Arrays.asList(this.properties.getProperty("SharedLibraries").split(",")))
-            .addAllSystemAvailableFeature(Arrays.asList(this.properties.getProperty("Features").split(",")))
-            .addAllSystemSupportedLocale(Arrays.asList(this.properties.getProperty("Locales").split(",")))
-            .setGlEsVersion(Integer.parseInt(this.properties.getProperty("GL.Version")))
-            .addAllGlExtension(Arrays.asList(this.properties.getProperty("GL.Extensions").split(",")))
+            .setScreenDensity(getInt("Screen.Density"))
+            .setScreenWidth(getInt("Screen.Width"))
+            .setScreenHeight(getInt("Screen.Height"))
+            .addAllNativePlatform(getList("Platforms"))
+            .addAllSystemSharedLibrary(getList("SharedLibraries"))
+            .addAllSystemAvailableFeature(getList("Features"))
+            .addAllSystemSupportedLocale(getList("Locales"))
+            .setGlEsVersion(getInt("GL.Version"))
+            .addAllGlExtension(getList("GL.Extensions"))
             .build();
     }
 
+    private int getInt(String key) {
+        try {
+            return Integer.parseInt(properties.getProperty(key));
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    private List<String> getList(String key) {
+        return Arrays.asList(properties.getProperty(key).split(","));
+    }
 }
