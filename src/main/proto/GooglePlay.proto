@@ -466,9 +466,11 @@ message AppDetails {
   optional string uploadDate = 16;
   repeated FileMetadata file = 17;
   optional string appType = 18;
+  optional bool unstable = 21;
   optional string containsAds = 30;
   optional Dependencies dependencies = 34;
   optional TestingProgramInfo testingProgramInfo = 35;
+  optional EarlyAccessInfo earlyAccessInfo = 36;
 }
 message Dependencies {
   optional int32 unknown1 = 1;
@@ -485,6 +487,9 @@ message TestingProgramInfo {
   optional bool subscribed = 2;
   optional bool subscribed1 = 3;
   optional string testingProgramEmail = 5;
+}
+message EarlyAccessInfo {
+  optional string email = 3;
 }
 message ArtistDetails {
   optional string detailsUrl = 1;
