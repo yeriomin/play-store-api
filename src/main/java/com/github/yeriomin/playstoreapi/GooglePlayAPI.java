@@ -46,6 +46,7 @@ public class GooglePlayAPI {
     private static final String UPLOADDEVICECONFIG_URL = FDFE_URL + "uploadDeviceConfig";
     private static final String RECOMMENDATIONS_URL = FDFE_URL + "rec";
     private static final String CATEGORIES_URL = FDFE_URL + "categories";
+    private static final String TESTING_PROGRAM_URL = FDFE_URL + "apps/testingProgram";
 
     private static final String ACCOUNT_TYPE_HOSTED_OR_GOOGLE = "HOSTED_OR_GOOGLE";
 
@@ -499,6 +500,22 @@ public class GooglePlayAPI {
             return wrapper.getPreFetch(0).getResponse().getPayload();
         }
         return payload;
+    }
+
+    /**
+     * Subscribe to or unsubscribe from the testing program of given app
+     *
+     * @param packageName
+     * @param subscribe Set this to false to unsubscribe
+     */
+    public TestingProgramResponse testingProgram(String packageName, boolean subscribe) throws IOException {
+        TestingProgramRequest request = TestingProgramRequest.newBuilder()
+            .setPackageName(packageName)
+            .setSubscribe(subscribe)
+            .build()
+        ;
+        byte[] responseBytes = client.post(TESTING_PROGRAM_URL, request.toByteArray(), getDefaultHeaders());
+        return ResponseWrapper.parseFrom(responseBytes).getPayload().getTestingProgramResponse();
     }
 
     /**

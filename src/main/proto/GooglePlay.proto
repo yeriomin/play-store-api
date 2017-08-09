@@ -352,6 +352,11 @@ message DetailsResponse {
   optional Review userReview = 3;
   optional DocV2 docV2 = 4;
   optional string footerHtml = 5;
+  repeated Badge badge = 7;
+}
+message Badge {
+  optional string label = 1;
+  optional string message = 11;
 }
 message DeviceConfigurationProto {
   optional int32 touchScreen = 1;
@@ -463,6 +468,7 @@ message AppDetails {
   optional string appType = 18;
   optional string containsAds = 30;
   optional Dependencies dependencies = 34;
+  optional TestingProgramInfo testingProgramInfo = 35;
 }
 message Dependencies {
   optional int32 unknown1 = 1;
@@ -474,6 +480,11 @@ message Dependency {
   optional string packageName = 1;
   optional int32 version = 2;
   optional int32 unknown4 = 4;
+}
+message TestingProgramInfo {
+  optional bool subscribed = 2;
+  optional bool subscribed1 = 3;
+  optional string testingProgramEmail = 5;
 }
 message ArtistDetails {
   optional string detailsUrl = 1;
@@ -827,6 +838,7 @@ message Payload {
   optional UploadDeviceConfigResponse uploadDeviceConfigResponse = 25;
   optional AndroidCheckinResponse androidCheckinResponse = 26;
   optional SearchSuggestResponse searchSuggestResponse = 40;
+  optional TestingProgramResponse testingProgramResponse = 80;
 }
 message PreFetch {
   optional string url = 1;
@@ -923,8 +935,22 @@ message SearchSuggestEntry {
     optional string packageName = 1;
   }
 }
+message TestingProgramResponse {
+  optional TestingProgramResult result = 2;
+}
+message TestingProgramResult {
+  optional TestingProgramDetails details = 4;
+}
+message TestingProgramDetails {
+  optional bool flag1 = 2;
+  optional int64 id = 3;
+  optional bool unsubscribed = 4;
+}
 
-
+message TestingProgramRequest {
+  optional string packageName = 1;
+  optional bool subscribe = 2;
+}
 message UploadDeviceConfigRequest {
   optional DeviceConfigurationProto deviceConfiguration = 1;
   optional string manufacturer = 2;

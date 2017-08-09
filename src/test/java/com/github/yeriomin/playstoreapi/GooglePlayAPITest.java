@@ -536,6 +536,12 @@ public class GooglePlayAPITest {
         Assert.assertEquals("GAME", request.url().queryParameter("cat"));
     }
 
+    @Test
+    public void testingProgram() throws Exception {
+        TestingProgramResponse response = api.testingProgram("com.paget96.lspeed", true);
+        Assert.assertTrue(response.hasResult());
+    }
+
     private GooglePlayAPI initApi() {
         Properties properties = new Properties();
         try {
