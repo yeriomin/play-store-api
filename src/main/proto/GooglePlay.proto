@@ -932,11 +932,13 @@ message SearchSuggestResponse {
 message SearchSuggestEntry {
   optional int32 type = 1;
   optional string suggestedQuery = 2;
-  optional group ImageContainer = 5 {
+  optional ImageContainer imageContainer = 5;
+  message ImageContainer {
     optional string imageUrl = 5;
   }
   optional string title = 6;
-  optional group PackageNameContainer = 8 {
+  optional PackageNameContainer packageNameContainer = 8;
+  message PackageNameContainer {
     optional string packageName = 1;
   }
 }

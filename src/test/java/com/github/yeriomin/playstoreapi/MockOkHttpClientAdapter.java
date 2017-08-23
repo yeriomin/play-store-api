@@ -1,5 +1,9 @@
 package com.github.yeriomin.playstoreapi;
 
+import okhttp3.Headers;
+import okhttp3.Request;
+import okio.Buffer;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -8,15 +12,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import okhttp3.Headers;
-import okhttp3.Request;
-import okio.Buffer;
+import java.util.*;
 
 class MockOkHttpClientAdapter extends OkHttpClientAdapter {
 
@@ -106,7 +102,9 @@ class MockOkHttpClientAdapter extends OkHttpClientAdapter {
         fileName.append("request");
         fileName.append(request.url().encodedPath().replace("/", "."));
         for (String key: request.url().queryParameterNames()) {
-            fileName.append(".").append(key).append(".").append(request.url().queryParameter(key).replace(":", "."));
+            for (String value: request.url().queryParameterValues(key)) {
+                fileName.append(".").append(key).append(".").append(value.replace(":", "."));
+            }
         }
         byte[] body = getBodyBytes(request);
         if (null != body) {

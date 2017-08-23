@@ -4,11 +4,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.*;
 
 /**
  * This class provides
@@ -245,20 +241,24 @@ public class GooglePlayAPI {
     }
 
     /**
-     * A quick search which returns the most relevent app and a list of suggestions of current query continuation
+     * A quick search which returns the most relevant app and a list of suggestions of current query continuation
      * In native Play Store this is used to fetch search suggestions as you type
      */
     public SearchSuggestResponse searchSuggest(String query) throws IOException {
-        return searchSuggest(query, SEARCH_SUGGESTION_TYPE.SEARCH_STRING);
+        return searchSuggest(query, new SEARCH_SUGGESTION_TYPE[] { SEARCH_SUGGESTION_TYPE.APP, SEARCH_SUGGESTION_TYPE.SEARCH_STRING });
     }
 
-    public SearchSuggestResponse searchSuggest(String query, SEARCH_SUGGESTION_TYPE type) throws IOException {
-        Map<String, String> params = getDefaultGetParams();
-        params.put("q", query);
-        params.put("ssis", "120");
-        params.put("sst", Integer.toString(type.value));
+    public SearchSuggestResponse searchSuggest(String query, SEARCH_SUGGESTION_TYPE[] types) throws IOException {
+        Map<String, List<String>> params = HttpClientAdapter.expand(getDefaultGetParams());
+        params.put("q", Collections.singletonList(query));
+        params.put("ssis", Collections.singletonList("120"));
+        List<String> typeStrings = new ArrayList<String>();
+        for (SEARCH_SUGGESTION_TYPE type: types) {
+            typeStrings.add(Integer.toString(type.value));
+        }
+        params.put("sst", typeStrings);
 
-        byte[] responseBytes = client.get(SEARCHSUGGEST_URL, params, getDefaultHeaders());
+        byte[] responseBytes = client.getEx(SEARCHSUGGEST_URL, params, getDefaultHeaders());
         return ResponseWrapper.parseFrom(responseBytes).getPayload().getSearchSuggestResponse();
     }
 
@@ -486,7 +486,7 @@ public class GooglePlayAPI {
         if (null == params) {
             params = new HashMap<String, String>();
         }
-        if (!params.containsKey("c")) {
+        if (!params.containsKey("c") && !url.contains("c=3")) {
             params.put("c", "3");
         }
         byte[] responseBytes = client.get(url, params, getDefaultHeaders());

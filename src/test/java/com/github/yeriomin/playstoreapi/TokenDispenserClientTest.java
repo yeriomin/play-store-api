@@ -1,12 +1,11 @@
 package com.github.yeriomin.playstoreapi;
 
+import okhttp3.Request;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
-
-import okhttp3.Request;
 
 public class TokenDispenserClientTest {
 

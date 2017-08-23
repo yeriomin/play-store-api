@@ -1,17 +1,12 @@
 package com.github.yeriomin.playstoreapi;
 
+import okhttp3.Request;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
-
-import okhttp3.Request;
+import java.util.*;
 
 public class GooglePlayAPITest {
 
@@ -104,7 +99,7 @@ public class GooglePlayAPITest {
 
     @Test
     public void searchSuggest() throws Exception {
-        SearchSuggestResponse response = api.searchSuggest("cp");
+        SearchSuggestResponse response = api.searchSuggest("cp", new GooglePlayAPI.SEARCH_SUGGESTION_TYPE[] { GooglePlayAPI.SEARCH_SUGGESTION_TYPE.SEARCH_STRING });
 
         List<Request> requests = ((MockOkHttpClientAdapter) api.getClient()).getRequests();
         Assert.assertEquals(1, requests.size());
@@ -124,6 +119,40 @@ public class GooglePlayAPITest {
         SearchSuggestEntry suggestionEntry = response.getEntry(1);
         Assert.assertTrue(suggestionEntry.hasSuggestedQuery());
         Assert.assertEquals("cpu cooler", suggestionEntry.getSuggestedQuery());
+    }
+
+    @Test
+    public void searchSuggestBothTypes() throws Exception {
+        SearchSuggestResponse response = api.searchSuggest("fir");
+
+        List<Request> requests = ((MockOkHttpClientAdapter) api.getClient()).getRequests();
+        Assert.assertEquals(1, requests.size());
+        Request request = requests.get(0);
+        Assert.assertEquals(2, request.url().pathSegments().size());
+        Assert.assertEquals("fdfe", request.url().pathSegments().get(0));
+        Assert.assertEquals("searchSuggest", request.url().pathSegments().get(1));
+        Assert.assertEquals(4, request.url().queryParameterNames().size());
+        Assert.assertEquals("3", request.url().queryParameter("c"));
+        Assert.assertEquals("fir", request.url().queryParameter("q"));
+        List<String> ssts = request.url().queryParameterValues("sst");
+        Assert.assertEquals(2, ssts.size());
+        Assert.assertTrue(ssts.contains("2"));
+        Assert.assertTrue(ssts.contains("3"));
+        Assert.assertEquals("120", request.url().queryParameter("ssis"));
+
+        Assert.assertTrue(response.getEntryCount() == 6);
+        SearchSuggestEntry appEntry = response.getEntry(0);
+        Assert.assertEquals(3, appEntry.getType());
+        Assert.assertEquals("Firefox Browser fast & private", appEntry.getTitle());
+        Assert.assertTrue(appEntry.hasImageContainer());
+        Assert.assertEquals("https://lh5.ggpht.com/8PODwBXKk4L201m4IO1wifRDfbn4Q1JxNxOzj-5TXPJ85_S-vOqntLi7TsVyeFQM0w4", appEntry.getImageContainer().getImageUrl());
+        Assert.assertTrue(appEntry.hasPackageNameContainer());
+        Assert.assertEquals("org.mozilla.firefox", appEntry.getPackageNameContainer().getPackageName());
+        Assert.assertFalse(appEntry.hasSuggestedQuery());
+        SearchSuggestEntry suggestionEntry = response.getEntry(1);
+        Assert.assertEquals(2, suggestionEntry.getType());
+        Assert.assertTrue(suggestionEntry.hasSuggestedQuery());
+        Assert.assertEquals("fire and safety book free", suggestionEntry.getSuggestedQuery());
     }
 
     @Test
@@ -545,7 +574,7 @@ public class GooglePlayAPITest {
     private GooglePlayAPI initApi() {
         Properties properties = new Properties();
         try {
-            properties.load(getClass().getClassLoader().getSystemResourceAsStream("device-honami.properties"));
+            properties.load(ClassLoader.getSystemResourceAsStream("device-honami.properties"));
         } catch (IOException e) {
             System.out.println("device-honami.properties not found");
             return null;

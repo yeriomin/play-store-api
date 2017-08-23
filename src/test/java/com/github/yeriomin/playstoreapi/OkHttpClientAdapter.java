@@ -1,22 +1,13 @@
 package com.github.yeriomin.playstoreapi;
 
+import okhttp3.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-
-import okhttp3.Cookie;
-import okhttp3.CookieJar;
-import okhttp3.FormBody;
-import okhttp3.Headers;
-import okhttp3.HttpUrl;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 
 class OkHttpClientAdapter extends HttpClientAdapter {
 
@@ -44,6 +35,11 @@ class OkHttpClientAdapter extends HttpClientAdapter {
 
     public void setClient(OkHttpClient client) {
         this.client = client;
+    }
+
+    @Override
+    public byte[] getEx(String url, Map<String, List<String>> params, Map<String, String> headers) throws IOException {
+        return request(new Request.Builder().url(buildUrlEx(url, params)).get(), headers);
     }
 
     @Override
@@ -125,6 +121,18 @@ class OkHttpClientAdapter extends HttpClientAdapter {
         if (null != params && !params.isEmpty()) {
             for (String name: params.keySet()) {
                 urlBuilder.addQueryParameter(name, params.get(name));
+            }
+        }
+        return urlBuilder.build().toString();
+    }
+
+    public String buildUrlEx(String url, Map<String, List<String>> params) {
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(url).newBuilder();
+        if (null != params && !params.isEmpty()) {
+            for (String name: params.keySet()) {
+                for (String value: params.get(name)) {
+                    urlBuilder.addQueryParameter(name, value);
+                }
             }
         }
         return urlBuilder.build().toString();
