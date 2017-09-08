@@ -7,10 +7,6 @@ import java.security.GeneralSecurityException;
 import java.util.*;
 
 /**
- * This class provides
- * <code>checkin, search, details, bulkDetails, browse, list and download</code>
- * capabilities. It uses <code>Apache Commons HttpClient</code> for POST and GET
- * requests.
  *
  * @author akdeniz, yeriomin
  */
@@ -43,6 +39,7 @@ public class GooglePlayAPI {
     private static final String RECOMMENDATIONS_URL = FDFE_URL + "rec";
     private static final String CATEGORIES_URL = FDFE_URL + "categories";
     private static final String TESTING_PROGRAM_URL = FDFE_URL + "apps/testingProgram";
+    private static final String LOG_URL = FDFE_URL + "log";
 
     private static final String ACCOUNT_TYPE_HOSTED_OR_GOOGLE = "HOSTED_OR_GOOGLE";
 
@@ -342,7 +339,15 @@ public class GooglePlayAPI {
      * @param offerType
      */
     public DeliveryResponse delivery(String packageName, int versionCode, int offerType) throws IOException {
-        return delivery(packageName, 0, versionCode, offerType, PATCH_FORMAT.GZIPPED_GDIFF);
+        return delivery(packageName, 0, versionCode, offerType, PATCH_FORMAT.GZIPPED_GDIFF, "");
+    }
+
+    public DeliveryResponse delivery(String packageName, int versionCode, int offerType, String downloadToken) throws IOException {
+        return delivery(packageName, 0, versionCode, offerType, PATCH_FORMAT.GZIPPED_GDIFF, downloadToken);
+    }
+
+    public DeliveryResponse delivery(String packageName, int installedVersionCode, int updateVersionCode, int offerType, PATCH_FORMAT patchFormat) throws IOException {
+        return delivery(packageName, installedVersionCode, updateVersionCode, offerType, patchFormat, "");
     }
 
     /**
@@ -355,7 +360,7 @@ public class GooglePlayAPI {
      * @param offerType
      * @param patchFormat
      */
-    public DeliveryResponse delivery(String packageName, int installedVersionCode, int updateVersionCode, int offerType, PATCH_FORMAT patchFormat) throws IOException {
+    public DeliveryResponse delivery(String packageName, int installedVersionCode, int updateVersionCode, int offerType, PATCH_FORMAT patchFormat, String downloadToken) throws IOException {
         Map<String, String> params = new HashMap<String, String>();
         params.put("ot", String.valueOf(offerType));
         params.put("doc", packageName);
@@ -363,6 +368,9 @@ public class GooglePlayAPI {
         if (installedVersionCode > 0) {
             params.put("bvc", String.valueOf(installedVersionCode));
             params.put("pf", String.valueOf(patchFormat.value));
+        }
+        if (null != downloadToken && downloadToken.length() > 0) {
+            params.put("dtok", downloadToken);
         }
         byte[] responseBytes = client.get(DELIVERY_URL, params, getDefaultHeaders());
         return ResponseWrapper.parseFrom(responseBytes).getPayload().getDeliveryResponse();
@@ -516,6 +524,27 @@ public class GooglePlayAPI {
         ;
         byte[] responseBytes = client.post(TESTING_PROGRAM_URL, request.toByteArray(), getDefaultHeaders());
         return ResponseWrapper.parseFrom(responseBytes).getPayload().getTestingProgramResponse();
+    }
+
+    /**
+     * Put the given app into current user's app library.
+     * Without this download links are not returned with purchase/delivery responses.
+     *
+     * @param packageName
+     * @param timestamp
+     */
+    public String log(String packageName, long timestamp) throws IOException {
+        LogRequest request = LogRequest.newBuilder()
+            .setDownloadConfirmationQuery("confirmFreeDownload?doc=" + packageName)
+            .setTimestamp(timestamp)
+            .build()
+        ;
+        byte[] responseBytes = client.post(LOG_URL, request.toByteArray(), getDefaultHeaders());
+        return ResponseWrapper.parseFrom(responseBytes).getPayload().getLogResponse();
+    }
+
+    public String log(String packageName) throws IOException {
+        return log(packageName, System.currentTimeMillis());
     }
 
     /**

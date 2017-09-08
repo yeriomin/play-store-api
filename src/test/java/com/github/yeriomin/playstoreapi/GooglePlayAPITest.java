@@ -10,9 +10,11 @@ import java.util.*;
 
 public class GooglePlayAPITest {
 
+//    private static final String EMAIL = "yalp.store.user.one@gmail.com";
     private static final String EMAIL = "konstantin.razdolbaev@gmail.com";
     private static final String PASSWORD = "TemporaryPassword!";
     private static final String GSFID = "3f1abe856b0fa7fd";
+//    private static final String TOKEN = "JAXCN65HwzmJg1fKq4Q3k6qY3LXu0yn7__9OOxEI_FRW4Ch90QMHiyTtCoLNZG1UMP_xlA.";
     private static final String TOKEN = "jwSyrOU2RHDv2d82095MoHKOUHhO9KxBbkAoLCMkCKWqB9RUHbvq8VIWufBJcxwRn3_DGQ.";
 
     private GooglePlayAPI api;
@@ -569,6 +571,26 @@ public class GooglePlayAPITest {
     public void testingProgram() throws Exception {
         TestingProgramResponse response = api.testingProgram("com.paget96.lspeed", true);
         Assert.assertTrue(response.hasResult());
+    }
+
+    @Test
+    public void purchaseWithLogging() throws Exception {
+        String packageName = "dev.ukanth.ufirewall";
+        int versionCode = 15972;
+
+        BuyResponse buyResponse = api.purchase(packageName, versionCode, 1);
+        Assert.assertTrue(buyResponse.getPurchaseStatusResponse().hasAppDeliveryData());
+        Assert.assertFalse(buyResponse.getPurchaseStatusResponse().getAppDeliveryData().hasDownloadUrl());
+        Assert.assertTrue(buyResponse.hasDownloadToken());
+        String downloadToken = buyResponse.getDownloadToken();
+        Assert.assertEquals("AB-xQnrt6aUnfcYyHBJkWrMV9AjydxLSMR7AV_sX0BITOa9F6gGnW5H6m0mw77fZENd8lYEYngefgjH1TZGujTCWD3v1WvOqW4k87_G9sFLXo1JJVp6r5gA", downloadToken);
+
+        String response = api.log(packageName, 1504885461243000L);
+        Assert.assertEquals(0, response.length());
+
+        DeliveryResponse deliveryResponse = api.delivery(packageName, 0, versionCode, 1, GooglePlayAPI.PATCH_FORMAT.GZIPPED_GDIFF, downloadToken);
+        Assert.assertTrue(deliveryResponse.hasAppDeliveryData());
+        Assert.assertEquals("https://android.clients.google.com/market/download/Download?packageName=dev.ukanth.ufirewall&versionCode=15972&ssl=1&token=AOTCm0QpUo_yqGEHkwwiujJnCib9Z1GgZMJBYmIA2dWkEc_Gon0U6rKBXcyA_T-Z4DeKUwudpUxerc-t3M-8NxjB9OCajVOI6ipQH9E9yzmbbrk9_iDZ_ACl_dPU9YoD7-wO0dRHTltFojyDPZxeAvQusrS9ssRDhgtUBk3EPkGCW_W7O0-Xth_jG74OC-BPfc9UXhmTMBWgjv0qnTXhSvzDmweiZMLPb_4YfkYZzJJFEGTr4_txY3ExX3COpB5bwXcdSkBXQH2xILkrWcIquPg5KlPNmQwlaVNoseDez8YgujQ63AcImU3eRkwAvdsZiBANPv4BhzEMYVlQ6VYDCV3vTH7W5AGO2GpaIlIcmsiODbvVPg&did=0&cpn=Uno4ICxUZcNY314t", deliveryResponse.getAppDeliveryData().getDownloadUrl());
     }
 
     private GooglePlayAPI initApi() {

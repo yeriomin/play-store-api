@@ -167,6 +167,7 @@ message BuyResponse {
   optional PurchaseStatusResponse purchaseStatusResponse = 39;
   optional string purchaseCookie = 46;
   optional Challenge challenge = 49;
+  optional string downloadToken = 55;
 }
 message Challenge {
   optional AddressChallenge addressChallenge = 1;
@@ -838,6 +839,7 @@ message Payload {
   optional SearchResponse searchResponse = 5;
   optional BrowseResponse browseResponse = 7;
   optional PurchaseStatusResponse purchaseStatusResponse = 8;
+  optional string logResponse = 10;
   optional BulkDetailsResponse bulkDetailsResponse = 19;
   optional DeliveryResponse deliveryResponse = 21;
   optional UploadDeviceConfigResponse uploadDeviceConfigResponse = 25;
@@ -954,6 +956,10 @@ message TestingProgramDetails {
   optional bool unsubscribed = 4;
 }
 
+message LogRequest {
+  optional int64 timestamp = 1;
+  optional string downloadConfirmationQuery = 2;
+}
 message TestingProgramRequest {
   optional string packageName = 1;
   optional bool subscribe = 2;
