@@ -1,7 +1,7 @@
 apply plugin: 'java'
 
 group = 'com.github.yeriomin'
-version = '0.24'
+version = '0.25'
 sourceCompatibility = JavaVersion.VERSION_1_5
 targetCompatibility = JavaVersion.VERSION_1_5
 compileJava.options.encoding = 'UTF-8'
