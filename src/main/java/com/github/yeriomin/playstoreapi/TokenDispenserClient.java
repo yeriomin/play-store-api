@@ -45,11 +45,17 @@ public class TokenDispenserClient {
         try {
             return new String(httpClient.get(url));
         } catch (GooglePlayException e) {
-            if (e.getCode() == 404) {
-                throw new TokenDispenserException("Token dispenser has no password for " + url);
-            } else {
-                throw e;
+            switch (e.getCode()) {
+                case 401:
+                case 403:
+                    throw new TokenDispenserException("Token dispenser returned an auth error for " + url);
+                case 404:
+                    throw new TokenDispenserException("Token dispenser has no password for " + url);
+                default:
+                    throw new TokenDispenserException("Token dispenser error " + e.getCode() + " " + e.getMessage());
             }
+        } catch (IOException e) {
+            throw new TokenDispenserException(e);
         }
     }
 }
