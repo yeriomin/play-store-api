@@ -599,7 +599,6 @@ public class GooglePlayAPI {
         params.put("lang", this.locale.getLanguage().toLowerCase());
         params.put("sdk_version", String.valueOf(this.deviceInfoProvider.getSdkVersion()));
         params.put("client_sig", "38918a453d07199354f8b19af05ec6562ced5788");
-        params.put("callerSig", "38918a453d07199354f8b19af05ec6562ced5788");
         return params;
     }
 

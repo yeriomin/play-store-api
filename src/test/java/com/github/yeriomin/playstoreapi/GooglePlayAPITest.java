@@ -10,11 +10,9 @@ import java.util.*;
 
 public class GooglePlayAPITest {
 
-//    private static final String EMAIL = "yalp.store.user.one@gmail.com";
     private static final String EMAIL = "konstantin.razdolbaev@gmail.com";
     private static final String PASSWORD = "TemporaryPassword!";
     private static final String GSFID = "3f1abe856b0fa7fd";
-//    private static final String TOKEN = "JAXCN65HwzmJg1fKq4Q3k6qY3LXu0yn7__9OOxEI_FRW4Ch90QMHiyTtCoLNZG1UMP_xlA.";
     private static final String TOKEN = "jwSyrOU2RHDv2d82095MoHKOUHhO9KxBbkAoLCMkCKWqB9RUHbvq8VIWufBJcxwRn3_DGQ.";
 
     private GooglePlayAPI api;
@@ -80,10 +78,10 @@ public class GooglePlayAPITest {
         GooglePlayAPI api = initApi();
         api.setToken(null);
         String token = api.generateToken(EMAIL, PASSWORD);
-        Assert.assertEquals("TgSyrOQWSodzTLUtSuMebIW5k1XUvhsDE3gVcf-vnL8q9qT_oofA6ygYpE4m6sSi1UrCSQ.", token);
+        Assert.assertEquals("VgXBOjtk7TAASCefEdBRoow60YoyEYSqliUOaaiWkFKmWKZOUK-iXb1UgA184sTRpCVrKg.", token);
 
         List<Request> requests = ((MockOkHttpClientAdapter) api.getClient()).getRequests();
-        Assert.assertEquals(1, requests.size());
+        Assert.assertEquals(2, requests.size());
 
         Request request = requests.get(0);
         Assert.assertEquals(1, request.url().pathSegments().size());
@@ -97,6 +95,18 @@ public class GooglePlayAPITest {
         Assert.assertEquals("22", vars.get("sdk_version"));
         Assert.assertEquals("androidmarket", vars.get("service"));
         Assert.assertEquals("com.android.vending", vars.get("app"));
+
+        Request request2 = requests.get(1);
+        Assert.assertEquals(1, request2.url().pathSegments().size());
+        Assert.assertEquals("auth", request2.url().pathSegments().get(0));
+        Map<String, String> vars2 = MockOkHttpClientAdapter.parseQueryString(MockOkHttpClientAdapter.getBodyBytes(request2));
+        for (String key: vars2.keySet()) {
+            System.out.println(key + " = " + vars2.get(key));
+        }
+        Assert.assertEquals(17, vars2.size());
+        Assert.assertFalse(vars2.containsKey("Email"));
+        Assert.assertFalse(vars2.containsKey("EncryptedPasswd"));
+        Assert.assertEquals("oauth2rt_1/Dk-zYrF6YiQ_94QcJGIkTmu8f7QLbAeIH-whs3LoxFQ", vars2.get("Token"));
     }
 
     @Test
