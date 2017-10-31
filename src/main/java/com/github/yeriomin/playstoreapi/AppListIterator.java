@@ -16,6 +16,10 @@ abstract public class AppListIterator implements Iterator {
     protected String nextPageUrl;
 
     public AppListIterator(GooglePlayAPI googlePlayApi) {
+        setGooglePlayApi(googlePlayApi);
+    }
+
+    public void setGooglePlayApi(GooglePlayAPI googlePlayApi) {
         this.googlePlayApi = googlePlayApi;
     }
 
