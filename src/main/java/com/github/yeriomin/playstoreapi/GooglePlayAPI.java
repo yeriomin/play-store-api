@@ -198,7 +198,13 @@ public class GooglePlayAPI {
         params.put("app", "com.android.vending");
         byte[] responseBytes = client.post(URL_LOGIN, params, getDefaultHeaders());
         Map<String, String> response = parseResponse(new String(responseBytes));
-        if (response.containsKey("Auth")) {
+        String secondRoundToken = null;
+        if (response.containsKey("Token")) {
+            secondRoundToken = generateTokenSecondRound(params, response.get("Token"));
+        }
+        if (null != secondRoundToken) {
+            return secondRoundToken;
+        } else if (response.containsKey("Auth")) {
             return response.get("Auth");
         } else {
             throw new AuthException("Authentication failed! (login)");
@@ -206,11 +212,32 @@ public class GooglePlayAPI {
     }
 
     /**
-     * Logins AC2DM server and returns authentication string.
+     * Since mid-october 2017 Auth-token from a single auth request has a time to live.
+     * A second auth request with a secondary token needs to be made to get a token which lives longer.
      *
-     * client_sig is SHA1 digest of encoded certificate on
-     * <i>GoogleLoginService(package name : com.google.android.gsf)</i> system APK.
-     * But google doesn't seem to care of value of this parameter.
+     */
+    protected String generateTokenSecondRound(Map<String, String> previousParams, String secondaryToken) throws IOException {
+        previousParams.put("Token", secondaryToken);
+        if (this.gsfId != null && this.gsfId.length() > 0) {
+            previousParams.put("androidId", this.gsfId);
+        }
+        previousParams.put("service", "androidmarket");
+        previousParams.put("check_email", "1");
+        previousParams.put("token_request_options", "CAA4AQ==");
+        previousParams.put("system_partition", "1");
+        previousParams.put("_opt_is_called_from_account_manager", "1");
+        previousParams.put("google_play_services_version", "11518448");
+        previousParams.remove("Email");
+        previousParams.remove("EncryptedPasswd");
+        byte[] responseBytes = client.post(URL_LOGIN, previousParams, getDefaultHeaders());
+        Map<String, String> response = parseResponse(new String(responseBytes));
+        return response.containsKey("Auth") ? response.get("Auth") : null;
+    }
+
+    /**
+     * Logins AC2DM server and returns authentication string.
+     * This is used to link a device to an account.
+     *
      */
     public String generateAC2DMToken(String email, String password) throws IOException {
         Map<String, String> params = getDefaultLoginParams(email, password);
@@ -455,7 +482,7 @@ public class GooglePlayAPI {
 
     /**
      * Fetches the recommendations of given package name.
-     * <p>
+     *
      * Default values for offset and numberOfResult are "0" and "20"
      * respectively. These values are determined by Google Play Store.
      */
@@ -551,6 +578,9 @@ public class GooglePlayAPI {
      * login methods use this
      * Most likely not all of these are required, but the Market app sends them, so we will too
      *
+     * client_sig is SHA1 digest of encoded certificate on
+     * GoogleLoginService(package name : com.google.android.gsf) system APK.
+     * But google doesn't seem to care of value of this parameter.
      */
     protected Map<String, String> getDefaultLoginParams(String email, String password) throws GooglePlayException {
         Map<String, String> params = new HashMap<String, String>();
@@ -569,11 +599,12 @@ public class GooglePlayAPI {
         params.put("lang", this.locale.getLanguage().toLowerCase());
         params.put("sdk_version", String.valueOf(this.deviceInfoProvider.getSdkVersion()));
         params.put("client_sig", "38918a453d07199354f8b19af05ec6562ced5788");
+        params.put("callerSig", "38918a453d07199354f8b19af05ec6562ced5788");
         return params;
     }
 
     /**
-     * Using Accept-Language you can fetch localized informations such as reviews and descriptions.
+     * Using Accept-Language you can fetch localized information such as reviews and descriptions.
      * Note that changing this value has no affect on localized application list that
      * server provides. It depends on only your IP location.
      *
