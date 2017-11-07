@@ -426,6 +426,7 @@ message Image {
     optional string url = 12;
   }
   optional string color = 15;
+  optional int32 screenshotSetNumber = 21;
 }
 message TranslatedText {
   optional string text = 1;
