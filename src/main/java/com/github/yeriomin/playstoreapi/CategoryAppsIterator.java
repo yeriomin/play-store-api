@@ -14,6 +14,7 @@ public class CategoryAppsIterator extends AppListIterator {
         Map<String, String> params = new HashMap<String, String>();
         params.put("cat", categoryId);
         params.put("ctr", subcategory.value);
+        params.put("c", "3");
         firstPageUrl = googlePlayApi.getClient().buildUrl(url, params);
     }
 

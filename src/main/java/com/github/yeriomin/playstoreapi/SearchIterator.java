@@ -21,6 +21,7 @@ public class SearchIterator extends AppListIterator {
         this.query = query;
         String url = GooglePlayAPI.SEARCH_URL;
         Map<String, String> params = new HashMap<String, String>();
+        params.put("c", "3");
         params.put("q", query);
         firstPageUrl = googlePlayApi.getClient().buildUrl(url, params);
     }

@@ -25,6 +25,8 @@ public class GooglePlayAPI {
     private static final String C2DM_REGISTER_URL = SCHEME + HOST + "/c2dm/register2";
     public static final String FDFE_URL = SCHEME + HOST + "/fdfe/";
     public static final String LIST_URL = FDFE_URL + "list";
+    private static final String ACCEPT_TOS_URL = FDFE_URL + "acceptTos";
+    private static final String TOC_URL = FDFE_URL + "toc";
     private static final String BROWSE_URL = FDFE_URL + "browse";
     private static final String DETAILS_URL = FDFE_URL + "details";
     public static final String SEARCH_URL = FDFE_URL + "search";
@@ -115,6 +117,9 @@ public class GooglePlayAPI {
      * It is a good idea to save and reuse it
      */
     private String gsfId;
+    private String deviceCheckinConsistencyToken;
+    private String deviceConfigToken;
+    private String dfeCookie;
 
     public void setClient(HttpClientAdapter httpClient) {
         this.client = httpClient;
@@ -148,6 +153,30 @@ public class GooglePlayAPI {
         return gsfId;
     }
 
+    public String getDeviceCheckinConsistencyToken() {
+        return deviceCheckinConsistencyToken;
+    }
+
+    public void setDeviceCheckinConsistencyToken(String deviceCheckinConsistencyToken) {
+        this.deviceCheckinConsistencyToken = deviceCheckinConsistencyToken;
+    }
+
+    public String getDeviceConfigToken() {
+        return deviceConfigToken;
+    }
+
+    public void setDeviceConfigToken(String deviceConfigToken) {
+        this.deviceConfigToken = deviceConfigToken;
+    }
+
+    public String getDfeCookie() {
+        return dfeCookie;
+    }
+
+    public void setDfeCookie(String dfeCookie) {
+        this.dfeCookie = dfeCookie;
+    }
+
     /**
      * Performs authentication on "ac2dm" service and match up gsf id,
      * security token and email by checking them in on this server.
@@ -171,9 +200,29 @@ public class GooglePlayAPI {
                 .addAccountCookie("[" + email + "]")
                 .addAccountCookie(ac2dmToken)
                 .build();
-        checkin(build.toByteArray());
+        deviceCheckinConsistencyToken = checkin(build.toByteArray()).getDeviceCheckinConsistencyToken();
 
         return gsfId;
+    }
+
+    public TocResponse toc() throws IOException {
+        byte[] responseBytes = client.get(TOC_URL, new HashMap<String, String>(), getDefaultHeaders());
+        TocResponse tocResponse = ResponseWrapper.parseFrom(responseBytes).getPayload().getTocResponse();
+        if (tocResponse.hasTosContent() && tocResponse.hasTosToken()) {
+            acceptTos(tocResponse.getTosToken());
+        }
+        if (tocResponse.hasCookie()) {
+            dfeCookie = tocResponse.getCookie();
+        }
+        return tocResponse;
+    }
+
+    private AcceptTosResponse acceptTos(String tosToken) throws IOException {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("tost", tosToken);
+        params.put("toscme", "false"); // Agree to receiving marketing emails or not
+        byte[] responseBytes = client.post(ACCEPT_TOS_URL, params, getDefaultHeaders());
+        return ResponseWrapper.parseFrom(responseBytes).getPayload().getAcceptTosResponse();
     }
 
     /**
@@ -196,7 +245,9 @@ public class GooglePlayAPI {
         Map<String, String> params = getDefaultLoginParams(email, password);
         params.put("service", "androidmarket");
         params.put("app", "com.android.vending");
-        byte[] responseBytes = client.post(URL_LOGIN, params, getDefaultHeaders());
+        Map<String, String> headers = getAuthHeaders();
+        headers.put("app", "com.android.vending");
+        byte[] responseBytes = client.post(URL_LOGIN, params, headers);
         Map<String, String> response = parseResponse(new String(responseBytes));
         String secondRoundToken = null;
         if (response.containsKey("Token")) {
@@ -221,15 +272,15 @@ public class GooglePlayAPI {
         if (this.gsfId != null && this.gsfId.length() > 0) {
             previousParams.put("androidId", this.gsfId);
         }
-        previousParams.put("service", "androidmarket");
         previousParams.put("check_email", "1");
         previousParams.put("token_request_options", "CAA4AQ==");
         previousParams.put("system_partition", "1");
         previousParams.put("_opt_is_called_from_account_manager", "1");
-        previousParams.put("google_play_services_version", "11518448");
         previousParams.remove("Email");
         previousParams.remove("EncryptedPasswd");
-        byte[] responseBytes = client.post(URL_LOGIN, previousParams, getDefaultHeaders());
+        Map<String, String> headers = getAuthHeaders();
+        headers.put("app", "com.android.vending");
+        byte[] responseBytes = client.post(URL_LOGIN, previousParams, headers);
         Map<String, String> response = parseResponse(new String(responseBytes));
         return response.containsKey("Auth") ? response.get("Auth") : null;
     }
@@ -243,8 +294,10 @@ public class GooglePlayAPI {
         Map<String, String> params = getDefaultLoginParams(email, password);
         params.put("service", "ac2dm");
         params.put("add_account", "1");
-        params.put("app", "com.google.android.gsf");
-        byte[] responseBytes = client.post(URL_LOGIN, params, getDefaultHeaders());
+        params.put("callerPkg", "com.google.android.gms");
+        Map<String, String> headers = getAuthHeaders();
+        headers.put("app", "com.google.android.gms");
+        byte[] responseBytes = client.post(URL_LOGIN, params, headers);
         Map<String, String> response = parseResponse(new String(responseBytes));
         if (response.containsKey("Auth")) {
             return response.get("Auth");
@@ -273,8 +326,9 @@ public class GooglePlayAPI {
     }
 
     public SearchSuggestResponse searchSuggest(String query, SEARCH_SUGGESTION_TYPE[] types) throws IOException {
-        Map<String, List<String>> params = HttpClientAdapter.expand(getDefaultGetParams());
+        Map<String, List<String>> params = new HashMap<String, List<String>>();
         params.put("q", Collections.singletonList(query));
+        params.put("c", Collections.singletonList("3"));
         params.put("ssis", Collections.singletonList("120"));
         List<String> typeStrings = new ArrayList<String>();
         for (SEARCH_SUGGESTION_TYPE type: types) {
@@ -332,7 +386,8 @@ public class GooglePlayAPI {
     }
 
     public BrowseResponse browse(String categoryId, String subCategoryId) throws IOException {
-        Map<String, String> params = getDefaultGetParams();
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("c", "3");
         if (null != categoryId && categoryId.length() > 0) {
             params.put("cat", categoryId);
         }
@@ -413,7 +468,7 @@ public class GooglePlayAPI {
      */
     public ReviewResponse reviews(String packageName, REVIEW_SORT sort, Integer offset, Integer numberOfResults, Integer versionCode) throws IOException {
         // If you request more than 20 reviews, don't be surprised if you get a MalformedRequest exception
-        Map<String, String> params = getDefaultGetParams(offset, numberOfResults);
+        Map<String, String> params = getPaginationParams(offset, numberOfResults);
         if (null != versionCode) {
             params.put("vc", String.valueOf(versionCode));
         }
@@ -473,11 +528,14 @@ public class GooglePlayAPI {
         Map<String, String> headers = getDefaultHeaders();
         headers.put("X-DFE-Enabled-Experiments", "cl:billing.select_add_instrument_by_default");
         headers.put("X-DFE-Unsupported-Experiments", "nocache:billing.use_charging_poller,market_emails,buyer_currency,prod_baseline,checkin.set_asset_paid_app_field,shekel_test,content_ratings,buyer_currency_in_app,nocache:encrypted_apk,recent_changes");
-        headers.put("X-DFE-Client-Id", "am-android-google");
         headers.put("X-DFE-SmallestScreenWidthDp", "320");
         headers.put("X-DFE-Filter-Level", "3");
         byte[] responseBytes = client.post(UPLOADDEVICECONFIG_URL, request.toByteArray(), headers);
-        return ResponseWrapper.parseFrom(responseBytes).getPayload().getUploadDeviceConfigResponse();
+        UploadDeviceConfigResponse response = ResponseWrapper.parseFrom(responseBytes).getPayload().getUploadDeviceConfigResponse();
+        if (response.hasUploadDeviceConfigToken()) {
+            deviceConfigToken = response.getUploadDeviceConfigToken();
+        }
+        return response;
     }
 
     /**
@@ -487,7 +545,7 @@ public class GooglePlayAPI {
      * respectively. These values are determined by Google Play Store.
      */
     public ListResponse recommendations(String packageName, RECOMMENDATION_TYPE type, Integer offset, Integer numberOfResults) throws IOException {
-        Map<String, String> params = getDefaultGetParams(offset, numberOfResults);
+        Map<String, String> params = getPaginationParams(offset, numberOfResults);
         params.put("doc", packageName);
         params.put("rt", (type == null) ? null : String.valueOf(type.value));
         byte[] responseBytes = client.get(RECOMMENDATIONS_URL, params, getDefaultHeaders());
@@ -505,7 +563,8 @@ public class GooglePlayAPI {
      * Fetches sub categories of the given category
      */
     public BrowseResponse categories(String category) throws IOException {
-        Map<String, String> params = getDefaultGetParams();
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("c", "3");
         if (null != category && category.length() > 0) {
             params.put("cat", category);
         }
@@ -520,9 +579,6 @@ public class GooglePlayAPI {
     public Payload genericGet(String url, Map<String, String> params) throws IOException {
         if (null == params) {
             params = new HashMap<String, String>();
-        }
-        if (!params.containsKey("c") && !url.contains("c=3")) {
-            params.put("c", "3");
         }
         byte[] responseBytes = client.get(url, params, getDefaultHeaders());
         ResponseWrapper wrapper = ResponseWrapper.parseFrom(responseBytes);
@@ -593,12 +649,14 @@ public class GooglePlayAPI {
             throw new GooglePlayException("Could not encrypt password", e2);
         }
         params.put("accountType", ACCOUNT_TYPE_HOSTED_OR_GOOGLE);
+        params.put("google_play_services_version", String.valueOf(this.deviceInfoProvider.getPlayServicesVersion()));
         params.put("has_permission", "1");
         params.put("source", "android");
         params.put("device_country", this.locale.getCountry().toLowerCase());
         params.put("lang", this.locale.getLanguage().toLowerCase());
         params.put("sdk_version", String.valueOf(this.deviceInfoProvider.getSdkVersion()));
         params.put("client_sig", "38918a453d07199354f8b19af05ec6562ced5788");
+        params.put("callerSig", "38918a453d07199354f8b19af05ec6562ced5788");
         return params;
     }
 
@@ -618,27 +676,48 @@ public class GooglePlayAPI {
             headers.put("X-DFE-Device-Id", this.gsfId);
         }
         headers.put("Accept-Language", this.locale.toString().replace("_", "-"));
-        // This is an encoded comma separated list of ints
-        // Getting this list properly will be a huge task, so it is static for now
-        // It probably depends both on device and account settings and is retrieved when the user logs in for the first time
+        // This is a base64-encoded EncodedTargets protobuf message
+        // toc request returns available targets in the Experiments field,
+        // but supported targets are AFAIK static for each build of the play store app
+        // Which means this list is going to remain static
         headers.put("X-DFE-Encoded-Targets", "CAEScFfqlIEG6gUYogFWrAISK1WDAg+hAZoCDgIU1gYEOIACFkLMAeQBnASLATlASUuyAyqCAjY5igOMBQzfA/IClwFbApUC4ANbtgKVAS7OAX8YswHFBhgDwAOPAmGEBt4OfKkB5weSB5AFASkiN68akgMaxAMSAQEBA9kBO7UBFE1KVwIDBGs3go6BBgEBAgMECQgJAQIEAQMEAQMBBQEBBAUEFQYCBgUEAwMBDwIBAgOrARwBEwMEAg0mrwESfTEcAQEKG4EBMxghChMBDwYGASI3hAEODEwXCVh/EREZA4sBYwEdFAgIIwkQcGQRDzQ2fTC2AjfVAQIBAYoBGRg2FhYFBwEqNzACJShzFFblAo0CFxpFNBzaAd0DHjIRI4sBJZcBPdwBCQGhAUd2A7kBLBVPngEECHl0UEUMtQETigHMAgUFCc0BBUUlTywdHDgBiAJ+vgKhAU0uAcYCAWQ/5ALUAw1UwQHUBpIBCdQDhgL4AY4CBQICjARbGFBGWzA1CAEMOQH+BRAOCAZywAIDyQZ2MgM3BxsoAgUEBwcHFia3AgcGTBwHBYwBAlcBggFxSGgIrAEEBw4QEqUCASsWadsHCgUCBQMD7QICA3tXCUw7ugJZAwGyAUwpIwM5AwkDBQMJA5sBCw8BNxBVVBwVKhebARkBAwsQEAgEAhESAgQJEBCZATMdzgEBBwG8AQQYKSMUkAEDAwY/CTs4/wEaAUt1AwEDAQUBAgIEAwYEDx1dB2wGeBFgTQ");
+        headers.put("X-DFE-Client-Id", "am-android-google");
+        headers.put("X-DFE-Network-Type", "4");
+        headers.put("X-DFE-Content-Filters", "");
+        headers.put("X-DFE-Request-Params", "timeoutMs=4000");
+        if (null != deviceCheckinConsistencyToken && deviceCheckinConsistencyToken.length() > 0) {
+            headers.put("X-DFE-Device-Checkin-Consistency-Token", deviceCheckinConsistencyToken);
+        }
+        if (null != deviceConfigToken && deviceConfigToken.length() > 0) {
+            headers.put("X-DFE-Device-Config-Token", deviceConfigToken);
+        }
+        if (null != dfeCookie && dfeCookie.length() > 0) {
+            headers.put("X-DFE-Cookie", dfeCookie);
+        }
+        String mccmnc = deviceInfoProvider.getMccmnc();
+        if (null != mccmnc && mccmnc.length() > 0) {
+            headers.put("X-DFE-MCCMNC", mccmnc);
+        }
         return headers;
     }
 
-    private Map<String, String> getDefaultGetParams() {
-        return getDefaultGetParams(null, null);
+    private Map<String, String> getAuthHeaders() {
+        Map<String, String> headers = new HashMap<String, String>();
+        headers.put("User-Agent", this.deviceInfoProvider.getAuthUserAgentString());
+        if (this.gsfId != null && this.gsfId.length() > 0) {
+            headers.put("device", this.gsfId);
+        }
+        return headers;
     }
 
     /**
-     * Most list requests (apps, categories,..) take these params
+     * Offset/limit params
      *
      * @param offset
      * @param numberOfResults
      */
-    private Map<String, String> getDefaultGetParams(Integer offset, Integer numberOfResults) {
+    private Map<String, String> getPaginationParams(Integer offset, Integer numberOfResults) {
         Map<String, String> params = new HashMap<String, String>();
-        // "c=3" is to get apps only, not books, music, or movies
-        params.put("c", "3");
         if (offset != null) {
             params.put("o", String.valueOf(offset));
         }

@@ -39,7 +39,7 @@ public class GooglePlayAPITest {
         Assert.assertEquals(1, requestAuthAc2dm.url().pathSegments().size());
         Assert.assertEquals("auth", requestAuthAc2dm.url().pathSegments().get(0));
         Map<String, String> vars = MockOkHttpClientAdapter.parseQueryString(MockOkHttpClientAdapter.getBodyBytes(requestAuthAc2dm));
-        Assert.assertEquals(12, vars.size());
+        Assert.assertEquals(14, vars.size());
         Assert.assertEquals("konstantin.razdolbaev@gmail.com", vars.get("Email"));
         Assert.assertEquals("TemporaryPassword!", vars.get("Passwd"));
         Assert.assertEquals("us", vars.get("device_country"));
@@ -47,14 +47,13 @@ public class GooglePlayAPITest {
         Assert.assertEquals("22", vars.get("sdk_version"));
         Assert.assertEquals("ac2dm", vars.get("service"));
         Assert.assertEquals("1", vars.get("add_account"));
-        Assert.assertEquals("com.google.android.gsf", vars.get("app"));
 
         Request requestCheckin1 = requests.get(1);
         Assert.assertEquals(1, requestCheckin1.url().pathSegments().size());
         Assert.assertEquals("checkin", requestCheckin1.url().pathSegments().get(0));
         Assert.assertNull(requestCheckin1.header("Authorization"));
         Assert.assertNull(requestCheckin1.header("X-DFE-Device-Id"));
-        Assert.assertEquals("Android-Finsky/7.1.15 (api=3,versionCode=80798000,sdk=22,device=C6902,hardware=qcom,product=C6902)", requestCheckin1.header("User-Agent"));
+        Assert.assertEquals("Android-Finsky/7.9.80 (api=3,versionCode=80798000,sdk=22,device=C6902,hardware=qcom,product=C6902,platformVersionRelease=5.1.1,model=C6902,buildId=14.6.A.1.236,isWideScreen=0,supportedAbis=armeabi-v7a;armeabi)", requestCheckin1.header("User-Agent"));
         Assert.assertEquals("en-US", requestCheckin1.header("Accept-Language"));
         AndroidCheckinRequest requestCheckinProto1 = AndroidCheckinRequest.parseFrom(MockOkHttpClientAdapter.getBodyBytes(requestCheckin1));
         Assert.assertEquals("C6902", requestCheckinProto1.getCheckin().getBuild().getDevice());
@@ -63,7 +62,7 @@ public class GooglePlayAPITest {
         Assert.assertEquals(1, requestCheckin2.url().pathSegments().size());
         Assert.assertEquals("checkin", requestCheckin2.url().pathSegments().get(0));
         Assert.assertNull(requestCheckin2.header("Authorization"));
-        Assert.assertEquals("Android-Finsky/7.1.15 (api=3,versionCode=80798000,sdk=22,device=C6902,hardware=qcom,product=C6902)", requestCheckin2.header("User-Agent"));
+        Assert.assertEquals("Android-Finsky/7.9.80 (api=3,versionCode=80798000,sdk=22,device=C6902,hardware=qcom,product=C6902,platformVersionRelease=5.1.1,model=C6902,buildId=14.6.A.1.236,isWideScreen=0,supportedAbis=armeabi-v7a;armeabi)", requestCheckin2.header("User-Agent"));
         Assert.assertEquals("en-US", requestCheckin2.header("Accept-Language"));
         AndroidCheckinRequest requestCheckinProto2 = AndroidCheckinRequest.parseFrom(MockOkHttpClientAdapter.getBodyBytes(requestCheckin2));
         Assert.assertEquals("C6902", requestCheckinProto2.getCheckin().getBuild().getDevice());
@@ -81,13 +80,13 @@ public class GooglePlayAPITest {
         Assert.assertEquals("VgXBOjtk7TAASCefEdBRoow60YoyEYSqliUOaaiWkFKmWKZOUK-iXb1UgA184sTRpCVrKg.", token);
 
         List<Request> requests = ((MockOkHttpClientAdapter) api.getClient()).getRequests();
-        Assert.assertEquals(2, requests.size());
+        Assert.assertEquals(1, requests.size());
 
         Request request = requests.get(0);
         Assert.assertEquals(1, request.url().pathSegments().size());
         Assert.assertEquals("auth", request.url().pathSegments().get(0));
         Map<String, String> vars = MockOkHttpClientAdapter.parseQueryString(MockOkHttpClientAdapter.getBodyBytes(request));
-        Assert.assertEquals(11, vars.size());
+        Assert.assertEquals(13, vars.size());
         Assert.assertEquals("konstantin.razdolbaev@gmail.com", vars.get("Email"));
         Assert.assertEquals("TemporaryPassword!", vars.get("Passwd"));
         Assert.assertEquals("us", vars.get("device_country"));
@@ -95,18 +94,6 @@ public class GooglePlayAPITest {
         Assert.assertEquals("22", vars.get("sdk_version"));
         Assert.assertEquals("androidmarket", vars.get("service"));
         Assert.assertEquals("com.android.vending", vars.get("app"));
-
-        Request request2 = requests.get(1);
-        Assert.assertEquals(1, request2.url().pathSegments().size());
-        Assert.assertEquals("auth", request2.url().pathSegments().get(0));
-        Map<String, String> vars2 = MockOkHttpClientAdapter.parseQueryString(MockOkHttpClientAdapter.getBodyBytes(request2));
-        for (String key: vars2.keySet()) {
-            System.out.println(key + " = " + vars2.get(key));
-        }
-        Assert.assertEquals(17, vars2.size());
-        Assert.assertFalse(vars2.containsKey("Email"));
-        Assert.assertFalse(vars2.containsKey("EncryptedPasswd"));
-        Assert.assertEquals("oauth2rt_1/Dk-zYrF6YiQ_94QcJGIkTmu8f7QLbAeIH-whs3LoxFQ", vars2.get("Token"));
     }
 
     @Test
@@ -466,10 +453,9 @@ public class GooglePlayAPITest {
         Assert.assertEquals(2, request.url().pathSegments().size());
         Assert.assertEquals("fdfe", request.url().pathSegments().get(0));
         Assert.assertEquals("rev", request.url().pathSegments().get(1));
-        Assert.assertEquals(5, request.url().queryParameterNames().size());
+        Assert.assertEquals(4, request.url().queryParameterNames().size());
         Assert.assertEquals("com.cpuid.cpu_z", request.url().queryParameter("doc"));
         Assert.assertEquals("1", request.url().queryParameter("sort"));
-        Assert.assertEquals("3", request.url().queryParameter("c"));
         Assert.assertEquals("0", request.url().queryParameter("o"));
         Assert.assertEquals("20", request.url().queryParameter("n"));
     }
@@ -514,10 +500,9 @@ public class GooglePlayAPITest {
         Assert.assertEquals(2, request.url().pathSegments().size());
         Assert.assertEquals("fdfe", request.url().pathSegments().get(0));
         Assert.assertEquals("rec", request.url().pathSegments().get(1));
-        Assert.assertEquals(5, request.url().queryParameterNames().size());
+        Assert.assertEquals(4, request.url().queryParameterNames().size());
         Assert.assertEquals("com.cpuid.cpu_z", request.url().queryParameter("doc"));
         Assert.assertEquals("1", request.url().queryParameter("rt"));
-        Assert.assertEquals("3", request.url().queryParameter("c"));
         Assert.assertEquals("0", request.url().queryParameter("o"));
         Assert.assertEquals("20", request.url().queryParameter("n"));
     }

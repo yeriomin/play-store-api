@@ -14,6 +14,9 @@ public class PlayStoreApiBuilder {
     private HttpClientAdapter httpClient;
     private String tokenDispenserUrl;
     private TokenDispenserClient tokenDispenserClient;
+    private String deviceCheckinConsistencyToken;
+    private String deviceConfigToken;
+    private String dfeCookie;
 
     public PlayStoreApiBuilder setEmail(String email) {
         this.email = email;
@@ -32,6 +35,21 @@ public class PlayStoreApiBuilder {
 
     public PlayStoreApiBuilder setToken(String token) {
         this.token = token;
+        return this;
+    }
+
+    public PlayStoreApiBuilder setDeviceCheckinConsistencyToken(String deviceCheckinConsistencyToken) {
+        this.deviceCheckinConsistencyToken = deviceCheckinConsistencyToken;
+        return this;
+    }
+
+    public PlayStoreApiBuilder setDeviceConfigToken(String deviceConfigToken) {
+        this.deviceConfigToken = deviceConfigToken;
+        return this;
+    }
+
+    public PlayStoreApiBuilder setDfeCookie(String dfeCookie) {
+        this.dfeCookie = dfeCookie;
         return this;
     }
 
@@ -100,6 +118,15 @@ public class PlayStoreApiBuilder {
         api.setToken(token);
         if (needToUploadDeviceConfig) {
             api.uploadDeviceConfig();
+        }
+        if (isEmpty(api.getDeviceCheckinConsistencyToken())) {
+            api.setDeviceCheckinConsistencyToken(deviceCheckinConsistencyToken);
+        }
+        if (isEmpty(api.getDeviceConfigToken())) {
+            api.setDeviceConfigToken(deviceConfigToken);
+        }
+        if (isEmpty(api.getDfeCookie())) {
+            api.setDfeCookie(dfeCookie);
         }
         return api;
     }

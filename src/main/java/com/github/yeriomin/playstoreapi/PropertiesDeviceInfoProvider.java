@@ -52,6 +52,7 @@ public class PropertiesDeviceInfoProvider implements DeviceInfoProvider {
     private long timeToReport = System.currentTimeMillis() / 1000;
 
     public void setProperties(Properties properties) {
+        ensureCompatibility(properties);
         this.properties = properties;
     }
 
@@ -71,15 +72,38 @@ public class PropertiesDeviceInfoProvider implements DeviceInfoProvider {
         return Integer.parseInt(this.properties.getProperty("Build.VERSION.SDK_INT"));
     }
 
+    public int getPlayServicesVersion() {
+        return Integer.parseInt(this.properties.getProperty("GSF.version"));
+    }
+
+    public String getMccmnc() {
+        return properties.getProperty("SimOperator");
+    }
+
+    public String getAuthUserAgentString() {
+        return "GoogleAuth/1.4 (" + properties.getProperty("Build.DEVICE") + " " + properties.getProperty("Build.ID") + ")";
+    }
+
     public String getUserAgentString() {
-        return "Android-Finsky/7.1.15 ("
+        StringBuilder platforms = new StringBuilder();
+        for (String platform: getList("Platforms")) {
+            platforms.append(";").append(platform);
+        }
+
+        return "Android-Finsky/" + properties.getProperty("Vending.versionString") + " ("
             + "api=3"
-            + ",versionCode=" + this.properties.getProperty("Vending.version")
-            + ",sdk=" + this.properties.getProperty("Build.VERSION.SDK_INT")
-            + ",device=" + this.properties.getProperty("Build.DEVICE")
-            + ",hardware=" + this.properties.getProperty("Build.HARDWARE")
-            + ",product=" + this.properties.getProperty("Build.PRODUCT")
-            + ")";
+            + ",versionCode=" + properties.getProperty("Vending.version")
+            + ",sdk=" + properties.getProperty("Build.VERSION.SDK_INT")
+            + ",device=" + properties.getProperty("Build.DEVICE")
+            + ",hardware=" + properties.getProperty("Build.HARDWARE")
+            + ",product=" + properties.getProperty("Build.PRODUCT")
+            + ",platformVersionRelease=" + properties.getProperty("Build.VERSION.RELEASE")
+            + ",model=" + properties.getProperty("Build.MODEL")
+            + ",buildId=" + properties.getProperty("Build.ID")
+            + ",isWideScreen=0"
+            + ",supportedAbis=" + platforms.toString().substring(1)
+            + ")"
+        ;
     }
 
     public AndroidCheckinRequest generateAndroidCheckinRequest() {
@@ -148,5 +172,40 @@ public class PropertiesDeviceInfoProvider implements DeviceInfoProvider {
 
     private List<String> getList(String key) {
         return Arrays.asList(properties.getProperty(key).split(","));
+    }
+
+    private void ensureCompatibility(Properties properties) {
+        if (!properties.containsKey("Vending.versionString") && properties.containsKey("Vending.version")) {
+            String vendingVersionString = "7.1.15";
+            if (properties.getProperty("Vending.version").length() > 6) {
+                vendingVersionString = new StringBuilder(properties.getProperty("Vending.version").substring(2, 6)).insert(2, ".").insert(1, ".").toString();
+            }
+            properties.put("Vending.versionString", vendingVersionString);
+        }
+        if (properties.containsKey("Build.FINGERPRINT") && (!properties.containsKey("Build.ID") || !properties.containsKey("Build.VERSION.RELEASE"))) {
+            String[] fingerprint = properties.getProperty("Build.FINGERPRINT").split("/");
+            String buildId = "";
+            String release = "";
+            if (fingerprint.length > 5) {
+                boolean releaseFound = false;
+                for (String component: fingerprint) {
+                    if (component.contains(":")) {
+                        release = component.split(":")[1];
+                        releaseFound = true;
+                        continue;
+                    }
+                    if (releaseFound) {
+                        buildId = component;
+                        break;
+                    }
+                }
+            }
+            if (!properties.containsKey("Build.ID")) {
+                properties.put("Build.ID", buildId);
+            }
+            if (!properties.containsKey("Build.VERSION.RELEASE")) {
+                properties.put("Build.VERSION.RELEASE", release);
+            }
+        }
     }
 }

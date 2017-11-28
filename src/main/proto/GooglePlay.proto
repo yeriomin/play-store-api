@@ -832,19 +832,73 @@ message AggregateRating {
   optional uint64 commentCount = 11;
   optional double bayesianMeanRating = 12;
 }
+
+message AcceptTosResponse {
+}message CarrierBillingConfig {
+   optional string id = 1;
+   optional string name = 2;
+   optional int32 apiVersion = 3;
+   optional string provisioningUrl = 4;
+   optional string credentialsUrl = 5;
+   optional bool tosRequired = 6;
+   optional bool perTransactionCredentialsRequired = 7;
+   optional bool sendSubscriberIdWithCarrierBillingRequests = 8;
+}
+message BillingConfig {
+  optional CarrierBillingConfig carrierBillingConfig = 1;
+  optional int32 maxIabApiVersion = 2;
+}
+message CorpusMetadata {
+  optional int32 backend = 1;
+  optional string name = 2;
+  optional string landingUrl = 3;
+  optional string libraryName = 4;
+  optional string recsWidgetUrl = 6;
+  optional string shopName = 7;
+}
+message Experiments {
+  repeated string experimentId = 1;
+}
+message SelfUpdateConfig {
+  optional int32 latestClientVersionCode = 1;
+}
+message TocResponse {
+  repeated CorpusMetadata corpus = 1;
+  optional int32 tosVersionDeprecated = 2;
+  optional string tosContent = 3;
+  optional string homeUrl = 4;
+  optional Experiments experiments = 5;
+  optional string tosCheckboxTextMarketingEmails = 6;
+  optional string tosToken = 7;
+  optional string iconOverrideUrl = 9;
+  optional SelfUpdateConfig selfUpdateConfig = 10;
+  optional bool requiresUploadDeviceConfig = 11;
+  optional BillingConfig billingConfig = 12;
+  optional string recsWidgetUrl = 13;
+  optional string socialHomeUrl = 15;
+  optional bool ageVerificationRequired = 16;
+  optional bool gplusSignupEnabled = 17;
+  optional bool redeemEnabled = 18;
+  optional string helpUrl = 19;
+  optional int32 themeId = 20;
+  optional string entertainmentHomeUrl = 21;
+  optional string cookie = 22;
+}
 message Payload {
   optional ListResponse listResponse = 1;
   optional DetailsResponse detailsResponse = 2;
   optional ReviewResponse reviewResponse = 3;
   optional BuyResponse buyResponse = 4;
   optional SearchResponse searchResponse = 5;
+  optional TocResponse tocResponse = 6;
   optional BrowseResponse browseResponse = 7;
   optional PurchaseStatusResponse purchaseStatusResponse = 8;
   optional string logResponse = 10;
   optional BulkDetailsResponse bulkDetailsResponse = 19;
   optional DeliveryResponse deliveryResponse = 21;
-  optional UploadDeviceConfigResponse uploadDeviceConfigResponse = 25;
+  optional AcceptTosResponse acceptTosResponse = 22;
   optional AndroidCheckinResponse androidCheckinResponse = 26;
+  optional UploadDeviceConfigResponse uploadDeviceConfigResponse = 28;
   optional SearchSuggestResponse searchSuggestResponse = 40;
   optional TestingProgramResponse testingProgramResponse = 80;
 }
@@ -855,11 +909,31 @@ message PreFetch {
   optional int64 ttl = 4;
   optional int64 softTtl = 5;
 }
+message ServerMetadata {
+  optional int64 latencyMillis = 1;
+}
+
+message Targets {
+  repeated int64 targetId = 1;
+  optional bytes signature = 2;
+}
+
+message ServerCookie {
+  optional int32 type = 1;
+  optional bytes token = 2;
+}
+message ServerCookies {
+  repeated ServerCookie serverCookie = 1;
+}
 message ResponseWrapper {
   optional Payload payload = 1;
   optional ServerCommands commands = 2;
   repeated PreFetch preFetch = 3;
   repeated Notification notification = 4;
+  optional ServerMetadata serverMetadata = 5;
+  optional Targets targets = 6;
+  optional ServerCookies serverCookies = 7;
+  optional bytes serverLogsCookie = 9;
 }
 message ServerCommands {
   optional bool clearCache = 1;
@@ -1008,6 +1082,7 @@ message AndroidCheckinResponse {
   optional fixed64 securityToken = 8;
   optional bool settingsDiff = 9;
   repeated string deleteSetting = 10;
+  optional string deviceCheckinConsistencyToken = 12;
 }
 message GservicesSetting {
   optional bytes name = 1;
