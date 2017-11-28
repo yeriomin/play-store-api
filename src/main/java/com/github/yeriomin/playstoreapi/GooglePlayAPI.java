@@ -498,30 +498,42 @@ public class GooglePlayAPI {
      * @param title
      * @param stars
      */
-    public ReviewResponse addOrEditReview(String packageName, String comment, String title, int stars) throws IOException {
+    public ReviewResponse addOrEditReview(String packageName, String comment, String title, int stars, boolean testing) throws IOException {
         Map<String, String> params = new HashMap<String, String>();
         params.put("doc", packageName);
         params.put("title", title);
         params.put("content", comment);
         params.put("rating", String.valueOf(stars));
-        // I don't know what these do, but Google Play Store sends these
-        // params.put("ipr", "true");
-        // params.put("itpr", "false");
+        params.put("ipr", "true"); // I don't know what this does, but Google Play Store sends it
+        params.put("itpr", testing ? "true" : "false"); // True for beta feedback, false for ordinary reviews
         byte[] responseBytes = client.postWithoutBody(ADD_REVIEW_URL, params, getDefaultHeaders());
         return ResponseWrapper.parseFrom(responseBytes).getPayload().getReviewResponse();
     }
 
-    public void deleteReview(String packageName) throws IOException {
+    public ReviewResponse addOrEditReview(String packageName, String comment, String title, int stars) throws IOException {
+        return addOrEditReview(packageName, comment, title, stars, false);
+    }
+
+    public ReviewResponse betaFeedback(String packageName, String comment) throws IOException {
+        return addOrEditReview(packageName, comment, "", 5, true);
+    }
+
+    public void deleteReview(String packageName, boolean testing) throws IOException {
         Map<String, String> params = new HashMap<String, String>();
         params.put("doc", packageName);
-        // Some unknown parameter Google Play Store sends
-        // params.put("itpr", "false");
+        params.put("itpr", testing ? "true" : "false"); // True for beta feedback, false for ordinary reviews
         client.post(DELETE_REVIEW_URL, params, getDefaultHeaders());
     }
 
+    public void deleteReview(String packageName) throws IOException {
+        deleteReview(packageName, false);
+    }
+
+    public void deleteBetaFeedback(String packageName) throws IOException {
+        deleteReview(packageName, true);
+    }
+
     /**
-     * Uploads device configuration to google server so that can be seen from
-     * web as a registered device!!
      * If this is not done, some apps magically disappear from search responses
      */
     public UploadDeviceConfigResponse uploadDeviceConfig() throws IOException {

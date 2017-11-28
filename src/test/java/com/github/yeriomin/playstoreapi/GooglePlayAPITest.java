@@ -479,11 +479,12 @@ public class GooglePlayAPITest {
         Assert.assertEquals(2, request.url().pathSegments().size());
         Assert.assertEquals("fdfe", request.url().pathSegments().get(0));
         Assert.assertEquals("addReview", request.url().pathSegments().get(1));
-        Assert.assertEquals(4, request.url().queryParameterNames().size());
+        Assert.assertEquals(6, request.url().queryParameterNames().size());
         Assert.assertEquals("com.cpuid.cpu_z", request.url().queryParameter("doc"));
         Assert.assertEquals("Работает!", request.url().queryParameter("content"));
         Assert.assertEquals("", request.url().queryParameter("title"));
         Assert.assertEquals("5", request.url().queryParameter("rating"));
+        Assert.assertEquals("false", request.url().queryParameter("itpr"));
     }
 
     @Test
