@@ -589,6 +589,11 @@ public class GooglePlayAPITest {
         Assert.assertEquals("https://android.clients.google.com/market/download/Download?packageName=dev.ukanth.ufirewall&versionCode=15972&ssl=1&token=AOTCm0QpUo_yqGEHkwwiujJnCib9Z1GgZMJBYmIA2dWkEc_Gon0U6rKBXcyA_T-Z4DeKUwudpUxerc-t3M-8NxjB9OCajVOI6ipQH9E9yzmbbrk9_iDZ_ACl_dPU9YoD7-wO0dRHTltFojyDPZxeAvQusrS9ssRDhgtUBk3EPkGCW_W7O0-Xth_jG74OC-BPfc9UXhmTMBWgjv0qnTXhSvzDmweiZMLPb_4YfkYZzJJFEGTr4_txY3ExX3COpB5bwXcdSkBXQH2xILkrWcIquPg5KlPNmQwlaVNoseDez8YgujQ63AcImU3eRkwAvdsZiBANPv4BhzEMYVlQ6VYDCV3vTH7W5AGO2GpaIlIcmsiODbvVPg&did=0&cpn=Uno4ICxUZcNY314t", deliveryResponse.getAppDeliveryData().getDownloadUrl());
     }
 
+    @Test
+    public void reportAbuse() throws Exception {
+        Assert.assertTrue(api.reportAbuse("com.github.yeriomin.smsscheduler", GooglePlayAPI.ABUSE.IMPERSONATION, ""));
+    }
+
     private GooglePlayAPI initApi() {
         Properties properties = new Properties();
         try {

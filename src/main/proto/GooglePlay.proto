@@ -894,6 +894,7 @@ message Payload {
   optional BrowseResponse browseResponse = 7;
   optional PurchaseStatusResponse purchaseStatusResponse = 8;
   optional string logResponse = 10;
+  optional string flagContentResponse = 13;
   optional BulkDetailsResponse bulkDetailsResponse = 19;
   optional DeliveryResponse deliveryResponse = 21;
   optional AcceptTosResponse acceptTosResponse = 22;
