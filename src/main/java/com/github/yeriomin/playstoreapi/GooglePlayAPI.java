@@ -40,6 +40,7 @@ public class GooglePlayAPI {
     private static final String REVIEWS_URL = FDFE_URL + "rev";
     private static final String ADD_REVIEW_URL = FDFE_URL + "addReview";
     private static final String DELETE_REVIEW_URL = FDFE_URL + "deleteReview";
+    private static final String ABUSE_URL = FDFE_URL + "flagContent";
     private static final String UPLOADDEVICECONFIG_URL = FDFE_URL + "uploadDeviceConfig";
     private static final String RECOMMENDATIONS_URL = FDFE_URL + "rec";
     private static final String CATEGORIES_URL = FDFE_URL + "categories";
@@ -47,6 +48,23 @@ public class GooglePlayAPI {
     private static final String LOG_URL = FDFE_URL + "log";
 
     private static final String ACCOUNT_TYPE_HOSTED_OR_GOOGLE = "HOSTED_OR_GOOGLE";
+
+    public enum ABUSE {
+        SEXUAL_CONTENT(1),
+        GRAPHIC_VIOLENCE(3),
+        HATEFUL_OR_ABUSIVE_CONTENT(4),
+        IMPROPER_CONTENT_RATING(5),
+        HARMFUL_TO_DEVICE_OR_DATA(7),
+        OTHER(8),
+        ILLEGAL_PRESCRIPTION(11),
+        IMPERSONATION(12);
+
+        public int value;
+
+        ABUSE(int value) {
+            this.value = value;
+        }
+    }
 
     public enum PATCH_FORMAT {
         GDIFF(1),
@@ -108,8 +126,7 @@ public class GooglePlayAPI {
 
     /**
      * Auth token
-     * Seems to have a very long lifetime - months
-     * So, it is a good idea to save and reuse it
+     * It is a good idea to save and reuse it
      */
     private String token;
 
@@ -189,12 +206,12 @@ public class GooglePlayAPI {
      * {@link AndroidCheckinResponse} instance.
      */
     public String generateGsfId(String email, String ac2dmToken) throws IOException {
-        // this first checkin is for generating android-id
+        // this first checkin is for generating gsf id
         AndroidCheckinRequest request = this.deviceInfoProvider.generateAndroidCheckinRequest();
         AndroidCheckinResponse checkinResponse1 = checkin(request.toByteArray());
         String securityToken = BigInteger.valueOf(checkinResponse1.getSecurityToken()).toString(16);
 
-        // this is the second checkin to match credentials with android-id
+        // this is the second checkin to match credentials with gsf id
         AndroidCheckinRequest.Builder checkInbuilder = AndroidCheckinRequest.newBuilder(request);
         String gsfId = BigInteger.valueOf(checkinResponse1.getAndroidId()).toString(16);
         AndroidCheckinRequest build = checkInbuilder
@@ -463,7 +480,7 @@ public class GooglePlayAPI {
 
     /**
      * Fetches the reviews of given package name by sorting passed choice.
-     * <p>
+     *
      * Default values for offset and numberOfResults are "0" and "20" respectively.
      * If you request more than 20 reviews, you might get a malformed request exception.
      *
@@ -643,6 +660,16 @@ public class GooglePlayAPI {
 
     public String log(String packageName) throws IOException {
         return log(packageName, System.currentTimeMillis());
+    }
+
+    public boolean reportAbuse(String packageName, ABUSE reason, String content) throws IOException {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("doc", packageName);
+        params.put("cft", String.valueOf(reason.value));
+        if ((reason == ABUSE.OTHER || reason == ABUSE.HARMFUL_TO_DEVICE_OR_DATA) && null != content && content.length() > 0) {
+            params.put("content", content);
+        }
+        return ResponseWrapper.parseFrom(client.post(ABUSE_URL, params, getDefaultHeaders())).getPayload().hasFlagContentResponse();
     }
 
     /**
