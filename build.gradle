@@ -1,7 +1,7 @@
 apply plugin: 'java'
 
 group = 'com.github.yeriomin'
-version = '0.29'
+version = '0.31'
 sourceCompatibility = JavaVersion.VERSION_1_5
 targetCompatibility = JavaVersion.VERSION_1_5
 compileJava.options.encoding = 'UTF-8'
@@ -23,9 +23,6 @@ apply plugin: 'com.google.protobuf'
 
 sourceSets {
     main {
-        proto {
-            srcDir 'src/main/proto'
-        }
         java {
             srcDir 'src/main/java'
             srcDir 'build/generated/source/proto/main/javalite'
