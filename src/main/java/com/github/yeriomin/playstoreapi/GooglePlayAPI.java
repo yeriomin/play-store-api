@@ -14,6 +14,8 @@ public class GooglePlayAPI {
 
     public static final int AVAILABILITY_NOT_RESTRICTED = 1;
     public static final int AVAILABILITY_RESTRICTED_GEO = 2;
+    public static final int AVAILABILITY_REMOVED = 7;
+    public static final int AVAILABILITY_INCOMPATIBLE_DEVICE_APP = 9;
 
     public static final int IMAGE_TYPE_APP_SCREENSHOT = 1;
     public static final int IMAGE_TYPE_PLAY_STORE_PAGE_BACKGROUND = 2;
