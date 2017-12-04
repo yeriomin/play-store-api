@@ -119,7 +119,7 @@ final class DoubleArrayList
     if (capacity < size) {
       throw new IllegalArgumentException();
     }
-    return new DoubleArrayList(Arrays.copyOf(array, capacity), size);
+    return new DoubleArrayList(LegacyUtil.copyOf(array, capacity), size);
   }
 
   @Override
@@ -221,7 +221,7 @@ final class DoubleArrayList
 
     int newSize = size + list.size;
     if (newSize > array.length) {
-      array = Arrays.copyOf(array, newSize);
+      array = LegacyUtil.copyOf(array, newSize);
     }
 
     System.arraycopy(list.array, 0, array, size, list.size);

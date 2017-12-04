@@ -388,7 +388,7 @@ public final class DynamicMessage extends AbstractMessage {
       if (!isInitialized()) {
         throw newUninitializedMessageException(
           new DynamicMessage(type, fields,
-              java.util.Arrays.copyOf(oneofCases, oneofCases.length), unknownFields));
+                  LegacyUtil.copyOf(oneofCases, oneofCases.length), unknownFields));
       }
       return buildPartial();
     }
@@ -402,7 +402,7 @@ public final class DynamicMessage extends AbstractMessage {
       if (!isInitialized()) {
         throw newUninitializedMessageException(
           new DynamicMessage(type, fields,
-              java.util.Arrays.copyOf(oneofCases, oneofCases.length), unknownFields))
+                  LegacyUtil.copyOf(oneofCases, oneofCases.length), unknownFields))
           .asInvalidProtocolBufferException();
       }
       return buildPartial();
@@ -413,7 +413,7 @@ public final class DynamicMessage extends AbstractMessage {
       fields.makeImmutable();
       DynamicMessage result =
         new DynamicMessage(type, fields,
-            java.util.Arrays.copyOf(oneofCases, oneofCases.length), unknownFields);
+                LegacyUtil.copyOf(oneofCases, oneofCases.length), unknownFields);
       return result;
     }
 

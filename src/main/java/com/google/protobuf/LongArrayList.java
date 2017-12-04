@@ -118,7 +118,7 @@ final class LongArrayList
     if (capacity < size) {
       throw new IllegalArgumentException();
     }
-    return new LongArrayList(Arrays.copyOf(array, capacity), size);
+    return new LongArrayList(LegacyUtil.copyOf(array, capacity), size);
   }
 
   @Override
@@ -220,7 +220,7 @@ final class LongArrayList
 
     int newSize = size + list.size;
     if (newSize > array.length) {
-      array = Arrays.copyOf(array, newSize);
+      array = LegacyUtil.copyOf(array, newSize);
     }
 
     System.arraycopy(list.array, 0, array, size, list.size);
