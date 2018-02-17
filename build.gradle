@@ -30,6 +30,10 @@ sourceSets {
     }
 }
 
+jar {
+    exclude("*.proto")
+}
+
 dependencies {
     testCompile "junit:junit:4.12"
     testCompile group: 'com.squareup.okhttp3', name: 'okhttp', version: '3.5.0'
