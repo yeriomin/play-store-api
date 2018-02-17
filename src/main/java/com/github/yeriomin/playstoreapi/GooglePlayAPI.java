@@ -620,6 +620,7 @@ public class GooglePlayAPI {
         if (wrapper.getPreFetchCount() > 0
             && ((payload.hasSearchResponse() && payload.getSearchResponse().getDocCount() == 0)
                 || (payload.hasListResponse() && payload.getListResponse().getDocCount() == 0)
+                || payload.hasBrowseResponse()
             )
         ) {
             return wrapper.getPreFetch(0).getResponse().getPayload();
