@@ -12,6 +12,8 @@ public class TokenDispenserClient {
 
     static private final String PARAMETER_EMAIL = "email";
 
+    static private final int TOKEN_VALIDITY_LENGTH = 100;
+
     private String url;
     private HttpClientAdapter httpClient;
 
@@ -43,7 +45,14 @@ public class TokenDispenserClient {
 
     static private String request(HttpClientAdapter httpClient, String url) throws IOException {
         try {
-            return new String(httpClient.get(url));
+            String response = new String(httpClient.get(url));
+            if (response.length() > TOKEN_VALIDITY_LENGTH) {
+                throw new TokenDispenserException("Token is unexpectedly long");
+            }
+            if (response.matches(".*[\\r\\n].*")) {
+                throw new TokenDispenserException("Contains unexpected characters");
+            }
+            return response;
         } catch (GooglePlayException e) {
             switch (e.getCode()) {
                 case 401:
