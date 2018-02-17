@@ -354,10 +354,29 @@ message DetailsResponse {
   optional DocV2 docV2 = 4;
   optional string footerHtml = 5;
   repeated Badge badge = 7;
+  optional Features features = 12;
 }
 message Badge {
   optional string label = 1;
+  optional Image image = 2;
+  optional BadgeContainer1 badgeContainer1 = 4;
   optional string message = 11;
+}
+message BadgeContainer1 {
+  optional BadgeContainer2 badgeContainer2 = 1;
+}
+message BadgeContainer2 {
+  optional BadgeLinkContainer badgeLinkContainer = 2;
+}
+message BadgeLinkContainer {
+  optional string link = 2;
+}
+message Features {
+  repeated Feature feature = 1;
+}
+message Feature {
+  optional string label = 1;
+  optional string percent = 3;
 }
 message DeviceConfigurationProto {
   optional int32 touchScreen = 1;
@@ -658,6 +677,7 @@ message DocV2 {
   optional bool detailsReusable = 21;
   optional string subtitle = 22;
   optional Unknown25 unknown25 = 25;
+  optional string descriptionShort = 27;
 }
 message Unknown25 {
   repeated Unknown25Item item = 2;
