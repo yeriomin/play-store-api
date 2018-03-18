@@ -22,6 +22,7 @@ public class GooglePlayAPI {
     public static final int IMAGE_TYPE_YOUTUBE_VIDEO_LINK = 3;
     public static final int IMAGE_TYPE_APP_ICON = 4;
     public static final int IMAGE_TYPE_CATEGORY_ICON = 5;
+    public static final int IMAGE_TYPE_GOOGLE_PLUS_BACKGROUND = 15;
 
     private static final String SCHEME = "https://";
     private static final String HOST = "android.clients.google.com";
@@ -48,6 +49,8 @@ public class GooglePlayAPI {
     private static final String CATEGORIES_URL = FDFE_URL + "categories";
     private static final String TESTING_PROGRAM_URL = FDFE_URL + "apps/testingProgram";
     private static final String LOG_URL = FDFE_URL + "log";
+    private static final String API_FDFE_URL = FDFE_URL + "api/";
+    private static final String USER_PROFILE_URL = API_FDFE_URL + "userProfile";
 
     private static final String ACCOUNT_TYPE_HOSTED_OR_GOOGLE = "HOSTED_OR_GOOGLE";
 
@@ -673,6 +676,12 @@ public class GooglePlayAPI {
             params.put("content", content);
         }
         return ResponseWrapper.parseFrom(client.post(ABUSE_URL, params, getDefaultHeaders())).getPayload().hasFlagContentResponse();
+    }
+
+    public UserProfileResponse userProfile() throws IOException {
+        return ResponseWrapperApi.parseFrom(
+                client.get(USER_PROFILE_URL, new HashMap<String, String>(), getDefaultHeaders())
+        ).getPayload().getUserProfileResponse();
     }
 
     /**

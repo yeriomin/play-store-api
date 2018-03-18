@@ -956,6 +956,19 @@ message ResponseWrapper {
   optional ServerCookies serverCookies = 7;
   optional bytes serverLogsCookie = 9;
 }
+message ResponseWrapperApi {
+  optional PayloadApi payload = 1;
+}
+message PayloadApi {
+  optional UserProfileResponse userProfileResponse = 5;
+}
+message UserProfileResponse {
+  optional UserProfile userProfile = 1;
+}
+message UserProfile {
+  optional string userId = 2;
+  repeated Image image = 10;
+}
 message ServerCommands {
   optional bool clearCache = 1;
   optional string displayErrorMessage = 2;

@@ -594,6 +594,16 @@ public class GooglePlayAPITest {
         Assert.assertTrue(api.reportAbuse("com.github.yeriomin.smsscheduler", GooglePlayAPI.ABUSE.IMPERSONATION, ""));
     }
 
+    @Test
+    public void userProfile() throws Exception {
+        UserProfileResponse response = api.userProfile();
+        Assert.assertTrue(response.hasUserProfile());
+        Assert.assertEquals("115275627922389268197", response.getUserProfile().getUserId());
+        Assert.assertEquals(2, response.getUserProfile().getImageCount());
+        Assert.assertEquals(4, response.getUserProfile().getImage(0).getImageType());
+        Assert.assertEquals("https://lh5.googleusercontent.com/-NxRLoKjJ7LM/AAAAAAAAAAI/AAAAAAAAAAA/AGi4gfwqBhB2A69d0pMdvrYAhASD_01wVA/photo.jpg", response.getUserProfile().getImage(0).getImageUrl());
+    }
+
     private GooglePlayAPI initApi() {
         Properties properties = new Properties();
         try {
