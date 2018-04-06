@@ -17,7 +17,7 @@ public class PlayStoreApiBuilderTest {
     private PlayStoreApiBuilder playStoreApiBuilder;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         httpClientAdapter = new MockOkHttpClientAdapter();
         Properties properties = new Properties();
         try {
@@ -57,7 +57,7 @@ public class PlayStoreApiBuilderTest {
     }
 
     @Test
-    public void buildExceptionNoPasswordNoTokenDispenser() {
+    public void buildExceptionNoTokenNoPasswordNoTokenDispenser() {
         playStoreApiBuilder
             .setHttpClient(httpClientAdapter)
             .setDeviceInfoProvider(deviceInfoProvider)
@@ -67,7 +67,7 @@ public class PlayStoreApiBuilderTest {
             fail("ApiBuilderException was not thrown");
         } catch (Exception e) {
             Assert.assertTrue(e instanceof ApiBuilderException);
-            Assert.assertEquals("Either email-password pair or a token dispenser url is required", e.getMessage());
+            Assert.assertEquals("Email-password pair, a token or a token dispenser url is required", e.getMessage());
         }
     }
 
@@ -85,5 +85,55 @@ public class PlayStoreApiBuilderTest {
             Assert.assertTrue(e instanceof ApiBuilderException);
             Assert.assertEquals("Email is required", e.getMessage());
         }
+    }
+
+    @Test
+    public void buildEmailGsfIdPassword() throws Exception {
+        playStoreApiBuilder
+            .setLocale(Locale.US)
+            .setHttpClient(httpClientAdapter)
+            .setDeviceInfoProvider(deviceInfoProvider)
+            .setEmail(GooglePlayAPITest.EMAIL)
+            .setGsfId(GooglePlayAPITest.GSFID)
+            .setPassword(GooglePlayAPITest.PASSWORD)
+        ;
+        GooglePlayAPI api = playStoreApiBuilder.buildUpon(new MockGooglePlayAPI());
+        Assert.assertEquals("VgXBOjtk7TAASCefEdBRoow60YoyEYSqliUOaaiWkFKmWKZOUK-iXb1UgA184sTRpCVrKg.", api.getToken());
+        Assert.assertEquals(1, httpClientAdapter.getRequests().size());
+        Assert.assertEquals("/auth", httpClientAdapter.getRequests().get(0).url().encodedPath());
+    }
+
+    @Test
+    public void buildGsfIdToken() throws Exception {
+        playStoreApiBuilder
+            .setLocale(Locale.US)
+            .setHttpClient(httpClientAdapter)
+            .setDeviceInfoProvider(deviceInfoProvider)
+            .setGsfId(GooglePlayAPITest.GSFID)
+            .setToken(GooglePlayAPITest.TOKEN)
+        ;
+        GooglePlayAPI api = playStoreApiBuilder.buildUpon(new MockGooglePlayAPI());
+        Assert.assertEquals(GooglePlayAPITest.TOKEN, api.getToken());
+        Assert.assertEquals(0, httpClientAdapter.getRequests().size());
+    }
+
+    @Test
+    public void buildEmailPassword() throws Exception {
+        playStoreApiBuilder
+            .setLocale(Locale.US)
+            .setHttpClient(httpClientAdapter)
+            .setDeviceInfoProvider(deviceInfoProvider)
+            .setEmail(GooglePlayAPITest.EMAIL)
+            .setPassword(GooglePlayAPITest.PASSWORD)
+        ;
+        GooglePlayAPI api = playStoreApiBuilder.buildUpon(new MockGooglePlayAPI());
+        Assert.assertEquals(5, httpClientAdapter.getRequests().size());
+        Assert.assertEquals("/auth", httpClientAdapter.getRequests().get(0).url().encodedPath());
+        Assert.assertEquals("/checkin", httpClientAdapter.getRequests().get(1).url().encodedPath());
+        Assert.assertEquals("/checkin", httpClientAdapter.getRequests().get(2).url().encodedPath());
+        Assert.assertEquals("/auth", httpClientAdapter.getRequests().get(3).url().encodedPath());
+        Assert.assertEquals("/fdfe/uploadDeviceConfig", httpClientAdapter.getRequests().get(4).url().encodedPath());
+        Assert.assertEquals("VgXBOjtk7TAASCefEdBRoow60YoyEYSqliUOaaiWkFKmWKZOUK-iXb1UgA184sTRpCVrKg.", api.getToken());
+        Assert.assertEquals("307edaee584cc716", api.getGsfId());
     }
 }

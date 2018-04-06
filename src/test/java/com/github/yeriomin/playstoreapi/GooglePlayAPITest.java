@@ -10,10 +10,10 @@ import java.util.*;
 
 public class GooglePlayAPITest {
 
-    private static final String EMAIL = "konstantin.razdolbaev@gmail.com";
-    private static final String PASSWORD = "TemporaryPassword!";
-    private static final String GSFID = "3f1abe856b0fa7fd";
-    private static final String TOKEN = "jwSyrOU2RHDv2d82095MoHKOUHhO9KxBbkAoLCMkCKWqB9RUHbvq8VIWufBJcxwRn3_DGQ.";
+    public static final String EMAIL = "konstantin.razdolbaev@gmail.com";
+    public static final String PASSWORD = "TemporaryPassword!";
+    public static final String GSFID = "3f1abe856b0fa7fd";
+    public static final String TOKEN = "jwSyrOU2RHDv2d82095MoHKOUHhO9KxBbkAoLCMkCKWqB9RUHbvq8VIWufBJcxwRn3_DGQ.";
 
     private GooglePlayAPI api;
 

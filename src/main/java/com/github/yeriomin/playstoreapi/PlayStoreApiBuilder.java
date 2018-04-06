@@ -78,7 +78,10 @@ public class PlayStoreApiBuilder {
     }
 
     public GooglePlayAPI build() throws IOException, ApiBuilderException {
-        GooglePlayAPI api = new GooglePlayAPI();
+        return buildUpon(new GooglePlayAPI());
+    }
+
+    public GooglePlayAPI buildUpon(GooglePlayAPI api) throws IOException, ApiBuilderException {
         api.setLocale(null == locale ? Locale.getDefault() : locale);
         api.setClient(httpClient);
         if (null == httpClient) {
@@ -91,19 +94,19 @@ public class PlayStoreApiBuilder {
         } else {
             api.setDeviceInfoProvider(deviceInfoProvider);
         }
-        if (isEmpty(password) && isEmpty(tokenDispenserUrl)) {
-            throw new ApiBuilderException("Either email-password pair or a token dispenser url is required");
+        if (isEmpty(password) && isEmpty(token) && isEmpty(tokenDispenserUrl)) {
+            throw new ApiBuilderException("Email-password pair, a token or a token dispenser url is required");
         }
         if (!isEmpty(tokenDispenserUrl)) {
             tokenDispenserClient = new TokenDispenserClient(tokenDispenserUrl, httpClient);
         }
-        if (isEmpty(email) && null != tokenDispenserClient) {
+        if ((isEmpty(token) || isEmpty(gsfId)) && isEmpty(email) && null != tokenDispenserClient) {
             email = tokenDispenserClient.getRandomEmail();
             if (isEmpty(email)) {
                 throw new ApiBuilderException("Could not get email from token dispenser");
             }
         }
-        if (isEmpty(email)) {
+        if (isEmpty(email) && (isEmpty(token) || isEmpty(gsfId))) {
             throw new ApiBuilderException("Email is required");
         }
         boolean needToUploadDeviceConfig = false;
