@@ -45,7 +45,6 @@ Protobuf classes generation happens on `assemble` step, tests a ran on `build` s
         // We are logged in now
         // Save and reuse the generated auth token and gsf id,
         // unless you want to get banned for frequent relogins
-        // The token has a very long validity time. Months.
         api.getToken();
         api.getGsfId();
         
@@ -90,3 +89,12 @@ See [tests](https://github.com/yeriomin/play-store-api/blob/master/src/test/java
 ### Further studies
 
 Looking through [GooglePlay.proto](https://github.com/yeriomin/play-store-api/blob/master/src/main/proto/GooglePlay.proto) will let you know what responses to expect.
+
+## License
+
+play-store-api is Free Software: You can use, study share and improve it at your will. Specifically you can redistribute and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+## Credits
+
+play-store-api is a fork of https://github.com/Akdeniz/google-play-crawler
+play-store-api has [protobuf-java](https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java) built-in. protobuf-java was modified to work with java 1.5 which is required for play-store-api to work on old android versions.
