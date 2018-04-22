@@ -564,6 +564,62 @@ public class GooglePlayAPITest {
     }
 
     @Test
+    public void categoriesListTop() throws Exception {
+        ListResponse response = api.categoriesList();
+
+        Assert.assertEquals(1, response.getDocCount());
+        Assert.assertEquals(2, response.getDoc(0).getChildCount());
+        Assert.assertTrue(response.getDoc(0).getChild(1).getChildCount() > 1);
+
+        Assert.assertEquals("Games", response.getDoc(0).getChild(1).getChild(14).getTitle());
+        Assert.assertTrue(response.getDoc(0).getChild(1).getChild(14).hasUnknownCategoryContainer());
+        Assert.assertTrue(response.getDoc(0).getChild(1).getChild(14).getUnknownCategoryContainer().hasCategoryIdContainer());
+        Assert.assertTrue(response.getDoc(0).getChild(1).getChild(14).getUnknownCategoryContainer().getCategoryIdContainer().hasCategoryId());
+        Assert.assertEquals("GAME", response.getDoc(0).getChild(1).getChild(14).getUnknownCategoryContainer().getCategoryIdContainer().getCategoryId());
+        Assert.assertEquals(1, response.getDoc(0).getChild(1).getChild(14).getImageCount());
+        Assert.assertEquals(5, response.getDoc(0).getChild(1).getChild(14).getImage(0).getImageType());
+        Assert.assertEquals("https://lh3.ggpht.com/9B4h3oV3V976QI22pHX5CAZmpOjhtjxmJ85x234iVasadqm_lQjL4rebkIoHpDvv_qM09sXlH9UVyHvhmQ", response.getDoc(0).getChild(1).getChild(14).getImage(0).getImageUrl());
+        Assert.assertEquals("#FF0F9D58", response.getDoc(0).getChild(1).getChild(14).getImage(0).getColor());
+
+        List<Request> requests = ((MockOkHttpClientAdapter) api.getClient()).getRequests();
+        Assert.assertEquals(1, requests.size());
+        Request request = requests.get(0);
+        Assert.assertEquals(2, request.url().pathSegments().size());
+        Assert.assertEquals("fdfe", request.url().pathSegments().get(0));
+        Assert.assertEquals("categoriesList", request.url().pathSegments().get(1));
+        Assert.assertEquals(1, request.url().queryParameterNames().size());
+        Assert.assertEquals("3", request.url().queryParameter("c"));
+    }
+
+    @Test
+    public void categoriesListSub() throws Exception {
+        ListResponse response = api.categoriesList("GAME");
+
+        Assert.assertEquals(1, response.getDocCount());
+        Assert.assertTrue(response.getDoc(0).getChild(0).getChildCount() > 1);
+
+        Assert.assertEquals("Action", response.getDoc(0).getChild(0).getChild(0).getTitle());
+        Assert.assertTrue(response.getDoc(0).getChild(0).getChild(0).hasUnknownCategoryContainer());
+        Assert.assertTrue(response.getDoc(0).getChild(0).getChild(0).getUnknownCategoryContainer().hasCategoryIdContainer());
+        Assert.assertTrue(response.getDoc(0).getChild(0).getChild(0).getUnknownCategoryContainer().getCategoryIdContainer().hasCategoryId());
+        Assert.assertEquals("GAME_ACTION", response.getDoc(0).getChild(0).getChild(0).getUnknownCategoryContainer().getCategoryIdContainer().getCategoryId());
+        Assert.assertEquals(1, response.getDoc(0).getChild(0).getChild(0).getImageCount());
+        Assert.assertEquals(5, response.getDoc(0).getChild(0).getChild(0).getImage(0).getImageType());
+        Assert.assertEquals("https://lh3.ggpht.com/nBolgfacOtUEgcD-SpE-Y_knIh0lTtZZzqrMNRFkWgly2SFaTdBBJRq7e_7AwaKOrb5_IVMb2JAv-mJLbg", response.getDoc(0).getChild(0).getChild(0).getImage(0).getImageUrl());
+        Assert.assertEquals("#FF0A6D3D", response.getDoc(0).getChild(0).getChild(0).getImage(0).getColor());
+
+        List<Request> requests = ((MockOkHttpClientAdapter) api.getClient()).getRequests();
+        Assert.assertEquals(1, requests.size());
+        Request request = requests.get(0);
+        Assert.assertEquals(2, request.url().pathSegments().size());
+        Assert.assertEquals("fdfe", request.url().pathSegments().get(0));
+        Assert.assertEquals("categoriesList", request.url().pathSegments().get(1));
+        Assert.assertEquals(2, request.url().queryParameterNames().size());
+        Assert.assertEquals("3", request.url().queryParameter("c"));
+        Assert.assertEquals("GAME", request.url().queryParameter("cat"));
+    }
+
+    @Test
     public void testingProgram() throws Exception {
         TestingProgramResponse response = api.testingProgram("com.paget96.lspeed", true);
         Assert.assertTrue(response.hasResult());

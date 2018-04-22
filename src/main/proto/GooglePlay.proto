@@ -676,6 +676,7 @@ message DocV2 {
   optional string purchaseDetailsUrl = 20;
   optional bool detailsReusable = 21;
   optional string subtitle = 22;
+  optional UnknownCategoryContainer unknownCategoryContainer = 24;
   optional Unknown25 unknown25 = 25;
   optional string descriptionShort = 27;
 }
@@ -701,6 +702,7 @@ message RelatedLinksUnknown1 {
   optional RelatedLinksUnknown2 unknown2 = 2;
 }
 message RelatedLinksUnknown2 {
+  optional string homeUrl = 2;
   optional string nextPageUrl = 3;
 }
 message Rated {

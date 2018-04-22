@@ -47,6 +47,7 @@ public class GooglePlayAPI {
     private static final String UPLOADDEVICECONFIG_URL = FDFE_URL + "uploadDeviceConfig";
     private static final String RECOMMENDATIONS_URL = FDFE_URL + "rec";
     private static final String CATEGORIES_URL = FDFE_URL + "categories";
+    private static final String CATEGORIES_LIST_URL = FDFE_URL + "categoriesList";
     private static final String TESTING_PROGRAM_URL = FDFE_URL + "apps/testingProgram";
     private static final String LOG_URL = FDFE_URL + "log";
     private static final String API_FDFE_URL = FDFE_URL + "api/";
@@ -597,6 +598,13 @@ public class GooglePlayAPI {
     }
 
     /**
+     * This seems to be the default since 04.2017
+     */
+    public ListResponse categoriesList() throws IOException {
+        return categoriesList(null);
+    }
+
+    /**
      * Fetches sub categories of the given category
      */
     public BrowseResponse categories(String category) throws IOException {
@@ -607,6 +615,19 @@ public class GooglePlayAPI {
         }
         byte[] responseBytes = client.get(CATEGORIES_URL, params, getDefaultHeaders());
         return ResponseWrapper.parseFrom(responseBytes).getPayload().getBrowseResponse();
+    }
+
+    /**
+     * This seems to be the default since 04.2017
+     */
+    public ListResponse categoriesList(String category) throws IOException {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("c", "3");
+        if (null != category && category.length() > 0) {
+            params.put("cat", category);
+        }
+        byte[] responseBytes = client.get(CATEGORIES_LIST_URL, params, getDefaultHeaders());
+        return ResponseWrapper.parseFrom(responseBytes).getPayload().getListResponse();
     }
 
     /**
