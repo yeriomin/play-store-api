@@ -660,6 +660,64 @@ public class GooglePlayAPITest {
         Assert.assertEquals("https://lh5.googleusercontent.com/-NxRLoKjJ7LM/AAAAAAAAAAI/AAAAAAAAAAA/AGi4gfwqBhB2A69d0pMdvrYAhASD_01wVA/photo.jpg", response.getUserProfile().getImage(0).getImageUrl());
     }
 
+    @Test
+    public void wishlist() throws Exception {
+        api.addWishlistApp("com.whatsapp");
+        api.addWishlistApp("com.instagram.android");
+        ListResponse response = api.getWishlistApps();
+        api.removeWishlistApp("com.whatsapp");
+
+        Assert.assertEquals(1, response.getDocCount());
+        Assert.assertTrue(response.getDoc(0).getChild(0).getChildCount() > 1);
+
+        DocV2 details1 = response.getDoc(0).getChild(0).getChild(0);
+        Assert.assertEquals("WhatsApp Messenger", details1.getTitle());
+        DocV2 details2 = response.getDoc(0).getChild(0).getChild(1);
+        Assert.assertEquals("Instagram", details2.getTitle());
+
+        List<Request> requests = ((MockOkHttpClientAdapter) api.getClient()).getRequests();
+        Assert.assertEquals(4, requests.size());
+
+        Request request1 = requests.get(0);
+        Assert.assertEquals("POST", request1.method());
+        Assert.assertEquals(2, request1.url().pathSegments().size());
+        Assert.assertEquals("fdfe", request1.url().pathSegments().get(0));
+        Assert.assertEquals("modifyLibrary", request1.url().pathSegments().get(1));
+        ModifyLibraryRequest modifyLibraryRequest1 = ModifyLibraryRequest.parseFrom(MockOkHttpClientAdapter.getBodyBytes(request1));
+        Assert.assertEquals(1, modifyLibraryRequest1.getAddPackageNameCount());
+        Assert.assertEquals("com.whatsapp", modifyLibraryRequest1.getAddPackageName(0));
+        Assert.assertEquals("u-wl", modifyLibraryRequest1.getLibraryId());
+
+        Request request2 = requests.get(1);
+        Assert.assertEquals("POST", request2.method());
+        Assert.assertEquals(2, request2.url().pathSegments().size());
+        Assert.assertEquals("fdfe", request2.url().pathSegments().get(0));
+        Assert.assertEquals("modifyLibrary", request2.url().pathSegments().get(1));
+        ModifyLibraryRequest modifyLibraryRequest2 = ModifyLibraryRequest.parseFrom(MockOkHttpClientAdapter.getBodyBytes(request2));
+        Assert.assertEquals(1, modifyLibraryRequest2.getAddPackageNameCount());
+        Assert.assertEquals("com.instagram.android", modifyLibraryRequest2.getAddPackageName(0));
+        Assert.assertEquals("u-wl", modifyLibraryRequest2.getLibraryId());
+
+        Request request3 = requests.get(2);
+        Assert.assertEquals("GET", request3.method());
+        Assert.assertEquals(2, request3.url().pathSegments().size());
+        Assert.assertEquals("fdfe", request3.url().pathSegments().get(0));
+        Assert.assertEquals("library", request3.url().pathSegments().get(1));
+        Assert.assertEquals("0", request3.url().queryParameter("c"));
+        Assert.assertEquals("7", request3.url().queryParameter("dl"));
+        Assert.assertEquals("u-wl", request3.url().queryParameter("libid"));
+
+        Request request4 = requests.get(3);
+        Assert.assertEquals("POST", request4.method());
+        Assert.assertEquals(2, request4.url().pathSegments().size());
+        Assert.assertEquals("fdfe", request4.url().pathSegments().get(0));
+        Assert.assertEquals("modifyLibrary", request4.url().pathSegments().get(1));
+        ModifyLibraryRequest modifyLibraryRequest3 = ModifyLibraryRequest.parseFrom(MockOkHttpClientAdapter.getBodyBytes(request4));
+        Assert.assertEquals(1, modifyLibraryRequest3.getRemovePackageNameCount());
+        Assert.assertEquals("com.whatsapp", modifyLibraryRequest3.getRemovePackageName(0));
+        Assert.assertEquals("u-wl", modifyLibraryRequest3.getLibraryId());
+    }
+
     private GooglePlayAPI initApi() {
         Properties properties = new Properties();
         try {

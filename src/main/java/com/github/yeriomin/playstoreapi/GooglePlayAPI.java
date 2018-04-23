@@ -50,6 +50,8 @@ public class GooglePlayAPI {
     private static final String CATEGORIES_LIST_URL = FDFE_URL + "categoriesList";
     private static final String TESTING_PROGRAM_URL = FDFE_URL + "apps/testingProgram";
     private static final String LOG_URL = FDFE_URL + "log";
+    private static final String LIBRARY_URL = FDFE_URL + "library";
+    private static final String MODIFY_LIBRARY_URL = FDFE_URL + "modifyLibrary";
     private static final String API_FDFE_URL = FDFE_URL + "api/";
     private static final String USER_PROFILE_URL = API_FDFE_URL + "userProfile";
 
@@ -122,6 +124,16 @@ public class GooglePlayAPI {
         public String value;
 
         SUBCATEGORY(String value) {
+            this.value = value;
+        }
+    }
+
+    public enum LIBRARY_ID {
+        WISHLIST("u-wl");
+
+        public String value;
+
+        LIBRARY_ID(String value) {
             this.value = value;
         }
     }
@@ -703,6 +715,47 @@ public class GooglePlayAPI {
         return ResponseWrapperApi.parseFrom(
                 client.get(USER_PROFILE_URL, new HashMap<String, String>(), getDefaultHeaders())
         ).getPayload().getUserProfileResponse();
+    }
+
+    public void addLibraryApp(LIBRARY_ID libraryId, String packageName) throws IOException {
+        ModifyLibraryRequest request = ModifyLibraryRequest.newBuilder()
+            .addAddPackageName(packageName)
+            .setLibraryId(libraryId.value)
+            .build()
+        ;
+        client.post(MODIFY_LIBRARY_URL, request.toByteArray(), getDefaultHeaders());
+    }
+
+    public void addWishlistApp(String packageName) throws IOException {
+        addLibraryApp(LIBRARY_ID.WISHLIST, packageName);
+    }
+
+    public void removeLibraryApp(LIBRARY_ID libraryId, String packageName) throws IOException {
+        ModifyLibraryRequest request = ModifyLibraryRequest.newBuilder()
+            .addRemovePackageName(packageName)
+            .setLibraryId(libraryId.value)
+            .build()
+        ;
+        client.post(MODIFY_LIBRARY_URL, request.toByteArray(), getDefaultHeaders());
+    }
+
+    public void removeWishlistApp(String packageName) throws IOException {
+        removeLibraryApp(LIBRARY_ID.WISHLIST, packageName);
+    }
+
+    public ListResponse getLibraryApps(LIBRARY_ID libraryId) throws IOException {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("c", "0");
+        params.put("dl", "7"); // magic
+        if (null != libraryId) {
+            params.put("libid", libraryId.value);
+        }
+        byte[] responseBytes = client.get(LIBRARY_URL, params, getDefaultHeaders());
+        return ResponseWrapper.parseFrom(responseBytes).getPayload().getListResponse();
+    }
+
+    public ListResponse getWishlistApps() throws IOException {
+        return getLibraryApps(LIBRARY_ID.WISHLIST);
     }
 
     /**

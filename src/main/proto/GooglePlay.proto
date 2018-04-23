@@ -1240,3 +1240,8 @@ message StatCounters {
 message UsageStatsExtensionProto {
   optional AndroidDataUsageProto dataUsage = 1;
 }
+message ModifyLibraryRequest {
+  optional string libraryId = 1;
+  repeated string addPackageName = 2;
+  repeated string removePackageName = 3;
+}
