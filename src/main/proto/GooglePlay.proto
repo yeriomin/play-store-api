@@ -359,6 +359,8 @@ message DetailsResponse {
   optional string footerHtml = 5;
   repeated Badge badge = 7;
   optional Features features = 12;
+  optional string detailsStreamUrl = 13;
+  optional string postAcquireDetailsStreamUrl = 17;
 }
 message Badge {
   optional string label = 1;
@@ -376,11 +378,12 @@ message BadgeLinkContainer {
   optional string link = 2;
 }
 message Features {
-  repeated Feature feature = 1;
+  repeated Feature featurePresence = 1;
+  repeated Feature featureRating = 2;
 }
 message Feature {
   optional string label = 1;
-  optional string percent = 3;
+  optional string value = 3;
 }
 message DeviceConfigurationProto {
   optional int32 touchScreen = 1;
@@ -683,6 +686,8 @@ message DocV2 {
   optional UnknownCategoryContainer unknownCategoryContainer = 24;
   optional Unknown25 unknown25 = 25;
   optional string descriptionShort = 27;
+  optional string reviewSnippetsUrl = 31;
+  optional string reviewQuestionsUrl = 34;
 }
 message Unknown25 {
   repeated Unknown25Item item = 2;
