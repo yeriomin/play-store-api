@@ -77,7 +77,7 @@ public class GooglePlayAPI {
     public enum PATCH_FORMAT {
         GDIFF(1),
         GZIPPED_GDIFF(2),
-        UNKNOWN_3(3),
+        GZIPPED_BSDIFF(3),
         UNKNOWN_4(4),
         UNKNOWN_5(5);
 
@@ -493,6 +493,48 @@ public class GooglePlayAPI {
             params.put("dtok", downloadToken);
         }
         byte[] responseBytes = client.get(DELIVERY_URL, params, getDefaultHeaders());
+        return ResponseWrapper.parseFrom(responseBytes).getPayload().getDeliveryResponse();
+    }
+
+    /**
+     * Multiple patch formats are supported at the same time
+     *
+     * @param packageName
+     * @param installedVersionCode
+     * @param updateVersionCode
+     * @param offerType
+     * @return
+     * @throws IOException
+     */
+    public DeliveryResponse delivery(String packageName, int installedVersionCode, int updateVersionCode, int offerType) throws IOException {
+        return delivery(packageName, installedVersionCode, updateVersionCode, offerType, new PATCH_FORMAT[] {PATCH_FORMAT.GDIFF, PATCH_FORMAT.GZIPPED_GDIFF, PATCH_FORMAT.GZIPPED_BSDIFF}, "");
+    }
+
+    public DeliveryResponse delivery(String packageName, int installedVersionCode, int updateVersionCode, int offerType, String downloadToken) throws IOException {
+        return delivery(packageName, installedVersionCode, updateVersionCode, offerType, new PATCH_FORMAT[] {PATCH_FORMAT.GDIFF, PATCH_FORMAT.GZIPPED_GDIFF, PATCH_FORMAT.GZIPPED_BSDIFF}, downloadToken);
+    }
+
+    public DeliveryResponse delivery(String packageName, int installedVersionCode, int updateVersionCode, int offerType, PATCH_FORMAT[] patchFormats) throws IOException {
+        return delivery(packageName, installedVersionCode, updateVersionCode, offerType, patchFormats, "");
+    }
+
+    public DeliveryResponse delivery(String packageName, int installedVersionCode, int updateVersionCode, int offerType, PATCH_FORMAT[] patchFormats, String downloadToken) throws IOException {
+        Map<String, List<String>> params = new HashMap<String, List<String>>();
+        params.put("ot", Collections.singletonList(String.valueOf(offerType)));
+        params.put("doc", Collections.singletonList(packageName));
+        params.put("vc", Collections.singletonList(String.valueOf(updateVersionCode)));
+        if (installedVersionCode > 0) {
+            params.put("bvc", Collections.singletonList(String.valueOf(installedVersionCode)));
+            List<String> formatStrings = new ArrayList<String>();
+            for (PATCH_FORMAT format: patchFormats) {
+                formatStrings.add(Integer.toString(format.value));
+            }
+            params.put("pf", formatStrings);
+        }
+        if (null != downloadToken && downloadToken.length() > 0) {
+            params.put("dtok", Collections.singletonList(downloadToken));
+        }
+        byte[] responseBytes = client.getEx(DELIVERY_URL, params, getDefaultHeaders());
         return ResponseWrapper.parseFrom(responseBytes).getPayload().getDeliveryResponse();
     }
 
