@@ -1257,3 +1257,16 @@ message ModifyLibraryRequest {
   repeated string addPackageName = 2;
   repeated string removePackageName = 3;
 }
+message UrlRequestWrapper {
+  optional DeveloperAppsRequest developerAppsRequest = 49;
+}
+message DeveloperAppsRequest {
+  optional DeveloperIdContainer developerIdContainer1 = 1;
+  optional DeveloperIdContainer developerIdContainer2 = 2;
+  optional int32 unknownInt3 = 3;
+}
+message DeveloperIdContainer {
+  optional string developerId = 1;
+  optional int32 unknownInt2 = 2;
+  optional int32 unknownInt3 = 3;
+}
