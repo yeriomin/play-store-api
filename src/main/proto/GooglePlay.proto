@@ -360,6 +360,7 @@ message DetailsResponse {
   repeated Badge badge = 7;
   optional Features features = 12;
   optional string detailsStreamUrl = 13;
+  optional string userReviewUrl = 14;
   optional string postAcquireDetailsStreamUrl = 17;
 }
 message Badge {
