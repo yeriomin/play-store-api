@@ -43,6 +43,7 @@ public class GooglePlayAPI {
     private static final String REVIEWS_URL = FDFE_URL + "rev";
     private static final String ADD_REVIEW_URL = FDFE_URL + "addReview";
     private static final String DELETE_REVIEW_URL = FDFE_URL + "deleteReview";
+    private static final String USER_REVIEW_URL = FDFE_URL + "userReview";
     private static final String ABUSE_URL = FDFE_URL + "flagContent";
     private static final String UPLOADDEVICECONFIG_URL = FDFE_URL + "uploadDeviceConfig";
     private static final String RECOMMENDATIONS_URL = FDFE_URL + "rec";
@@ -589,6 +590,26 @@ public class GooglePlayAPI {
 
     public ReviewResponse addOrEditReview(String packageName, String comment, String title, int stars) throws IOException {
         return addOrEditReview(packageName, comment, title, stars, false);
+    }
+
+    /**
+     * Returns the review which current user has left for given app
+     *
+     * @param packageName
+     * @param testing
+     * @return
+     * @throws IOException
+     */
+    public ReviewResponse getReview(String packageName, boolean testing) throws IOException {
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("doc", packageName);
+        params.put("itpr", testing ? "true" : "false"); // True for beta feedback, false for ordinary reviews
+        byte[] responseBytes = client.get(USER_REVIEW_URL, params, getDefaultHeaders());
+        return ResponseWrapper.parseFrom(responseBytes).getPayload().getReviewResponse();
+    }
+
+    public ReviewResponse getReview(String packageName) throws IOException {
+        return getReview(packageName, false);
     }
 
     public ReviewResponse betaFeedback(String packageName, String comment) throws IOException {

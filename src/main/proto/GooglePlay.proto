@@ -1010,7 +1010,7 @@ message Review {
 }
 message Author {
   optional string name = 2;
-  optional Avatar urls = 5;
+  optional Image avatar = 5;
 }
 message Author2 {
   optional string personIdString = 1;
@@ -1018,16 +1018,9 @@ message Author2 {
   optional int32 unknown1 = 3;
   optional int32 unknown2 = 4;
   optional string name = 5;
-  optional Avatar urls = 10;
+  optional Image avatar = 10;
   optional string googlePlusUrl = 19;
   optional string googlePlusTagline = 22;
-}
-message Avatar {
-  optional int32 unknown1 = 1;
-  optional string url = 5;
-  optional string secureUrl = 7;
-  optional bool unknown2 = 9;
-  optional bool unknown3 = 22;
 }
 message ReviewResponse {
   optional GetReviewsResponse getResponse = 1;
