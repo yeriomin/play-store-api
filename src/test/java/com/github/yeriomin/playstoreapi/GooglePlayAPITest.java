@@ -442,10 +442,10 @@ public class GooglePlayAPITest {
         Assert.assertEquals(1, response.getGetResponse().getReviewCount());
         Assert.assertEquals(4, response.getGetResponse().getReview(0).getStarRating());
         Assert.assertEquals("Good", response.getGetResponse().getReview(0).getComment());
-        Assert.assertEquals("Yalp Store", response.getGetResponse().getReview(0).getAuthor2().getName());
-        Assert.assertEquals("https://lh5.googleusercontent.com/-O1xATtrLivM/AAAAAAAAAAI/AAAAAAAAAAA/AAnnY7pEJJJVH9ZwCTIz_Ve-QLleM9qn7A/photo.jpg", response.getGetResponse().getReview(0).getAuthor2().getAvatar().getImageUrl());
-        Assert.assertEquals("117839429276925272251", response.getGetResponse().getReview(0).getAuthor2().getPersonId());
-        Assert.assertEquals("person-117839429276925272251", response.getGetResponse().getReview(0).getAuthor2().getPersonIdString());
+        Assert.assertEquals("Yalp Store", response.getGetResponse().getReview(0).getUserProfile().getName());
+        Assert.assertEquals("https://lh5.googleusercontent.com/-O1xATtrLivM/AAAAAAAAAAI/AAAAAAAAAAA/AAnnY7pEJJJVH9ZwCTIz_Ve-QLleM9qn7A/photo.jpg", response.getGetResponse().getReview(0).getUserProfile().getImage(0).getImageUrl());
+        Assert.assertEquals("117839429276925272251", response.getGetResponse().getReview(0).getUserProfile().getPersonId());
+        Assert.assertEquals("person-117839429276925272251", response.getGetResponse().getReview(0).getUserProfile().getPersonIdString());
 
         List<Request> requests = ((MockOkHttpClientAdapter) api.getClient()).getRequests();
         Assert.assertEquals(1, requests.size());
@@ -464,11 +464,11 @@ public class GooglePlayAPITest {
         Assert.assertTrue(response.getGetResponse().getReviewCount() > 0);
         Assert.assertEquals(5, response.getGetResponse().getReview(0).getStarRating());
         Assert.assertEquals("It is awesome app I install and it work success fully", response.getGetResponse().getReview(1).getComment());
-        Assert.assertEquals("Nitesh Kumar", response.getGetResponse().getReview(0).getAuthor2().getName());
-        Assert.assertEquals("https://plus.google.com/+NiteshKumar", response.getGetResponse().getReview(0).getAuthor2().getGooglePlusUrl());
-        Assert.assertEquals("https://lh3.googleusercontent.com/-t-T8LKa60Fc/AAAAAAAAAAI/AAAAAAAAStk/wS6mDBhiWQA/photo.jpg", response.getGetResponse().getReview(0).getAuthor2().getAvatar().getImageUrl());
-        Assert.assertEquals("104245217570938637686", response.getGetResponse().getReview(0).getAuthor2().getPersonId());
-        Assert.assertEquals("person-104245217570938637686", response.getGetResponse().getReview(0).getAuthor2().getPersonIdString());
+        Assert.assertEquals("Nitesh Kumar", response.getGetResponse().getReview(0).getUserProfile().getName());
+        Assert.assertEquals("https://plus.google.com/+NiteshKumar", response.getGetResponse().getReview(0).getUserProfile().getGooglePlusUrl());
+        Assert.assertEquals("https://lh3.googleusercontent.com/-t-T8LKa60Fc/AAAAAAAAAAI/AAAAAAAAStk/wS6mDBhiWQA/photo.jpg", response.getGetResponse().getReview(0).getUserProfile().getImage(0).getImageUrl());
+        Assert.assertEquals("104245217570938637686", response.getGetResponse().getReview(0).getUserProfile().getPersonId());
+        Assert.assertEquals("person-104245217570938637686", response.getGetResponse().getReview(0).getUserProfile().getPersonIdString());
 
         List<Request> requests = ((MockOkHttpClientAdapter) api.getClient()).getRequests();
         Assert.assertEquals(1, requests.size());
@@ -490,11 +490,11 @@ public class GooglePlayAPITest {
         Assert.assertTrue(response.hasUserReview());
         Assert.assertEquals(5, response.getUserReview().getStarRating());
         Assert.assertEquals("Работает!", response.getUserReview().getComment());
-        Assert.assertEquals("konstantin razdolbaev", response.getUserReview().getAuthor2().getName());
-        Assert.assertEquals("", response.getUserReview().getAuthor2().getGooglePlusUrl());
-        Assert.assertEquals("https://lh3.googleusercontent.com/-PkFVwXLKCKk/AAAAAAAAAAI/AAAAAAAAAAA/AKB_U8valX_uc0SKPSZEhVtxDUqYtRwIgQ/photo.jpg", response.getUserReview().getAuthor2().getAvatar().getImageUrl());
-        Assert.assertEquals("100687909122075437983", response.getUserReview().getAuthor2().getPersonId());
-        Assert.assertEquals("person-100687909122075437983", response.getUserReview().getAuthor2().getPersonIdString());
+        Assert.assertEquals("konstantin razdolbaev", response.getUserReview().getUserProfile().getName());
+        Assert.assertEquals("", response.getUserReview().getUserProfile().getGooglePlusUrl());
+        Assert.assertEquals("https://lh3.googleusercontent.com/-PkFVwXLKCKk/AAAAAAAAAAI/AAAAAAAAAAA/AKB_U8valX_uc0SKPSZEhVtxDUqYtRwIgQ/photo.jpg", response.getUserReview().getUserProfile().getImage(0).getImageUrl());
+        Assert.assertEquals("100687909122075437983", response.getUserReview().getUserProfile().getPersonId());
+        Assert.assertEquals("person-100687909122075437983", response.getUserReview().getUserProfile().getPersonIdString());
 
         List<Request> requests = ((MockOkHttpClientAdapter) api.getClient()).getRequests();
         Assert.assertEquals(1, requests.size());
@@ -677,8 +677,7 @@ public class GooglePlayAPITest {
     public void userProfile() throws Exception {
         UserProfileResponse response = api.userProfile();
         Assert.assertTrue(response.hasUserProfile());
-        Assert.assertEquals("115275627922389268197", response.getUserProfile().getUserId());
-        Assert.assertEquals(2, response.getUserProfile().getImageCount());
+        Assert.assertEquals("115275627922389268197", response.getUserProfile().getPersonId());
         Assert.assertEquals(4, response.getUserProfile().getImage(0).getImageType());
         Assert.assertEquals("https://lh5.googleusercontent.com/-NxRLoKjJ7LM/AAAAAAAAAAI/AAAAAAAAAAA/AGi4gfwqBhB2A69d0pMdvrYAhASD_01wVA/photo.jpg", response.getUserProfile().getImage(0).getImageUrl());
     }
