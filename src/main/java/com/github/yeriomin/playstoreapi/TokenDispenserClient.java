@@ -60,6 +60,8 @@ public class TokenDispenserClient {
                     throw new TokenDispenserException("Token dispenser returned an auth error for " + url);
                 case 404:
                     throw new TokenDispenserException("Token dispenser has no password for " + url);
+                case 429:
+                    throw new TokenDispenserException("You are making too many requests - try later");
                 default:
                     throw new TokenDispenserException("Token dispenser error " + e.getCode() + " " + e.getMessage());
             }
