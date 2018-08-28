@@ -100,17 +100,19 @@ class OkHttpClientAdapter extends HttpClientAdapter {
         int code = response.code();
         byte[] content = response.body().bytes();
 
-        if (code == 401 || code == 403) {
-            AuthException e = new AuthException("Auth error", code);
-            Map<String, String> authResponse = GooglePlayAPI.parseResponse(new String(content));
-            if (authResponse.containsKey("Error") && authResponse.get("Error").equals("NeedsBrowser")) {
-                e.setTwoFactorUrl(authResponse.get("Url"));
+        if (code >= 400) {
+            GooglePlayException e = new GooglePlayException("Malformed request", code);
+            if (code == 401 || code == 403) {
+                e = new AuthException("Auth error", code);
+                Map<String, String> authResponse = GooglePlayAPI.parseResponse(new String(content));
+                if (authResponse.containsKey("Error") && authResponse.get("Error").equals("NeedsBrowser")) {
+                    ((AuthException) e).setTwoFactorUrl(authResponse.get("Url"));
+                }
+            } else if (code >= 500) {
+                e = new GooglePlayException("Server error", code);
             }
+            e.setRawResponse(content);
             throw e;
-        } else if (code >= 500) {
-            throw new GooglePlayException("Server error", code);
-        } else if (code >= 400) {
-            throw new GooglePlayException("Malformed request", code);
         }
 
         return content;

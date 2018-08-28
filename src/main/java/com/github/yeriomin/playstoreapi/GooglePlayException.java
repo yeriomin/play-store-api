@@ -5,6 +5,7 @@ import java.io.IOException;
 public class GooglePlayException extends IOException {
 
     protected int code;
+    protected byte[] rawResponse;
 
     public GooglePlayException(String message) {
         super(message);
@@ -26,5 +27,13 @@ public class GooglePlayException extends IOException {
 
     public int getCode() {
         return this.code;
+    }
+
+    public byte[] getRawResponse() {
+        return rawResponse;
+    }
+
+    public void setRawResponse(byte[] rawResponse) {
+        this.rawResponse = rawResponse;
     }
 }
