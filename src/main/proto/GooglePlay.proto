@@ -2,9 +2,10 @@ syntax = "proto2";
 option java_package = "com.github.yeriomin.playstoreapi";
 option java_multiple_files = true;
 
+// Both sha1 and sha256 are encoded with base64 with URL and Filename Safe Alphabet with padding removed
 message AndroidAppDeliveryData {
   optional int64 downloadSize = 1;
-  optional string signature = 2;
+  optional string sha1 = 2;
   optional string downloadUrl = 3;
   repeated AppFileMetadata additionalFile = 4;
   repeated HttpCookie downloadAuthCookie = 5;
@@ -15,11 +16,13 @@ message AndroidAppDeliveryData {
   optional bool immediateStartNeeded = 10;
   optional AndroidAppPatchData patchData = 11;
   optional EncryptionParams encryptionParams = 12;
+  optional string downloadUrlGzipped = 13;
+  optional int64 downloadSizeGzipped = 14;
   optional string sha256 = 19;
 }
 message AndroidAppPatchData {
   optional int32 baseVersionCode = 1;
-  optional string baseSignature = 2;
+  optional string baseSha1 = 2;
   optional string downloadUrl = 3;
   optional int32 patchFormat = 4;
   optional int64 maxPatchSize = 5;
