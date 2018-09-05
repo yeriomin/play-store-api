@@ -15,6 +15,7 @@ message AndroidAppDeliveryData {
   optional bool immediateStartNeeded = 10;
   optional AndroidAppPatchData patchData = 11;
   optional EncryptionParams encryptionParams = 12;
+  optional string sha256 = 19;
 }
 message AndroidAppPatchData {
   optional int32 baseVersionCode = 1;
