@@ -18,7 +18,17 @@ message AndroidAppDeliveryData {
   optional EncryptionParams encryptionParams = 12;
   optional string downloadUrlGzipped = 13;
   optional int64 downloadSizeGzipped = 14;
+  repeated Split split = 15;
   optional string sha256 = 19;
+}
+message Split {
+  optional string name = 1;
+  optional int64 size = 2;
+  optional int64 sizeGzipped = 3;
+  optional string sha1 = 4;
+  optional string downloadUrl = 5;
+  optional string downloadUrlGzipped = 6;
+  optional string sha256 = 9;
 }
 message AndroidAppPatchData {
   optional int32 baseVersionCode = 1;
@@ -32,6 +42,9 @@ message AppFileMetadata {
   optional int32 versionCode = 2;
   optional int64 size = 3;
   optional string downloadUrl = 4;
+  optional int64 sizeGzipped = 6;
+  optional string downloadUrlGzipped = 7;
+  optional string sha1 = 8;
 }
 message EncryptionParams {
   optional int32 version = 1;
